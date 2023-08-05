@@ -1,56 +1,64 @@
+import React, { useEffect } from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
-import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import { ThemeProvider } from 'styled-components/native';
+import { TabBar } from '@/components/tabBar';
 
 export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
+    // Catch any errors thrown by the Layout component.
+    ErrorBoundary,
 } from 'expo-router';
-
-export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
-};
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    ...FontAwesome.font,
-  });
+    const [loaded, error] = useFonts({
+        'Lato-Bold': require('../assets/fonts/Lato-Bold.ttf'),
+        'Lato-Light': require('../assets/fonts/Lato-Light.ttf'),
+        'Lato-Medium': require('../assets/fonts/Lato-Medium.ttf'),
+        'Lato-Regular': require('../assets/fonts/Lato-Regular.ttf'),
+        'Lato-Semibold': require('../assets/fonts/Lato-Semibold.ttf'),
+        ...FontAwesome.font,
+    });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
-  useEffect(() => {
-    if (error) throw error;
-  }, [error]);
+    // Expo Router uses Error Boundaries to catch errors in the navigation tree.
+    useEffect(() => {
+        if (error) throw error;
+    }, [error]);
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+    useEffect(() => {
+        if (loaded) {
+            SplashScreen.hideAsync();
+        }
+    }, [loaded]);
+
+    if (!loaded) {
+        return null;
     }
-  }, [loaded]);
 
-  if (!loaded) {
-    return null;
-  }
+    const defaultTheme = {
+        colors: {
+            grey900: '#212121',
+            grey800: '#424242',
+            grey700: '#616161',
+            grey600: '#757575',
+            grey500: '#9E9E9E',
+            grey400: '#BDBDBD',
+            grey300: '#E0E0E0',
+            grey200: '#EEEEEE',
+            grey100: '#F5F5F5',
+            lightGreen: '8BC34A',
+        },
+    };
 
-  return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
-  );
+    return (
+        <ThemeProvider theme={{ rem: 10, ...defaultTheme }}>
+            <Stack>
+                <Stack.Screen name="profiles" />
+            </Stack>
+            <TabBar />
+        </ThemeProvider>
+    );
 }
