@@ -1,8 +1,9 @@
 import React from 'react';
 import { DefaultCard, DefaultRow, SeparateRow } from '@/components/container/defaultBox';
-import { ButtonTextBold18, Text20, TextSemiBold24 } from '@/components/text/styled';
+import { Text20, TextSemiBold24 } from '@/components/text/styled';
 import { DefaultButton } from '@/components/button/style';
 import { Line } from '@/components/line';
+import { ButtonText } from '@/components/profile/components/style';
 
 export const Description: React.FC = () => {
     return (
@@ -10,7 +11,7 @@ export const Description: React.FC = () => {
             <SeparateRow>
                 <TextSemiBold24>Description</TextSemiBold24>
                 <DefaultButton>
-                    <ButtonTextBold18>Edit</ButtonTextBold18>
+                    <ButtonText>Edit</ButtonText>
                 </DefaultButton>
             </SeparateRow>
             <DefaultRow>

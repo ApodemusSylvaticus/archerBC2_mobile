@@ -1,8 +1,9 @@
 import React from 'react';
 import { ReticleTab } from '@/components/reticleTab';
 import { DefaultCard, SeparateRow } from '@/components/container/defaultBox';
-import { ButtonTextBold18, TextSemiBold24 } from '@/components/text/styled';
+import { TextSemiBold24 } from '@/components/text/styled';
 import { DefaultButton } from '@/components/button/style';
+import { ButtonText } from '@/components/profile/components/style';
 
 export const Reticles: React.FC = () => {
     return (
@@ -10,7 +11,7 @@ export const Reticles: React.FC = () => {
             <SeparateRow>
                 <TextSemiBold24>Reticles</TextSemiBold24>
                 <DefaultButton>
-                    <ButtonTextBold18>Select</ButtonTextBold18>
+                    <ButtonText>Select</ButtonText>
                 </DefaultButton>
             </SeparateRow>
             <ReticleTab isActive name="Reticle1" />

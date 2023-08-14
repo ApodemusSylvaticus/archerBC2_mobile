@@ -1,6 +1,5 @@
 import React from 'react';
-import { ActualLabel, Container, NameBlock, ReticlesMock } from '@/components/reticleTab/style';
-import { TextSemiBold16, TextSemiBold20 } from '@/components/text/styled';
+import { ActualLabel, Container, NameBlock, ReticlesMock, SemiBold16, SemiBold20 } from '@/components/reticleTab/style';
 
 interface IReticleTab {
     isActive: boolean;
@@ -10,10 +9,10 @@ export const ReticleTab: React.FC<IReticleTab> = ({ isActive, name }) => {
     return (
         <Container>
             <NameBlock>
-                <TextSemiBold20>{name}</TextSemiBold20>
+                <SemiBold20>{name}</SemiBold20>
                 {isActive && (
                     <ActualLabel>
-                        <TextSemiBold16>Active</TextSemiBold16>
+                        <SemiBold16>Active</SemiBold16>
                     </ActualLabel>
                 )}
             </NameBlock>

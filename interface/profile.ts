@@ -1,9 +1,5 @@
-export type GType = 'g1' | 'g7' | 'custom';
+export type GType = 'G1' | 'G7' | 'Custom';
 export type TwistDirection = 'right' | 'left';
-
-export interface Distance {
-    distance: number;
-}
 
 export interface Reticle {
     reticleIdx: number;
@@ -12,8 +8,8 @@ export interface Reticle {
 
 export interface SwitchPosition {
     cIdx: number;
-    distance: Distance;
-    distanceFrom: 'index' | 'value';
+    distance: number;
+    distanceFrom: string;
     reticleIdx: number;
     zoom: number;
 }
@@ -34,7 +30,7 @@ export interface Profile {
     userNote: string;
     zeroX: number;
     zeroY: number;
-    distances: Distance[];
+    distances: number[];
     switches: SwitchPosition[];
     scHeight: number;
     rTwist: number;
@@ -55,4 +51,8 @@ export interface Profile {
     coefG1: Coefficient[];
     coefG7: Coefficient[];
     coefCustom: Coefficient[];
+}
+
+export interface ProfileWithId extends Profile {
+    id: string;
 }

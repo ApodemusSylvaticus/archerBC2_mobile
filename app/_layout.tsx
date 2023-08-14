@@ -3,7 +3,9 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
 import { ThemeProvider } from 'styled-components/native';
+import { ClickOutsideProvider } from 'react-native-click-outside';
 import { TabBar } from '@/components/tabBar';
+import { ModalControllerWrapper } from '@/components/modals/modalControllerWrapper';
 
 export {
     // Catch any errors thrown by the Layout component.
@@ -40,25 +42,27 @@ export default function RootLayout() {
 
     const defaultTheme = {
         colors: {
-            grey900: '#212121',
-            grey800: '#424242',
-            grey700: '#616161',
-            grey600: '#757575',
-            grey500: '#9E9E9E',
-            grey400: '#BDBDBD',
-            grey300: '#E0E0E0',
-            grey200: '#EEEEEE',
-            grey100: '#F5F5F5',
-            lightGreen: '8BC34A',
+            appBg: '#212121',
+            cardBg: '#616161',
+            primary: '#E0E0E0',
+            l1ActiveEl: '#757575',
+            l2ActiveEl: '#D9D9D9',
+            activeTab: '#8BC34A',
+            secondary: '#EEEEEE',
+            error: '#B00020',
         },
     };
 
     return (
-        <ThemeProvider theme={{ rem: 10, ...defaultTheme }}>
-            <Stack>
-                <Stack.Screen name="profiles" />
-            </Stack>
-            <TabBar />
-        </ThemeProvider>
+        <ClickOutsideProvider>
+            <ThemeProvider theme={{ rem: 10, ...defaultTheme }}>
+                <ModalControllerWrapper>
+                    <Stack>
+                        <Stack.Screen name="profiles" />
+                    </Stack>
+                    <TabBar />
+                </ModalControllerWrapper>
+            </ThemeProvider>
+        </ClickOutsideProvider>
     );
 }

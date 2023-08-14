@@ -1,45 +1,62 @@
 import React from 'react';
-import { DefaultContainer } from '@/components/container/defaultBox';
-import { ProfileTab, IProfileTab } from '@/components/profile/profileTab';
-import { Profile } from '@/components/profile';
+import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
+import { CreateNewProfileModal } from '@/components/modals/createNewProfile';
+import { useModalControllerStore } from '@/store/useModalControllerStore';
 
-const Profiles: React.FC = () => {
-    const mockData: IProfileTab[] = [
-        {
-            cartridge: 'cartridge name',
-            bullet: 'bullet name',
-            profileName: 'Profile name 1',
+const styles = StyleSheet.create({
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 22,
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
         },
-        {
-            cartridge: 'cartridge name',
-            bullet: 'bullet name',
-            profileName: 'Profile name 2',
-        },
-        {
-            cartridge: 'cartridge name',
-            bullet: 'bullet name',
-            profileName: 'Profile name 3',
-        },
-        {
-            cartridge: 'cartridge name',
-            bullet: 'bullet name',
-            profileName: 'Profile name 4',
-        },
-    ];
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    button: {
+        borderRadius: 20,
+        padding: 10,
+        elevation: 2,
+    },
+    buttonOpen: {
+        backgroundColor: '#F194FF',
+    },
+    buttonClose: {
+        backgroundColor: '#2196F3',
+    },
+    textStyle: {
+        color: 'white',
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: 'center',
+    },
+});
 
+const CurrProfile: React.FC = () => {
+    const openNewProfileModal = useModalControllerStore(state => state.openNewProfileModal);
     return (
-        <DefaultContainer>
-            {mockData.map(el => (
-                <ProfileTab
-                    bullet={el.bullet}
-                    profileName={el.profileName}
-                    cartridge={el.cartridge}
-                    key={el.profileName}
-                />
-            ))}
-            <Profile />
-        </DefaultContainer>
+        <ScrollView style={{ backgroundColor: 'black' }}>
+            <CreateNewProfileModal />
+            <Pressable style={[styles.button, styles.buttonOpen]} onPress={openNewProfileModal}>
+                <Text style={styles.textStyle}>Show Modal</Text>
+            </Pressable>
+        </ScrollView>
     );
 };
 
-export default Profiles;
+export default CurrProfile;
