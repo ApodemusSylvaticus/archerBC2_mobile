@@ -7,6 +7,7 @@ import { ClickOutsideProvider } from 'react-native-click-outside';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { TabBar } from '@/components/tabBar';
 import { ModalControllerWrapper } from '@/components/modals/modalControllerWrapper';
+import { useProfileStore } from '@/store/useProfileStore';
 
 export {
     // Catch any errors thrown by the Layout component.
@@ -17,6 +18,7 @@ export {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+    const getProfileFromStore = useProfileStore(state => state.getProfileFromStore);
     const [loaded, error] = useFonts({
         'Lato-Bold': require('../assets/fonts/Lato-Bold.ttf'),
         'Lato-Light': require('../assets/fonts/Lato-Light.ttf'),
@@ -25,6 +27,10 @@ export default function RootLayout() {
         'Lato-Semibold': require('../assets/fonts/Lato-Semibold.ttf'),
         ...FontAwesome.font,
     });
+
+    useEffect(() => {
+        getProfileFromStore().catch(console.log);
+    }, [getProfileFromStore]);
 
     // Expo Router uses Error Boundaries to catch errors in the navigation tree.
     useEffect(() => {
