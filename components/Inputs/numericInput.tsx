@@ -72,13 +72,13 @@ export const NumericInput: React.FC<NumericInputProps> = ({
                     keyboardType="numeric"
                     onChangeText={handleOnChangeText}
                 />
-                {uint && (
+                {!!uint && (
                     <InputUnit>
                         <UintText>{uint}</UintText>
                     </InputUnit>
                 )}
             </InputWrapper>
-            {((touched && error) || handleError) && <InputError>{error || handleError}</InputError>}
+            {((touched && !!error) || !!handleError) && <InputError>{error || handleError}</InputError>}
         </Container>
     );
 };

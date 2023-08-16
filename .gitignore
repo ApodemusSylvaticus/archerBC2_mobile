@@ -9,6 +9,7 @@ dist/
 web-build/
 .idea
 %ProgramData%/
+.vercel
 
 # Native
 *.orig.*
