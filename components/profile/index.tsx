@@ -7,10 +7,10 @@ import { Reticles } from '@/components/profile/components/reticles';
 export const Profile: React.FC = () => {
     return (
         <>
-            <Description />
             <Rifle />
             <Bullet />
             <Reticles />
+            <Description />
         </>
     );
 };

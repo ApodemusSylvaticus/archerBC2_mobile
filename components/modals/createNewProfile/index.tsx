@@ -34,6 +34,7 @@ export const CreateNewProfileModal: React.FC = () => {
             const profile = convertProfile();
             calculateProfileHash(profile);
             addNewProfile({ ...profile, id: calculateProfileHash(profile) });
+            console.log('newProfile', { ...profile, id: calculateProfileHash(profile) });
             closeNewProfileModal();
             reset();
 

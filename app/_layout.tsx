@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
-import { SplashScreen, Stack } from 'expo-router';
+import { Slot, SplashScreen } from 'expo-router';
 import { ThemeProvider } from 'styled-components/native';
 import { ClickOutsideProvider } from 'react-native-click-outside';
+import { View } from 'react-native';
 import { TabBar } from '@/components/tabBar';
 import { ModalControllerWrapper } from '@/components/modals/modalControllerWrapper';
 
@@ -37,7 +38,7 @@ export default function RootLayout() {
     }, [loaded]);
 
     if (!loaded) {
-        return null;
+        return <Slot />;
     }
 
     const defaultTheme = {
@@ -57,9 +58,8 @@ export default function RootLayout() {
         <ClickOutsideProvider>
             <ThemeProvider theme={{ rem: 10, ...defaultTheme }}>
                 <ModalControllerWrapper>
-                    <Stack>
-                        <Stack.Screen name="profiles" />
-                    </Stack>
+                    <View style={{ height: 50 }} />
+                    <Slot />
                     <TabBar />
                 </ModalControllerWrapper>
             </ThemeProvider>

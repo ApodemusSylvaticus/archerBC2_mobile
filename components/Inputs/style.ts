@@ -1,10 +1,23 @@
 import styled from 'styled-components/native';
 import { rem } from '@/helpers/rem';
+import { TextBold16 } from '@/components/text/styled';
+
+export const Container = styled.View`
+    display: flex;
+    width: 100%;
+    gap: ${props => rem(props, 0.4)};
+`;
 
 export const InputWrapper = styled.View`
-    width: 100%;
+    flex-grow: 1;
     position: relative;
-    gap: ${props => rem(props, 0.4)};
+    border: 1px solid ${props => props.theme.colors.secondary};
+    border-radius: 4px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
 `;
 
 interface IInputLabelProps {
@@ -25,11 +38,21 @@ export const InputLabel = styled.Text<IInputLabelProps>`
 
 export const Input = styled.TextInput`
     padding: ${props => rem(props, 1.2)} ${props => rem(props, 1.6)};
-    border: 1px solid ${props => props.theme.colors.secondary};
-    border-radius: 4px;
     font-size: ${props => rem(props, 2)};
     color: ${props => props.theme.colors.secondary};
+    flex-grow: 1;
 `;
 export const InputError = styled.Text`
     color: ${props => props.theme.colors.error};
+`;
+
+export const InputUnit = styled.View`
+    display: flex;
+
+    margin: ${props => rem(props, 1.2)} ${props => rem(props, 1.6)};
+    justify-content: center;
+`;
+
+export const UintText = styled(TextBold16)`
+    color: ${props => props.theme.colors.l1ActiveEl};
 `;

@@ -2,7 +2,6 @@ import React from 'react';
 import { DefaultCard, DefaultRow, SeparateRow } from '@/components/container/defaultBox';
 import { Text20, TextSemiBold24 } from '@/components/text/styled';
 import { DefaultButton } from '@/components/button/style';
-import { Line } from '@/components/line';
 import { ButtonText } from '@/components/profile/components/style';
 
 export const Description: React.FC = () => {
@@ -31,7 +30,6 @@ export const Description: React.FC = () => {
 
             <DefaultRow>
                 <TextSemiBold24>Round</TextSemiBold24>
-                <Line />
             </DefaultRow>
 
             <DefaultRow>
@@ -43,8 +41,6 @@ export const Description: React.FC = () => {
                 <Text20>Bullet:</Text20>
                 <Text20>Bullet</Text20>
             </DefaultRow>
-
-            <Line />
 
             <DefaultRow>
                 <Text20>User note</Text20>

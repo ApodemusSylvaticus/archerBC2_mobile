@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { useTheme } from 'styled-components/native';
-import { Button, View } from 'react-native';
-import { number, array, object } from 'yup';
+import { number } from 'yup';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
 import { BallisticProfileType } from '@/interface/newProfile';
-import { ButtonContainer } from '@/components/forms/style';
+import { ButtonContainer, ErrorText, MultiCoefficientWrapper } from '@/components/forms/style';
 import { ArrowSVG } from '@/components/svg/arrow';
-import { DefaultInput } from '@/components/Inputs/defaultInput';
 import { IForm } from '@/interface/form';
-import { Text20 } from '@/components/text/styled';
+import { Text20, TextSemiBold20 } from '@/components/text/styled';
+import { NumericInput } from '@/components/Inputs/numericInput';
+import { Coefficient } from '@/interface/profile';
+import { DefaultButton } from '@/components/button/style';
 
 export const MultiCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => {
     const { ballisticProfile, setMultiCoefficient } = useNewProfileStore(state => ({
@@ -23,6 +24,7 @@ export const MultiCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => 
     const { rem, colors } = useTheme();
 
     const [coefficients, setCoefficients] = useState(ballisticProfile.coefficient);
+    const [handleError, setHandleError] = useState('');
 
     const addOneMoreCoeff = () => setCoefficients(prevState => [...prevState, { mv: '', bc: '' }]);
 
@@ -30,51 +32,81 @@ export const MultiCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => 
         setCoefficients(prevState => prevState.map((el, arrIndex) => (index === arrIndex ? { ...el, mv: val } : el)));
     };
     const handleChangeBC = (val: string, index: number) => {
+        setHandleError('');
         setCoefficients(prevState => prevState.map((el, arrIndex) => (index === arrIndex ? { ...el, bc: val } : el)));
     };
 
     const handleSubmit = async () => {
-        try {
-            const validSchema = object().shape({
-                mv: number().max(0).min(100),
-                bc: number().required().min(0).max(100),
-            });
-            await array().of(validSchema).validate(coefficients);
-            setMultiCoefficient(coefficients);
-            goForward();
-        } catch (e) {
-            console.log(e);
+        const validCoefficient: Coefficient[] = [];
+        coefficients.forEach(el => {
+            const bc = +el.bc;
+            if (el.bc === '' || Number.isNaN(bc)) {
+                return;
+            }
+            if (bc <= 0 || bc > 10) {
+                return;
+            }
+            if (el.mv === '') {
+                validCoefficient.push({ mv: 0, bc });
+                return;
+            }
+
+            const mv = +el.mv;
+
+            if (Number.isNaN(mv)) {
+                return;
+            }
+
+            if (mv <= 0 || mv > 3000) {
+                return;
+            }
+            validCoefficient.push({ mv, bc });
+        });
+
+        if (validCoefficient.length === 0) {
+            setHandleError('At least 1 coefficient must be filled');
+            return;
         }
+
+        setMultiCoefficient(coefficients);
+        goForward();
     };
 
     return (
         <>
             {coefficients.map((el, index) => (
                 // eslint-disable-next-line react/no-array-index-key
-                <View key={index} style={{ display: 'flex', flexDirection: 'row', width: '100%', gap: 8 }}>
-                    <DefaultInput
+                <MultiCoefficientWrapper key={index}>
+                    <NumericInput
+                        uint="m/s"
                         label="mv"
                         value={el.mv}
+                        schema={number().min(0).max(3000)}
                         onChangeText={(val: string) => handleChangeMV(val, index)}
-                        error={undefined}
-                        touched={undefined}
                         onBlur={() => undefined}
-                        style={{ width: 'auto', flexGrow: 1 }}
+                        style={{ flex: 1 }}
                         background={colors.appBg}
                     />
-                    <DefaultInput
+                    <NumericInput
+                        uint="lb/in^2"
                         label="bc"
                         value={el.bc}
+                        schema={number().min(0).max(10)}
                         onChangeText={(val: string) => handleChangeBC(val, index)}
-                        error={undefined}
-                        touched={undefined}
                         onBlur={() => undefined}
-                        style={{ width: 'auto', flexGrow: 1 }}
+                        style={{ flex: 1 }}
                         background={colors.appBg}
                     />
-                </View>
+                </MultiCoefficientWrapper>
             ))}
-            <Button title="Dobav" onPress={addOneMoreCoeff} />
+
+            {handleError && <ErrorText>{handleError}</ErrorText>}
+            {coefficients.length < 5 && (
+                <DefaultButton onPress={addOneMoreCoeff}>
+                    <TextSemiBold20>Add new coefficient</TextSemiBold20>
+                </DefaultButton>
+            )}
+
             <ButtonContainer>
                 <ArrowSVG orientation="left" size={rem * 5.5} fillColor={colors.secondary} onPress={() => goBack()} />
                 <ArrowSVG
@@ -101,7 +133,7 @@ export const SingleCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) =>
     const [coefficient, setCoefficient] = useState('');
     const handleSubmit = async () => {
         try {
-            await number().required().min(0).max(100).validate(coefficient);
+            await number().required().min(0).max(10).validate(coefficient);
             setSingleCoefficient(coefficient);
             goForward();
         } catch (e) {
@@ -114,13 +146,13 @@ export const SingleCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) =>
 
     return (
         <>
-            <DefaultInput
+            <NumericInput
+                uint="lb/in^2"
                 label="bc"
                 value={coefficient}
                 onChangeText={handleChangeCoefficient}
                 error={undefined}
                 touched={undefined}
-                keyboardType="numeric"
                 onBlur={() => undefined}
                 background={colors.appBg}
             />
