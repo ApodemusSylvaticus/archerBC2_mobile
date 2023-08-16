@@ -1,10 +1,23 @@
 import styled from 'styled-components/native';
 import { rem } from '@/helpers/rem';
+import { getWindowHeight } from '@/helpers/getWindowParam';
 
-export const DefaultContainer = styled.View`
+interface DefaultAppContainerProps {
+    right: number;
+    left: number;
+    top: number;
+}
+export const DefaultAppContainer = styled.View<DefaultAppContainerProps>`
+    min-height: ${getWindowHeight}px;
+    padding-top: ${props => props.top}px;
+    padding-left: ${props => props.left + props.theme.rem * 1.6}px;
+    padding-right: ${props => props.right + props.theme.rem * 1.6}px;
+    padding-bottom: ${props => rem(props, 8)};
+    background: ${props => props.theme.colors.appBg};
+`;
+
+export const DefaultColumnContainer = styled.View`
     display: flex;
-    width: 100%;
-    padding: 0 ${props => rem(props, 0.8)};
     flex-direction: column;
     gap: ${props => rem(props, 1.6)};
 `;

@@ -1,15 +1,12 @@
 import React from 'react';
-import { ScrollView } from 'react-native';
-import { DefaultContainer } from '@/components/container/defaultBox';
 import { Profile } from '@/components/profile';
+import { AppContainer } from '@/components/container/appContainer';
 
 const CurrProfile: React.FC = () => {
     return (
-        <ScrollView>
-            <DefaultContainer>
-                <Profile />
-            </DefaultContainer>
-        </ScrollView>
+        <AppContainer>
+            <Profile />
+        </AppContainer>
     );
 };
 

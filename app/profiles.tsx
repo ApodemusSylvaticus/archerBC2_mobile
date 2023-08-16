@@ -1,7 +1,8 @@
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 import { CreateNewProfileModal } from '@/components/modals/createNewProfile';
 import { useModalControllerStore } from '@/store/useModalControllerStore';
+import { AppContainer } from '@/components/container/appContainer';
 
 const styles = StyleSheet.create({
     centeredView: {
@@ -50,12 +51,12 @@ const styles = StyleSheet.create({
 const CurrProfile: React.FC = () => {
     const openNewProfileModal = useModalControllerStore(state => state.openNewProfileModal);
     return (
-        <ScrollView style={{ backgroundColor: 'black' }}>
+        <AppContainer>
             <CreateNewProfileModal />
             <Pressable style={[styles.button, styles.buttonOpen]} onPress={openNewProfileModal}>
                 <Text style={styles.textStyle}>Show Modal</Text>
             </Pressable>
-        </ScrollView>
+        </AppContainer>
     );
 };
 
