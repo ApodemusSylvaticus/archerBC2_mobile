@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
-import { SplashScreen, Stack } from 'expo-router';
+import { Slot, SplashScreen } from 'expo-router';
 import { ThemeProvider } from 'styled-components/native';
 import { ClickOutsideProvider } from 'react-native-click-outside';
 import { View } from 'react-native';
@@ -59,9 +59,7 @@ export default function RootLayout() {
             <ThemeProvider theme={{ rem: 10, ...defaultTheme }}>
                 <ModalControllerWrapper>
                     <View style={{ height: 50 }} />
-                    <Stack>
-                        <Stack.Screen name="profiles" />
-                    </Stack>
+                    <Slot />
                     <TabBar />
                 </ModalControllerWrapper>
             </ThemeProvider>

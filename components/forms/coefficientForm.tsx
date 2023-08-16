@@ -3,13 +3,12 @@ import { useTheme } from 'styled-components/native';
 import { number } from 'yup';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
 import { BallisticProfileType } from '@/interface/newProfile';
-import { ButtonContainer, ErrorText, MultiCoefficientWrapper } from '@/components/forms/style';
+import { AddNewCoeffButton, ButtonContainer, ErrorText, MultiCoefficientWrapper } from '@/components/forms/style';
 import { ArrowSVG } from '@/components/svg/arrow';
 import { IForm } from '@/interface/form';
 import { Text20, TextSemiBold20 } from '@/components/text/styled';
 import { NumericInput } from '@/components/Inputs/numericInput';
 import { Coefficient } from '@/interface/profile';
-import { DefaultButton } from '@/components/button/style';
 
 export const MultiCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => {
     const { ballisticProfile, setMultiCoefficient } = useNewProfileStore(state => ({
@@ -102,9 +101,9 @@ export const MultiCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => 
 
             {handleError && <ErrorText>{handleError}</ErrorText>}
             {coefficients.length < 5 && (
-                <DefaultButton onPress={addOneMoreCoeff}>
+                <AddNewCoeffButton onPress={addOneMoreCoeff}>
                     <TextSemiBold20>Add new coefficient</TextSemiBold20>
-                </DefaultButton>
+                </AddNewCoeffButton>
             )}
 
             <ButtonContainer>
@@ -129,6 +128,8 @@ export const SingleCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) =>
     if (ballisticProfile === null || ballisticProfile.type === BallisticProfileType.MULTI) {
         throw new Error('Use this component with single ballistic profile');
     }
+
+    const [handleError, setHandleError] = useState('');
     const { rem, colors } = useTheme();
     const [coefficient, setCoefficient] = useState('');
     const handleSubmit = async () => {
@@ -137,10 +138,11 @@ export const SingleCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) =>
             setSingleCoefficient(coefficient);
             goForward();
         } catch (e) {
-            console.log(e);
+            setHandleError('Coefficient must be filled');
         }
     };
     const handleChangeCoefficient = (val: string) => {
+        setHandleError('');
         setCoefficient(val);
     };
 
@@ -149,13 +151,13 @@ export const SingleCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) =>
             <NumericInput
                 uint="lb/in^2"
                 label="bc"
+                schema={number().min(0).max(10)}
                 value={coefficient}
                 onChangeText={handleChangeCoefficient}
-                error={undefined}
-                touched={undefined}
                 onBlur={() => undefined}
                 background={colors.appBg}
             />
+            {handleError && <ErrorText>{handleError}</ErrorText>}
             <ButtonContainer>
                 <ArrowSVG orientation="left" size={rem * 5.5} fillColor={colors.secondary} onPress={() => goBack()} />
                 <ArrowSVG

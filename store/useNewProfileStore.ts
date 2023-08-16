@@ -70,15 +70,14 @@ const emptyProfile: INewProfile = {
 export const useNewProfileStore = create<IUseNewProfileStore>()(set => ({
     ...emptyProfile,
 
-    setDescription: data => set(state => ({ ...state, description: data })),
-    setRiffle: data => set(state => ({ ...state, riffle: data })),
-    setCartridge: data => set(state => ({ ...state, cartridge: data })),
-    setBullet: data => set(state => ({ ...state, bullet: data })),
-    setRange: data => set(state => ({ ...state, range: data })),
-    setBallisticFunctionType: data => set(state => ({ ...state, ballisticFunction: data })),
+    setDescription: data => set({ description: data }),
+    setRiffle: data => set({ riffle: data }),
+    setCartridge: data => set({ cartridge: data }),
+    setBullet: data => set({ bullet: data }),
+    setRange: data => set({ range: data }),
+    setBallisticFunctionType: data => set({ ballisticFunction: data }),
     setBallisticProfile: data =>
-        set(state => ({
-            ...state,
+        set({
             ballisticProfile:
                 data === BallisticProfileType.SINGLE
                     ? {
@@ -89,7 +88,7 @@ export const useNewProfileStore = create<IUseNewProfileStore>()(set => ({
                           type: data,
                           coefficient: a,
                       },
-        })),
+        }),
 
     setMultiCoefficient: data =>
         set(state => {
@@ -100,7 +99,7 @@ export const useNewProfileStore = create<IUseNewProfileStore>()(set => ({
             if (state.ballisticProfile.type === BallisticProfileType.SINGLE) {
                 throw new Error('This function for multi coefficient');
             }
-            return { ...state, ballisticProfile: { coefficient: data, type: BallisticProfileType.MULTI } };
+            return { ballisticProfile: { coefficient: data, type: BallisticProfileType.MULTI } };
         }),
 
     setSingleCoefficient: data =>
@@ -112,7 +111,7 @@ export const useNewProfileStore = create<IUseNewProfileStore>()(set => ({
             if (state.ballisticProfile.type === BallisticProfileType.MULTI) {
                 throw new Error('This function for multi coefficient');
             }
-            return { ...state, ballisticProfile: { coefficient: data, type: BallisticProfileType.SINGLE } };
+            return { ballisticProfile: { coefficient: data, type: BallisticProfileType.SINGLE } };
         }),
-    reset: () => set(state => ({ ...state, ...emptyProfile })),
+    reset: () => set({ ...emptyProfile }),
 }));
