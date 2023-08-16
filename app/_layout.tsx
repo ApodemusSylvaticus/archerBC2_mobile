@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
-import { Slot, SplashScreen } from 'expo-router';
+import { SplashScreen, Stack } from 'expo-router';
 import { ThemeProvider } from 'styled-components/native';
 import { ClickOutsideProvider } from 'react-native-click-outside';
 import { View } from 'react-native';
@@ -38,7 +38,7 @@ export default function RootLayout() {
     }, [loaded]);
 
     if (!loaded) {
-        return <Slot />;
+        return null;
     }
 
     const defaultTheme = {
@@ -59,7 +59,9 @@ export default function RootLayout() {
             <ThemeProvider theme={{ rem: 10, ...defaultTheme }}>
                 <ModalControllerWrapper>
                     <View style={{ height: 50 }} />
-                    <Slot />
+                    <Stack>
+                        <Stack.Screen name="profiles" />
+                    </Stack>
                     <TabBar />
                 </ModalControllerWrapper>
             </ThemeProvider>
