@@ -5,3 +5,9 @@ export const Line = styled.View`
     height: 1px;
     background: ${props => props.theme.colors.appBg};
 `;
+
+export const VerticalLine = styled.View`
+    height: 100%;
+    width: 1px;
+    background: ${props => props.theme.colors.activeTab};
+`;

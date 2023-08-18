@@ -9,6 +9,7 @@ import { SelectInput } from '@/components/Inputs/select/select';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
 import { isAllTouched } from '@/helpers/isAllTached';
 import { IForm } from '@/interface/form';
+import { NumericInput } from '@/components/Inputs/numericInput';
 
 const schema = object().shape({
     calibre: string().required('Required').max(50, 'Too Long!'),
@@ -51,14 +52,14 @@ export const RiffleForm: React.FC<IForm> = ({ goBack, goForward }) => {
                         background={colors.appBg}
                     />
 
-                    <DefaultInput
+                    <NumericInput
                         label="Twist rate"
+                        uint="inches/turn"
                         value={values.twistRate}
                         onChangeText={handleChange('twistRate')}
                         error={errors.twistRate}
                         touched={touched.twistRate}
                         onBlur={handleBlur('twistRate')}
-                        keyboardType="numeric"
                         background={colors.appBg}
                     />
 
@@ -70,13 +71,13 @@ export const RiffleForm: React.FC<IForm> = ({ goBack, goForward }) => {
                         setElem={val => setTwistDirectionState(val)}
                     />
 
-                    <DefaultInput
+                    <NumericInput
                         label="Scope height"
+                        uint="mm"
                         value={values.scopeHeight}
                         onChangeText={handleChange('scopeHeight')}
                         error={errors.scopeHeight}
                         touched={touched.scopeHeight}
-                        keyboardType="numeric"
                         onBlur={handleBlur('scopeHeight')}
                         background={colors.appBg}
                     />

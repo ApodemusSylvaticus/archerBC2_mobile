@@ -1,10 +1,13 @@
 import { create } from 'zustand';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ProfileWithId } from '@/interface/profile';
+import { AsyncStore } from '@/constant/asyncStore';
 
 interface IUseProfileStore {
     profiles: ProfileWithId[];
     actualProfiles: ProfileWithId[];
     addNewProfile: (profile: ProfileWithId) => void;
+    getProfileFromStore: () => Promise<void>;
 }
 
 export const useProfileStore = create<IUseProfileStore>()(set => ({
@@ -60,9 +63,23 @@ export const useProfileStore = create<IUseProfileStore>()(set => ({
         },
     ],
     actualProfiles: [],
+    getProfileFromStore: async () => {
+        try {
+            const data = await AsyncStorage.getItem(AsyncStore.profiles);
+            if (data) {
+                set({ profiles: JSON.parse(data) });
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    },
     addNewProfile: profile =>
-        set(state => ({
-            ...state,
-            profiles: [...state.profiles, profile],
-        })),
+        set(state => {
+            const newState = {
+                ...state,
+                profiles: [...state.profiles, profile],
+            };
+            AsyncStorage.setItem(AsyncStore.profiles, JSON.stringify(newState.profiles)).catch(console.log);
+            return newState;
+        }),
 }));

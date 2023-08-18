@@ -3,8 +3,22 @@ import { DefaultCard, DefaultRow, SeparateRow } from '@/components/container/def
 import { Text20, TextSemiBold24 } from '@/components/text/styled';
 import { DefaultButton } from '@/components/button/style';
 import { ButtonText } from '@/components/profile/components/style';
+import { WithId } from '@/interface/helper';
+import { IBullet } from '@/interface/profile';
 
-export const Bullet: React.FC = () => {
+export const Bullet: React.FC<WithId<IBullet>> = ({
+    coefCustom,
+    coefG1,
+    coefG7,
+    bcType,
+    id,
+    bLength,
+    bWeight,
+    bDiameter,
+}) => {
+    console.log(id, coefCustom);
+
+    const coefArr = bcType === 'G1' ? coefG1 : coefG7;
     return (
         <DefaultCard>
             <SeparateRow>
@@ -16,32 +30,32 @@ export const Bullet: React.FC = () => {
 
             <DefaultRow>
                 <Text20>Diameter:</Text20>
-                <Text20>0.0024 inches</Text20>
+                <Text20>{bDiameter} inches</Text20>
             </DefaultRow>
 
             <DefaultRow>
                 <Text20>Weight:</Text20>
-                <Text20>2 grains</Text20>
+                <Text20>{bWeight} grains</Text20>
             </DefaultRow>
 
             <DefaultRow>
                 <Text20>Length:</Text20>
-                <Text20>3 inches</Text20>
+                <Text20>{bLength} inches</Text20>
             </DefaultRow>
 
             <DefaultRow>
                 <Text20>Used function:</Text20>
-                <Text20>G1</Text20>
-            </DefaultRow>
-
-            <DefaultRow>
-                <Text20>Table rows count:</Text20>
-                <Text20>1</Text20>
+                <Text20>{bcType}</Text20>
             </DefaultRow>
 
             <DefaultRow>
                 <Text20>Coefficients:</Text20>
-                <Text20>mv 0 m/s bc 1 lb/in^2</Text20>
+                {coefArr.map((el, index) => (
+                    // eslint-disable-next-line react/no-array-index-key
+                    <Text20 key={index}>
+                        mv {el.mv} m/s bc {el.bc} lb/in^2
+                    </Text20>
+                ))}
             </DefaultRow>
         </DefaultCard>
     );

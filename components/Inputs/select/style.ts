@@ -16,8 +16,7 @@ export const PressableTextContainer = styled.Pressable`
     width: 100%;
     padding: ${props => rem(props, 1.2)} ${props => rem(props, 1.6)};
     border: 1px solid ${props => props.theme.colors.secondary};
-    width: 100%;
-    border-radius: 4px;
+    border-radius: 16px;
 `;
 
 export const Text = styled(Text20)<{ isActive: boolean }>`

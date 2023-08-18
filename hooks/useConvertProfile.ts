@@ -2,6 +2,8 @@ import { useNewProfileStore } from '@/store/useNewProfileStore';
 import { Profile, SwitchPosition } from '@/interface/profile';
 import { ballisticFunctionList } from '@/constant/data';
 import { BallisticFunctionType, BallisticProfileType } from '@/interface/newProfile';
+import { useProfileStore } from '@/store/useProfileStore';
+import { calculateProfileHash } from '@/helpers/hashFunc';
 
 const distants: number[][] = [
     [
@@ -43,40 +45,53 @@ const switches: SwitchPosition[] = [
 ];
 
 export const useConvertProfile = () => {
-    const state = useNewProfileStore();
+    const { ballisticFunction, ballisticProfile, description, riffle, range, bullet, cartridge } = useNewProfileStore(
+        state => ({
+            ballisticProfile: state.ballisticProfile,
+            description: state.description,
+            riffle: state.riffle,
+            range: state.range,
+            cartridge: state.cartridge,
+            bullet: state.bullet,
+            ballisticFunction: state.ballisticFunction,
+        }),
+    );
+    const addNewProfile = useProfileStore(addNewProfileState => addNewProfileState.addNewProfile);
 
     const getCoefficient = () => {
-        switch (state.ballisticProfile!.type) {
+        console.log('--------------------------');
+        console.log(ballisticProfile);
+        switch (ballisticProfile!.type) {
             case BallisticProfileType.MULTI:
-                return state.ballisticProfile!.coefficient.map(el => ({ mv: +el.mv, bc: +el.bc }));
+                return ballisticProfile!.coefficient.map(el => ({ mv: +el.mv, bc: +el.bc }));
             case BallisticProfileType.SINGLE:
-                return [{ bc: +state.ballisticProfile!.coefficient, mv: 0 }];
+                return [{ bc: +ballisticProfile!.coefficient, mv: 0 }];
             default:
                 return [];
         }
     };
     const convert = (): Profile => {
-        return <Profile>{
-            profileName: state.description.name,
-            cartridgeName: state.description.cartridge,
-            bulletName: state.description.bullet,
-            caliber: state.riffle.calibre,
+        return {
+            profileName: description.name,
+            cartridgeName: description.cartridge,
+            bulletName: description.bullet,
+            caliber: riffle.calibre,
             deviceUuid: '',
-            shortNameTop: state.description.cartridge.slice(0, 8),
-            shortNameBot: state.description.bullet.slice(0, 8),
+            shortNameTop: description.cartridge.slice(0, 8),
+            shortNameBot: description.bullet.slice(0, 8),
             userNote: 'Add your profile specific notes here',
             zeroX: 0,
             zeroY: 0,
-            distances: distants[state.range!],
+            distances: distants[range!],
             switches,
 
-            scHeight: +state.riffle.scopeHeight,
-            rTwist: +state.riffle.twistRate,
-            twistDir: state.riffle.twistDirection,
-            cMuzzleVelocity: +state.cartridge.muzzleVelocity,
+            scHeight: +riffle.scopeHeight,
+            rTwist: +riffle.twistRate,
+            twistDir: riffle.twistDirection,
+            cMuzzleVelocity: +cartridge.muzzleVelocity,
 
-            cZeroTemperature: +state.cartridge.powderTemperature,
-            cTCoeff: +state.cartridge.ratio,
+            cZeroTemperature: +cartridge.powderTemperature,
+            cTCoeff: +cartridge.ratio,
             cZeroDistanceIdx: 0,
 
             cZeroAirTemperature: 15,
@@ -84,15 +99,18 @@ export const useConvertProfile = () => {
             cZeroAirHumidity: 40,
             cZeroWPitch: 0,
             cZeroPTemperature: 15,
-            bDiameter: +state.bullet.diameter,
-            bWeight: +state.bullet.weight,
-            bLength: +state.bullet.length,
-            bcType: ballisticFunctionList[state.ballisticFunction!],
-            coefG1: state.ballisticFunction === BallisticFunctionType.G1 ? getCoefficient() : [],
-            coefG7: state.ballisticFunction === BallisticFunctionType.G7 ? getCoefficient() : [],
+            bDiameter: +bullet.diameter,
+            bWeight: +bullet.weight,
+            bLength: +bullet.length,
+            bcType: ballisticFunctionList[ballisticFunction!],
+            coefG1: ballisticFunction === BallisticFunctionType.G1 ? getCoefficient() : [],
+            coefG7: ballisticFunction === BallisticFunctionType.G7 ? getCoefficient() : [],
             coefCustom: [],
         };
     };
 
-    return convert;
+    return () => {
+        const convertProfile = convert();
+        addNewProfile({ ...convertProfile, id: calculateProfileHash(convertProfile) });
+    };
 };

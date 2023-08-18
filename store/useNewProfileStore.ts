@@ -3,44 +3,44 @@ import { Nullable } from '@/interface/helper';
 import {
     BallisticFunctionType,
     BallisticProfileType,
-    Coefficient,
-    IBullet,
-    ICartridge,
-    IDescription,
-    IRiffle,
+    CoefficientForm,
+    IBulletForm,
+    ICartridgeForm,
+    IDescriptionForm,
+    IRiffleForm,
     MultiProfileType,
     RANGE,
     SingleProfileType,
 } from '@/interface/newProfile';
 
 interface INewProfile {
-    description: IDescription;
-    riffle: IRiffle;
-    cartridge: ICartridge;
-    bullet: IBullet;
+    description: IDescriptionForm;
+    riffle: IRiffleForm;
+    cartridge: ICartridgeForm;
+    bullet: IBulletForm;
     range: Nullable<RANGE>;
     ballisticFunction: Nullable<BallisticFunctionType>;
     ballisticProfile: Nullable<SingleProfileType | MultiProfileType>;
 }
 interface IUseNewProfileStore extends INewProfile {
-    setDescription: (data: IDescription) => void;
-    setRiffle: (data: IRiffle) => void;
-    setCartridge: (data: ICartridge) => void;
-    setBullet: (data: IBullet) => void;
+    setDescription: (data: IDescriptionForm) => void;
+    setRiffle: (data: IRiffleForm) => void;
+    setCartridge: (data: ICartridgeForm) => void;
+    setBullet: (data: IBulletForm) => void;
     setRange: (data: RANGE) => void;
     setBallisticFunctionType: (data: BallisticFunctionType) => void;
     setBallisticProfile: (data: BallisticProfileType) => void;
     setSingleCoefficient: (data: string) => void;
-    setMultiCoefficient: (data: Coefficient[]) => void;
+    setMultiCoefficient: (data: CoefficientForm[]) => void;
     reset: () => void;
 }
 
-const a: Coefficient[] = [
+const a: CoefficientForm[] = [
     { mv: '', bc: '' },
     { bc: '', mv: '' },
 ];
 
-const emptyProfile: INewProfile = {
+export const emptyProfile: INewProfile = {
     description: {
         name: '',
         bullet: '',
@@ -70,15 +70,14 @@ const emptyProfile: INewProfile = {
 export const useNewProfileStore = create<IUseNewProfileStore>()(set => ({
     ...emptyProfile,
 
-    setDescription: data => set(state => ({ ...state, description: data })),
-    setRiffle: data => set(state => ({ ...state, riffle: data })),
-    setCartridge: data => set(state => ({ ...state, cartridge: data })),
-    setBullet: data => set(state => ({ ...state, bullet: data })),
-    setRange: data => set(state => ({ ...state, range: data })),
-    setBallisticFunctionType: data => set(state => ({ ...state, ballisticFunction: data })),
+    setDescription: data => set({ description: data }),
+    setRiffle: data => set({ riffle: data }),
+    setCartridge: data => set({ cartridge: data }),
+    setBullet: data => set({ bullet: data }),
+    setRange: data => set({ range: data }),
+    setBallisticFunctionType: data => set({ ballisticFunction: data }),
     setBallisticProfile: data =>
-        set(state => ({
-            ...state,
+        set({
             ballisticProfile:
                 data === BallisticProfileType.SINGLE
                     ? {
@@ -89,7 +88,7 @@ export const useNewProfileStore = create<IUseNewProfileStore>()(set => ({
                           type: data,
                           coefficient: a,
                       },
-        })),
+        }),
 
     setMultiCoefficient: data =>
         set(state => {
@@ -100,7 +99,7 @@ export const useNewProfileStore = create<IUseNewProfileStore>()(set => ({
             if (state.ballisticProfile.type === BallisticProfileType.SINGLE) {
                 throw new Error('This function for multi coefficient');
             }
-            return { ...state, ballisticProfile: { coefficient: data, type: BallisticProfileType.MULTI } };
+            return { ballisticProfile: { coefficient: data, type: BallisticProfileType.MULTI } };
         }),
 
     setSingleCoefficient: data =>
@@ -112,7 +111,7 @@ export const useNewProfileStore = create<IUseNewProfileStore>()(set => ({
             if (state.ballisticProfile.type === BallisticProfileType.MULTI) {
                 throw new Error('This function for multi coefficient');
             }
-            return { ...state, ballisticProfile: { coefficient: data, type: BallisticProfileType.SINGLE } };
+            return { ballisticProfile: { coefficient: data, type: BallisticProfileType.SINGLE } };
         }),
-    reset: () => set(state => ({ ...state, ...emptyProfile })),
+    reset: () => set({ ...emptyProfile }),
 }));

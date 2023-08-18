@@ -1,25 +1,25 @@
 import { TwistDirection } from '@/interface/profile';
 
-export interface IDescription {
+export interface IDescriptionForm {
     name: string;
     cartridge: string;
     bullet: string;
 }
 
-export interface IRiffle {
+export interface IRiffleForm {
     calibre: string;
     twistRate: string;
     twistDirection: TwistDirection;
     scopeHeight: string;
 }
 
-export interface ICartridge {
+export interface ICartridgeForm {
     muzzleVelocity: string;
     powderTemperature: string;
     ratio: string;
 }
 
-export interface IBullet {
+export interface IBulletForm {
     diameter: string;
     weight: string;
     length: string;
@@ -47,11 +47,11 @@ export interface SingleProfileType {
     coefficient: string;
 }
 
-export interface Coefficient {
+export interface CoefficientForm {
     mv: string;
     bc: string;
 }
 export interface MultiProfileType {
     type: BallisticProfileType.MULTI;
-    coefficient: Coefficient[];
+    coefficient: CoefficientForm[];
 }

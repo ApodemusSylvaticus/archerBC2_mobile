@@ -27,23 +27,6 @@ export const SelectInput: React.FC<SelectInputProps> = ({ list, setElem, chosenE
         setElem(index);
     };
 
-    const listMap = list.map((el, index) => {
-        if (index !== list.length - 1) {
-            return (
-                <SelectItem key={el} style={{ borderTopWidth: 0 }} onPress={() => handlePress(index)}>
-                    <Text isActive>{el}</Text>
-                </SelectItem>
-            );
-        }
-        return (
-            <SelectItem
-                key={el}
-                style={{ borderBottomLeftRadius: 4, borderBottomRightRadius: 4, borderTopWidth: 0 }}
-                onPress={() => handlePress(index)}>
-                <Text isActive>{el}</Text>
-            </SelectItem>
-        );
-    });
     // TODO  <PureArrow size={15} orientation="bottom" fillColor="white" />
     return (
         <Container zIndex={zIndex}>
@@ -68,7 +51,23 @@ export const SelectInput: React.FC<SelectInputProps> = ({ list, setElem, chosenE
                         const { height } = event.nativeEvent.layout;
                         setElemHeight(height);
                     }}>
-                    {listMap}
+                    {list.map((el, index) => {
+                        if (index !== list.length - 1) {
+                            return (
+                                <SelectItem key={el} style={{ borderTopWidth: 0 }} onPress={() => handlePress(index)}>
+                                    <Text isActive>{el}</Text>
+                                </SelectItem>
+                            );
+                        }
+                        return (
+                            <SelectItem
+                                key={el}
+                                style={{ borderBottomLeftRadius: 4, borderBottomRightRadius: 4, borderTopWidth: 0 }}
+                                onPress={() => handlePress(index)}>
+                                <Text isActive>{el}</Text>
+                            </SelectItem>
+                        );
+                    })}
                 </SelectBox>
             )}
         </Container>

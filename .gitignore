@@ -9,6 +9,7 @@ dist/
 web-build/
 .idea
 %ProgramData%/
+.vercel
 
 # Native
 *.orig.*
@@ -41,3 +42,8 @@ yarn-error.*
 
 expo-env.d.ts
 # @end expo-cli
+
+# Local Netlify folder
+.netlify
+
+.vercel
