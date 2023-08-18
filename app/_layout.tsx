@@ -8,6 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { TabBar } from '@/components/tabBar';
 import { ModalControllerWrapper } from '@/components/modals/modalControllerWrapper';
 import { useProfileStore } from '@/store/useProfileStore';
+import { Header } from '@/components/header';
 
 export {
     // Catch any errors thrown by the Layout component.
@@ -65,6 +66,7 @@ export default function RootLayout() {
             <ClickOutsideProvider>
                 <ThemeProvider theme={{ rem: 10, ...defaultTheme }}>
                     <ModalControllerWrapper>
+                        <Header />
                         <Slot />
                         <TabBar />
                     </ModalControllerWrapper>

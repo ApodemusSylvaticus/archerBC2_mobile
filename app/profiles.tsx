@@ -1,61 +1,25 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
-import { CreateNewProfileModal } from '@/components/modals/createNewProfile';
-import { useModalControllerStore } from '@/store/useModalControllerStore';
 import { AppContainer } from '@/components/container/appContainer';
-
-const styles = StyleSheet.create({
-    centeredView: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 22,
-    },
-    modalView: {
-        margin: 20,
-        backgroundColor: 'white',
-        borderRadius: 20,
-        padding: 35,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
-    },
-    button: {
-        borderRadius: 20,
-        padding: 10,
-        elevation: 2,
-    },
-    buttonOpen: {
-        backgroundColor: '#F194FF',
-    },
-    buttonClose: {
-        backgroundColor: '#2196F3',
-    },
-    textStyle: {
-        color: 'white',
-        fontWeight: 'bold',
-        textAlign: 'center',
-    },
-    modalText: {
-        marginBottom: 15,
-        textAlign: 'center',
-    },
-});
+import { ProfileTab } from '@/components/profile/profileTab';
+import { useProfileStore } from '@/store/useProfileStore';
+import { DefaultColumnContainer } from '@/components/container/defaultBox';
 
 const CurrProfile: React.FC = () => {
-    const openNewProfileModal = useModalControllerStore(state => state.openNewProfileModal);
+    const profiles = useProfileStore(state => state.profiles);
+
     return (
         <AppContainer>
-            <CreateNewProfileModal />
-            <Pressable style={[styles.button, styles.buttonOpen]} onPress={openNewProfileModal}>
-                <Text style={styles.textStyle}>Show Modal</Text>
-            </Pressable>
+            <DefaultColumnContainer>
+                {profiles.map(el => (
+                    <ProfileTab
+                        id={el.id}
+                        profileName={el.profileName}
+                        cartridge={el.cartridgeName}
+                        bullet={el.bulletName}
+                        key={el.id}
+                    />
+                ))}
+            </DefaultColumnContainer>
         </AppContainer>
     );
 };

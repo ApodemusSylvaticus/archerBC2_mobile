@@ -3,44 +3,44 @@ import { Nullable } from '@/interface/helper';
 import {
     BallisticFunctionType,
     BallisticProfileType,
-    Coefficient,
-    IBullet,
-    ICartridge,
-    IDescription,
-    IRiffle,
+    CoefficientForm,
+    IBulletForm,
+    ICartridgeForm,
+    IDescriptionForm,
+    IRiffleForm,
     MultiProfileType,
     RANGE,
     SingleProfileType,
 } from '@/interface/newProfile';
 
 interface INewProfile {
-    description: IDescription;
-    riffle: IRiffle;
-    cartridge: ICartridge;
-    bullet: IBullet;
+    description: IDescriptionForm;
+    riffle: IRiffleForm;
+    cartridge: ICartridgeForm;
+    bullet: IBulletForm;
     range: Nullable<RANGE>;
     ballisticFunction: Nullable<BallisticFunctionType>;
     ballisticProfile: Nullable<SingleProfileType | MultiProfileType>;
 }
 interface IUseNewProfileStore extends INewProfile {
-    setDescription: (data: IDescription) => void;
-    setRiffle: (data: IRiffle) => void;
-    setCartridge: (data: ICartridge) => void;
-    setBullet: (data: IBullet) => void;
+    setDescription: (data: IDescriptionForm) => void;
+    setRiffle: (data: IRiffleForm) => void;
+    setCartridge: (data: ICartridgeForm) => void;
+    setBullet: (data: IBulletForm) => void;
     setRange: (data: RANGE) => void;
     setBallisticFunctionType: (data: BallisticFunctionType) => void;
     setBallisticProfile: (data: BallisticProfileType) => void;
     setSingleCoefficient: (data: string) => void;
-    setMultiCoefficient: (data: Coefficient[]) => void;
+    setMultiCoefficient: (data: CoefficientForm[]) => void;
     reset: () => void;
 }
 
-const a: Coefficient[] = [
+const a: CoefficientForm[] = [
     { mv: '', bc: '' },
     { bc: '', mv: '' },
 ];
 
-const emptyProfile: INewProfile = {
+export const emptyProfile: INewProfile = {
     description: {
         name: '',
         bullet: '',

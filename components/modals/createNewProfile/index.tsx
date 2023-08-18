@@ -1,11 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, ScrollView } from 'react-native';
-import {
-    Container,
-    ContentContainer,
-    GoBackButton,
-    GoBackButtonText,
-} from '@/components/modals/createNewProfile/style';
 import { DescriptionForm } from '@/components/forms/descriptionForm';
 import { RiffleForm } from '@/components/forms/riffleForm';
 import { CartridgeForm } from '@/components/forms/cartridgeForm';
@@ -15,6 +8,7 @@ import { BallisticProfileForm } from '@/components/forms/ballisticProfileForm';
 import { CoefficientForm } from '@/components/forms/coefficientForm';
 import { useConvertProfile } from '@/hooks/useConvertProfile';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
+import { DefaultModal } from '@/components/modals/DefaultModal';
 
 export const CreateNewProfileModal: React.FC = () => {
     const [page, setPage] = useState<number>(0);
@@ -55,23 +49,13 @@ export const CreateNewProfileModal: React.FC = () => {
     }, [reset, closeNewProfileModal, shouldClose]);
 
     return (
-        <Modal animationType="slide" visible={isNewProfileOpen}>
-            <Container>
-                <GoBackButton onPress={() => setShouldClose(true)}>
-                    <GoBackButtonText style={{ color: 'white' }}>Go back</GoBackButtonText>
-                </GoBackButton>
-
-                <ScrollView>
-                    <ContentContainer>
-                        {page === 0 && <DescriptionForm goBack={goBack} goForward={goForward} />}
-                        {page === 1 && <RiffleForm goBack={goBack} goForward={goForward} />}
-                        {page === 2 && <CartridgeForm goBack={goBack} goForward={goForward} />}
-                        {page === 3 && <BulletForm goBack={goBack} goForward={goForward} />}
-                        {page === 4 && <BallisticProfileForm goBack={goBack} goForward={goForward} />}
-                        {page === 5 && <CoefficientForm goBack={goBack} goForward={goForward} />}
-                    </ContentContainer>
-                </ScrollView>
-            </Container>
-        </Modal>
+        <DefaultModal backButtonHandler={() => setShouldClose(true)} isVisible={isNewProfileOpen}>
+            {page === 0 && <DescriptionForm goBack={goBack} goForward={goForward} />}
+            {page === 1 && <RiffleForm goBack={goBack} goForward={goForward} />}
+            {page === 2 && <CartridgeForm goBack={goBack} goForward={goForward} />}
+            {page === 3 && <BulletForm goBack={goBack} goForward={goForward} />}
+            {page === 4 && <BallisticProfileForm goBack={goBack} goForward={goForward} />}
+            {page === 5 && <CoefficientForm goBack={goBack} goForward={goForward} />}
+        </DefaultModal>
     );
 };

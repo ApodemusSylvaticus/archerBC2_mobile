@@ -25,6 +25,7 @@ export const ButtonTextBold18 = styled.Text`
     font-size: ${props => rem(props, 1.8)};
     font-family: Lato-Bold;
     font-weight: 700;
+    text-align: center;
     color: ${props => props.theme.colors.primary};
 `;
 

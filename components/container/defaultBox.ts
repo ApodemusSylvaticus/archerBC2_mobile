@@ -1,17 +1,18 @@
 import styled from 'styled-components/native';
+import { Platform } from 'react-native';
 import { rem } from '@/helpers/rem';
 import { getWindowHeight } from '@/helpers/getWindowParam';
 
 interface DefaultAppContainerProps {
     right: number;
     left: number;
-    top: number;
 }
 export const DefaultAppContainer = styled.View<DefaultAppContainerProps>`
-    min-height: ${getWindowHeight}px;
-    padding-top: ${props => props.top}px;
-    padding-left: ${props => props.left + props.theme.rem * 1.6}px;
-    padding-right: ${props => props.right + props.theme.rem * 1.6}px;
+    position: relative;
+    min-height: ${getWindowHeight()}px;
+    padding-top: ${props => (Platform.OS === 'web' ? rem(props, 8) : 0)};
+    padding-left: ${props => props.left + props.theme.rem * 0.8}px;
+    padding-right: ${props => props.right + props.theme.rem * 0.8}px;
     padding-bottom: ${props => rem(props, 8)};
     background: ${props => props.theme.colors.appBg};
 `;

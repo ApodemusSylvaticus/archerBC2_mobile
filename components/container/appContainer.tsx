@@ -4,10 +4,10 @@ import { ScrollView } from 'react-native';
 import { DefaultAppContainer } from '@/components/container/defaultBox';
 
 export const AppContainer: React.FC<PropsWithChildren> = ({ children }) => {
-    const { right, left, top } = useSafeAreaInsets();
+    const { right, left } = useSafeAreaInsets();
     return (
         <ScrollView>
-            <DefaultAppContainer right={right} left={left} top={top}>
+            <DefaultAppContainer right={right} left={left}>
                 {children}
             </DefaultAppContainer>
         </ScrollView>

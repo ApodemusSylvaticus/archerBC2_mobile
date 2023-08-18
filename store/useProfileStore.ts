@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ProfileWithId } from '@/interface/profile';
 import { AsyncStore } from '@/constant/asyncStore';
-import { Nullable } from '@/interface/helper';
 
 interface IUseProfileStore {
     profiles: ProfileWithId[];
@@ -66,9 +65,9 @@ export const useProfileStore = create<IUseProfileStore>()(set => ({
     actualProfiles: [],
     getProfileFromStore: async () => {
         try {
-            const data = (await AsyncStorage.getItem(AsyncStore.profiles)) as Nullable<ProfileWithId[]>;
+            const data = await AsyncStorage.getItem(AsyncStore.profiles);
             if (data) {
-                set({ profiles: data });
+                set({ profiles: JSON.parse(data) });
             }
         } catch (e) {
             console.log(e);

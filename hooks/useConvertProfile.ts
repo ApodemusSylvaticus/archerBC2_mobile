@@ -71,7 +71,7 @@ export const useConvertProfile = () => {
         }
     };
     const convert = (): Profile => {
-        return <Profile>{
+        return {
             profileName: description.name,
             cartridgeName: description.cartridge,
             bulletName: description.bullet,

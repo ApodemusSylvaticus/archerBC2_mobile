@@ -19,38 +19,53 @@ export interface Coefficient {
     mv: number;
 }
 
-export interface Profile {
-    profileName: string;
-    cartridgeName: string;
-    bulletName: string;
+export interface IRiffle {
     caliber: string;
-    deviceUuid: string;
-    shortNameTop: string;
-    shortNameBot: string;
-    userNote: string;
-    zeroX: number;
-    zeroY: number;
-    distances: number[];
-    switches: SwitchPosition[];
     scHeight: number;
     rTwist: number;
     twistDir: TwistDirection;
+}
+
+export interface ICartridge {
     cMuzzleVelocity: number;
     cZeroTemperature: number;
     cTCoeff: number;
+}
+
+export interface IDescription {
+    profileName: string;
+    cartridgeName: string;
+    bulletName: string;
+    shortNameTop: string;
+    shortNameBot: string;
+    userNote: string;
+}
+
+export interface IBullet {
+    bDiameter: number;
+    bWeight: number;
+    bLength: number;
+    coefG1: Coefficient[];
+    coefG7: Coefficient[];
+    coefCustom: Coefficient[];
+    bcType: GType;
+}
+
+export interface IZeroing {
+    zeroX: number;
+    zeroY: number;
     cZeroDistanceIdx: number;
     cZeroAirTemperature: number;
     cZeroAirPressure: number;
     cZeroAirHumidity: number;
     cZeroWPitch: number;
     cZeroPTemperature: number;
-    bDiameter: number;
-    bWeight: number;
-    bLength: number;
-    bcType: GType;
-    coefG1: Coefficient[];
-    coefG7: Coefficient[];
-    coefCustom: Coefficient[];
+    distances: number[];
+}
+
+export interface Profile extends IRiffle, ICartridge, IDescription, IBullet, IZeroing {
+    deviceUuid: string;
+    switches: SwitchPosition[];
 }
 
 export interface ProfileWithId extends Profile {
