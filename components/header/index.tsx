@@ -5,6 +5,7 @@ import {
     ButtonText,
     Container,
     FirstButton,
+    Line,
     SecondButton,
     ThirdButton,
     TripleButtonContainer,
@@ -22,26 +23,19 @@ export const Header: React.FC = () => {
             return (
                 <Container top={top} left={left} right={right}>
                     <TripleButtonContainer>
-                        <FirstButton
-                            style={{
-                                borderRightWidth: 0,
-                                borderBottomLeftRadius: 4,
-                                borderTopLeftRadius: 4,
-                            }}
-                            onPress={openNewProfileModal}>
+                        <FirstButton onPress={openNewProfileModal}>
                             <ButtonText>Create new</ButtonText>
                         </FirstButton>
 
-                        <SecondButton isActive={false}>
+                        <Line />
+
+                        <SecondButton>
                             <ButtonText>Send selected</ButtonText>
                         </SecondButton>
 
-                        <ThirdButton
-                            style={{
-                                borderLeftWidth: 0,
-                                borderBottomRightRadius: 4,
-                                borderTopRightRadius: 4,
-                            }}>
+                        <Line />
+
+                        <ThirdButton>
                             <ButtonText>Import</ButtonText>
                         </ThirdButton>
                     </TripleButtonContainer>

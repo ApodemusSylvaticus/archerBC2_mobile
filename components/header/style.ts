@@ -1,6 +1,7 @@
 import styled from 'styled-components/native';
 import { rem } from '@/helpers/rem';
 import { TextBold16 } from '@/components/text/styled';
+import { VerticalLine } from '@/components/line';
 
 interface ContainerProps {
     right: number;
@@ -26,14 +27,15 @@ export const TripleButtonContainer = styled.View`
     display: flex;
     flex-direction: row;
     width: 100%;
+    align-items: center;
+    border-radius: 16px;
+    border-width: 2px;
+    border-color: ${props => props.theme.colors.activeTab};
+    overflow: hidden;
+    background: ${props => props.theme.colors.l1ActiveEl};
 `;
 
-interface ButtonProps {
-    isActive: boolean;
-}
 export const Button = styled.Pressable`
-    border-width: 1px;
-    border-color: ${props => props.theme.colors.activeTab};
     padding: ${props => rem(props, 1.2)} 0;
     background: ${props => props.theme.colors.l1ActiveEl};
 `;
@@ -42,9 +44,9 @@ export const FirstButton = styled(Button)`
     width: 30%;
 `;
 
-export const SecondButton = styled(Button)<ButtonProps>`
-    background: ${props => (props.isActive ? props.theme.colors.l1ActiveEl : props.theme.colors.cardBg)};
-    width: 40%;
+export const SecondButton = styled(Button)`
+    background: ${props => props.theme.colors.l1ActiveEl};
+    flex-grow: 1;
 `;
 
 export const ThirdButton = styled(Button)`
@@ -53,4 +55,10 @@ export const ThirdButton = styled(Button)`
 
 export const ButtonText = styled(TextBold16)`
     text-align: center;
+`;
+
+export const Line = styled(VerticalLine)`
+    height: 60%;
+    width: 2px;
+    border-radius: 16px;
 `;

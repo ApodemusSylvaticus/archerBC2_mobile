@@ -12,7 +12,7 @@ export const InputWrapper = styled.View`
     flex-grow: 1;
     position: relative;
     border: 1px solid ${props => props.theme.colors.secondary};
-    border-radius: 4px;
+    border-radius: 16px;
     display: flex;
     flex-direction: row;
     align-items: center;

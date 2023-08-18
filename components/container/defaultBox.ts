@@ -31,7 +31,7 @@ export const DefaultBox = styled.View`
 
 export const DefaultCard = styled(DefaultBox)`
     flex-direction: column;
-    border-radius: 4px;
+    border-radius: 16px;
     gap: ${props => rem(props, 1.6)};
     background: ${props => props.theme.colors.cardBg};
 `;

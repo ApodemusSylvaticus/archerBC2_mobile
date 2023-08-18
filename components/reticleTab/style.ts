@@ -10,7 +10,7 @@ export const Container = styled.View`
     justify-content: space-between;
     align-items: center;
     background: ${props => props.theme.colors.l1ActiveEl};
-    border-radius: 2px;
+    border-radius: 16px;
 `;
 
 export const NameBlock = styled.View`
@@ -23,13 +23,13 @@ export const NameBlock = styled.View`
 export const ActualLabel = styled.View`
     padding: ${props => rem(props, 0.4)} ${props => rem(props, 0.8)};
     background: ${props => props.theme.colors.appBg};
-    border-radius: 4px;
+    border-radius: 16px;
 `;
 
 export const ReticlesMock = styled.View`
     width: ${props => rem(props, 4)};
     height: ${props => rem(props, 4)};
-    border-radius: 2px;
+    border-radius: 16px;
     background: ${props => props.theme.colors.l2ActiveEl};
 `;
 

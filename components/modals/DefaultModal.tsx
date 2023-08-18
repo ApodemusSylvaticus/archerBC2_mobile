@@ -15,7 +15,7 @@ export const DefaultModal: React.FC<PropsWithChildren<DefaultModalProps>> = ({
         <Modal animationType="slide" visible={isVisible}>
             <Container>
                 <GoBackButton onPress={backButtonHandler}>
-                    <GoBackButtonText style={{ color: 'white' }}>Go back</GoBackButtonText>
+                    <GoBackButtonText>Go back</GoBackButtonText>
                 </GoBackButton>
 
                 <ScrollView>
