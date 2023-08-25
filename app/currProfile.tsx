@@ -1,13 +1,24 @@
 import React from 'react';
-import { AppContainer } from '@/components/container/appContainer';
+import { Button, ScrollView } from 'react-native';
+import { useModalControllerStore } from '@/store/useModalControllerStore';
 
 const CurrProfile: React.FC = () => {
+    const { open } = useModalControllerStore(state => ({
+        isPixelEditorOpen: state.isPixelEditorOpen,
+        open: state.openPixelEditor,
+    }));
     return (
-        <AppContainer>
+        <ScrollView>
+            <Button title="Open modal" onPress={open} />
+
+            {/*
+            <WebPixelEditor />
+*/}
+
             {/*
             <Profile />
 */}
-        </AppContainer>
+        </ScrollView>
     );
 };
 

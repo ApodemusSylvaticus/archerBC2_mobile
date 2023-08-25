@@ -59,8 +59,6 @@ export const useConvertProfile = () => {
     const addNewProfile = useProfileStore(addNewProfileState => addNewProfileState.addNewProfile);
 
     const getCoefficient = () => {
-        console.log('--------------------------');
-        console.log(ballisticProfile);
         switch (ballisticProfile!.type) {
             case BallisticProfileType.MULTI:
                 return ballisticProfile!.coefficient.map(el => ({ mv: +el.mv, bc: +el.bc }));
