@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { Button, View } from 'react-native';
+import { ScrollView } from 'react-native';
 import { GridLayout } from '@/components/pixelEditor/gridLayout';
 import { PixelEditor } from '@/helpers/pixelEditor';
 import { getWindowHeight } from '@/helpers/getWindowParam';
@@ -35,9 +35,11 @@ export const WebPixelEditor: React.FC = () => {
 
     const ref = useRef<HTMLCanvasElement>(null);
 
-    const onViewLayout = useCallback(() => {
+    const onViewLayout = useCallback((e: { nativeEvent: { layout: { height: any; width: any } } }) => {
         if (ref.current) {
-            pixelEditor.current = new PixelEditor(ref.current);
+            const { height, width } = e.nativeEvent.layout;
+
+            pixelEditor.current = new PixelEditor(ref.current, height, width);
             pixelEditor.current?.setColumnCount(50);
             setIsGridVisible(true);
         }
@@ -78,6 +80,7 @@ export const WebPixelEditor: React.FC = () => {
     }, []);
 
     // TODO fix this crunch
+    /*
     const onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
             const file = event.target.files[0];
@@ -116,34 +119,20 @@ export const WebPixelEditor: React.FC = () => {
             fileReader.readAsDataURL(file);
         }
     };
+*/
 
     return (
-        <View
+        <ScrollView
             style={{
-                backgroundColor: 'black',
-                alignItems: 'center',
+                backgroundColor: 'red',
+                padding: 10,
             }}>
-            <Button
-                title={`Scale up (now ${pixelEditor.current?.scale})`}
-                onPress={() => pixelEditor.current?.scaleUp()}
-            />
-            <Button
-                title={`Scale down (now ${pixelEditor.current?.scale})`}
-                onPress={() => pixelEditor.current?.scaleDown()}
-            />
-
-            <View>
-                <input type="file" onChange={onInputChange} />
-            </View>
-            <View
+            <ScrollView
                 style={{
-                    width: 1600,
+                    flexGrow: 1,
                     minHeight: getWindowHeight(),
-                    overflowX: 'scroll',
                     position: 'relative',
                     backgroundColor: 'white',
-                    flex: 1,
-                    overflow: 'hidden',
                 }}
                 onLayout={onViewLayout}>
                 {isGridVisible && (
@@ -157,7 +146,7 @@ export const WebPixelEditor: React.FC = () => {
                     ref={ref}
                     style={{ flexGrow: 1 }}
                 />
-            </View>
-        </View>
+            </ScrollView>
+        </ScrollView>
     );
 };

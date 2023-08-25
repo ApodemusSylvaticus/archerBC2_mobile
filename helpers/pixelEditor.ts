@@ -1,5 +1,5 @@
 import { Nullable } from '@/interface/helper';
-import { getWindowHeight } from '@/helpers/getWindowParam';
+import { getWindowHeight, getWindowWidth } from '@/helpers/getWindowParam';
 
 export interface Pixel {
     x: number;
@@ -35,10 +35,15 @@ export class PixelEditor {
 
     scaleRuler: number[] = [];
 
-    constructor(canvas: HTMLCanvasElement) {
+    realSizeCoefficient = {
+        x: 1,
+        y: 1,
+    };
+
+    constructor(canvas: HTMLCanvasElement, elemHeight: number, elemWidth: number) {
         const newPixelData: Pixel[] = [];
         this.visibleHeight = getWindowHeight();
-        this.visibleWidth = 1600;
+        this.visibleWidth = getWindowWidth();
 
         const ctx = canvas.getContext('2d');
         if (ctx === null) {
@@ -48,11 +53,16 @@ export class PixelEditor {
         ctx.fillStyle = '#000000';
 
         this.canvas = canvas;
-        this.canvas.width = this.visibleWidth;
+        this.canvas.width = 1600;
         this.canvas.height = this.visibleHeight;
 
-        for (let y = 0; y < this.visibleHeight; y++) {
-            for (let x = 0; x < this.visibleWidth; x++) {
+        this.realSizeCoefficient = {
+            x: this.canvas.width / elemWidth,
+            y: this.canvas.height / elemHeight,
+        };
+
+        for (let y = 0; y < this.canvas.height; y++) {
+            for (let x = 0; x < this.canvas.width; x++) {
                 newPixelData.push({ x, y, r: 255, g: 255, b: 255 });
             }
         }
@@ -84,8 +94,11 @@ export class PixelEditor {
     };
 
     setPixelData = (data: Pixel[]) => {
+        if (this.canvas === null) {
+            throw new Error('TODO ERRO');
+        }
         data.forEach(el => {
-            this.pixelsData[el.y * this.visibleWidth + el.x] = el;
+            this.pixelsData[el.y * this.canvas!.width + el.x] = el;
         });
         this.redrawCanvas();
     };
@@ -132,7 +145,7 @@ export class PixelEditor {
     };
 
     paint = (clientX: number, clientY: number) => {
-        const { cellSize, scale, pixelsData, canvas } = this;
+        const { cellSize, scale, pixelsData, canvas, realSizeCoefficient } = this;
 
         if (canvas === null) {
             throw new Error('TODO EROOR');
@@ -145,8 +158,8 @@ export class PixelEditor {
 
         const canvasBoundingRect = canvas.getBoundingClientRect();
 
-        const x = clientX - canvasBoundingRect.left;
-        const y = clientY - canvasBoundingRect.top;
+        const x = clientX * realSizeCoefficient.x - canvasBoundingRect.left;
+        const y = clientY * realSizeCoefficient.y - canvasBoundingRect.top;
 
         const cellX = Math.floor(x / cellSize);
         const cellY = Math.floor(y / cellSize);
@@ -164,7 +177,6 @@ export class PixelEditor {
                 const currX = Math.round(startX / scale) + this.OxShift + j;
                 const currY = Math.round(startY / scale) + this.OyShift + i;
                 const pixel = pixelsData[currY * canvas.width + currX];
-                console.log(pixel);
                 if (pixel) {
                     pixel.r = 0;
                     pixel.g = 0;
@@ -179,7 +191,7 @@ export class PixelEditor {
     };
 
     redrawCanvas = () => {
-        const { canvas, scale, pixelsData, visibleWidth, visibleHeight, OxShift, OyShift } = this;
+        const { canvas, scale, pixelsData, OxShift, OyShift } = this;
         if (canvas === null) {
             throw new Error('TODO ERROR');
         }
@@ -191,11 +203,11 @@ export class PixelEditor {
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        const visibleX = Math.round(visibleWidth / scale);
-        const visibleY = Math.round(visibleHeight / scale);
+        const visibleX = Math.round(canvas.width / scale);
+        const visibleY = Math.round(canvas.height / scale);
         for (let y = OyShift; y < visibleY + OyShift; y++) {
             for (let x = OxShift; x < visibleX + OxShift; x++) {
-                const pixel = pixelsData[y * visibleWidth + x];
+                const pixel = pixelsData[y * canvas!.width + x];
                 if (pixel.r === 255 && pixel.b === 255 && pixel.g === 255) {
                     continue;
                 }
