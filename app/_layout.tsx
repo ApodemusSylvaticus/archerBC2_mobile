@@ -55,7 +55,7 @@ export default function RootLayout() {
             primary: '#E0E0E0',
             l1ActiveEl: '#757575',
             l2ActiveEl: '#D9D9D9',
-            activeTab: '#8BC34A',
+            activeTab: '#63A375',
             secondary: '#EEEEEE',
             error: '#B00020',
         },

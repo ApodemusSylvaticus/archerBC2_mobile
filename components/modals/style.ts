@@ -11,7 +11,6 @@ export const Container = styled.View`
 `;
 
 export const ContentContainer = styled.View`
-    margin-top: ${props => rem(props, 1.6)};
     padding: ${props => rem(props, 1.6)} ${props => rem(props, 0.8)};
     display: flex;
     flex-direction: column;
@@ -24,6 +23,7 @@ export const GoBackButton = styled(DefaultButton)`
     align-self: baseline;
     margin-top: ${props => rem(props, 1.6)};
     margin-left: ${props => rem(props, 0.8)};
+    margin-bottom: ${props => rem(props, 0.8)};
 `;
 
 export const GoBackButtonText = styled(TextSemiBold20)`

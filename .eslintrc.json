@@ -36,6 +36,8 @@
                 "endOfLine": "auto"
             }
         ],
+        "no-continue": "off",
+        "no-plusplus": "off",
         "global-require": "warn",
         "no-use-before-define": "off",
         "prefer-arrow-callback": "warn",
