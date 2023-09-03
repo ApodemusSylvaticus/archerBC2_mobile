@@ -1,7 +1,6 @@
 import React, { PropsWithChildren } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Container, LinkEl, MockImg } from '@/components/tabBar/tab/style';
-import { TextSemiBold12 } from '@/components/text/styled';
+import { Container, LinkEl } from '@/components/tabBar/tab/style';
 
 interface ITab {
     isActive: boolean;
@@ -14,8 +13,7 @@ export const Tab: React.FC<PropsWithChildren<ITab>> = ({ children, isActive, hre
     return (
         <LinkEl href={href} asChild>
             <Container isActive={isActive} additionalSpace={bottom}>
-                <MockImg />
-                <TextSemiBold12>{children}</TextSemiBold12>
+                {children}
             </Container>
         </LinkEl>
     );

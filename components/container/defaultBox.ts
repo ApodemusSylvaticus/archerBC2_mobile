@@ -10,7 +10,7 @@ interface DefaultAppContainerProps {
 export const DefaultAppContainer = styled.View<DefaultAppContainerProps>`
     position: relative;
     min-height: ${getWindowHeight()}px;
-    padding-top: ${props => (Platform.OS === 'web' ? rem(props, 8) : 0)};
+    padding-top: ${props => (Platform.OS === 'web' ? rem(props, 15) : rem(props, 0.8))};
     padding-left: ${props => props.left + props.theme.rem * 0.8}px;
     padding-right: ${props => props.right + props.theme.rem * 0.8}px;
     padding-bottom: ${props => rem(props, 8)};

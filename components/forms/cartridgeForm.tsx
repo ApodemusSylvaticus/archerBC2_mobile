@@ -2,6 +2,7 @@ import { number, object } from 'yup';
 import React from 'react';
 import { Formik } from 'formik';
 import { useTheme } from 'styled-components/native';
+import { useTranslation } from 'react-i18next';
 import { ButtonContainer } from '@/components/forms/style';
 import { ArrowSVG } from '@/components/svg/arrow';
 import { IForm } from '@/interface/form';
@@ -17,6 +18,7 @@ const schema = object().shape({
 
 export const CartridgeForm: React.FC<IForm> = ({ goBack, goForward }) => {
     const { rem, colors } = useTheme();
+    const { t } = useTranslation();
 
     const { cartridge, setCartridge } = useNewProfileStore(state => ({
         cartridge: state.cartridge,
@@ -34,8 +36,8 @@ export const CartridgeForm: React.FC<IForm> = ({ goBack, goForward }) => {
             {({ isValid, handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                 <>
                     <NumericInput
-                        uint="m/s"
-                        label="Muzzle velocity"
+                        uint={t('uint_m_dash_s')}
+                        label={t('profile_muzzle_velocity')}
                         value={values.muzzleVelocity.toString()}
                         onChangeText={handleChange('muzzleVelocity')}
                         error={errors.muzzleVelocity}
@@ -45,8 +47,8 @@ export const CartridgeForm: React.FC<IForm> = ({ goBack, goForward }) => {
                     />
 
                     <NumericInput
-                        uint="C"
-                        label="Powder temperature"
+                        uint={t('uint_temperature')}
+                        label={t('profile_powder_temperature')}
                         value={values.powderTemperature.toString()}
                         onChangeText={handleChange('powderTemperature')}
                         error={errors.powderTemperature}
@@ -56,8 +58,8 @@ export const CartridgeForm: React.FC<IForm> = ({ goBack, goForward }) => {
                     />
 
                     <NumericInput
-                        uint="%/15C"
-                        label="Ratio"
+                        uint={t('uint_percent_dash_temperature')}
+                        label={t('profile_ratio')}
                         value={values.ratio.toString()}
                         onChangeText={handleChange('ratio')}
                         error={errors.ratio}
@@ -69,13 +71,15 @@ export const CartridgeForm: React.FC<IForm> = ({ goBack, goForward }) => {
                     <ButtonContainer>
                         <ArrowSVG
                             orientation="left"
-                            size={rem * 5.5}
-                            fillColor={colors.secondary}
+                            width={rem * 5.5}
+                            height={rem * 5.5}
+                            fillColor={colors.primary}
                             onPress={() => goBack()}
                         />
                         <ArrowSVG
                             orientation="right"
-                            size={rem * 5.5}
+                            width={rem * 5.5}
+                            height={rem * 5.5}
                             fillColor={isAllTouched(values) && isValid ? colors.activeTab : colors.l1ActiveEl}
                             onPress={handleSubmit}
                         />

@@ -67,10 +67,17 @@ export const BallisticProfileForm: React.FC<IForm> = ({ goForward, goBack }) => 
             />
 
             <ButtonContainer>
-                <ArrowSVG orientation="left" size={rem * 5.5} fillColor={colors.secondary} onPress={() => goBack()} />
+                <ArrowSVG
+                    orientation="left"
+                    width={rem * 5.5}
+                    height={rem * 5.5}
+                    fillColor={colors.primary}
+                    onPress={() => goBack()}
+                />
                 <ArrowSVG
                     orientation="right"
-                    size={rem * 5.5}
+                    width={rem * 5.5}
+                    height={rem * 5.5}
                     fillColor={checkIsAllCorrect() ? colors.activeTab : colors.l1ActiveEl}
                     onPress={handleSubmit}
                 />

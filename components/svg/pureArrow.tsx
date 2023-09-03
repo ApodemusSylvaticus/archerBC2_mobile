@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { I18nManager, View } from 'react-native';
 import Svg, { Path, G, Defs } from 'react-native-svg';
-import { PureArrowProps } from '@/interface/svg/arrowSvg';
+import { PureArrowProps } from '@/interface/svg';
 
-export const PureArrow: React.FC<PureArrowProps> = ({ size, fillColor, orientation }) => {
+export const PureArrow: React.FC<PureArrowProps> = ({ width, height, fillColor, orientation }) => {
     const [transformParam, setTransform] = useState('0 deg');
 
     useEffect(() => {
@@ -12,10 +12,10 @@ export const PureArrow: React.FC<PureArrowProps> = ({ size, fillColor, orientati
                 setTransform('0deg');
                 break;
             case 'left':
-                setTransform('90deg');
+                setTransform(I18nManager.isRTL ? '270deg' : '90deg');
                 break;
             case 'right':
-                setTransform('270deg');
+                setTransform(I18nManager.isRTL ? '90deg' : '270deg');
                 break;
             case 'top':
                 setTransform('180deg');
@@ -27,7 +27,7 @@ export const PureArrow: React.FC<PureArrowProps> = ({ size, fillColor, orientati
 
     return (
         <View style={{ transform: `rotate(${transformParam})` }}>
-            <Svg width={size} height={size} viewBox="0 -4.5 20 20" xmlns="http://www.w3.org/2000/svg">
+            <Svg width={width} height={height} viewBox="0 -4.5 20 20" xmlns="http://www.w3.org/2000/svg">
                 <Defs />
                 <G id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
                     <G id="Dribbble-Light-Preview" transform="translate(-180.000000, -6684.000000)" fill={fillColor}>

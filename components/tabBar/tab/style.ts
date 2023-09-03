@@ -14,12 +14,11 @@ export const LinkEl = styled(Link)`
 `;
 
 export const Container = styled(Pressable)<IContainerProps>`
-    padding-top: ${props => rem(props, 0.4)};
-    padding-bottom: ${props => props.theme.rem * 0.4 + props.additionalSpace}px;
+    padding-top: ${props => rem(props, 0.8)};
+    padding-bottom: ${props => props.theme.rem * 0.8 + props.additionalSpace}px;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: ${props => rem(props, 0.4)};
+    flex-direction: row;
+    justify-content: center;
     background: ${props => (props.isActive ? props.theme.colors.l1ActiveEl : props.theme.colors.cardBg)};
 `;
 

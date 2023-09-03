@@ -1,4 +1,7 @@
 export enum AsyncStore {
-    currentProfile = 'currentProfile',
+    actualProfiles = 'actualProfiles',
     profiles = 'profiles',
+    language = 'language',
+    theme = 'theme',
+    size = 'size',
 }

@@ -30,11 +30,11 @@ export const ReticlesMock = styled.View`
     width: ${props => rem(props, 4)};
     height: ${props => rem(props, 4)};
     border-radius: 16px;
-    background: ${props => props.theme.colors.l2ActiveEl};
+    background: ${props => props.theme.colors.primary};
 `;
 
 export const SemiBold20 = styled(TextSemiBold20)`
-    color: ${props => props.theme.colors.secondary};
+    color: ${props => props.theme.colors.primary};
 `;
 
 export const SemiBold16 = styled(TextSemiBold16)`

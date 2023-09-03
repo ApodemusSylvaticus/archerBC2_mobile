@@ -2,6 +2,7 @@ import { number, object, string } from 'yup';
 import React, { useState } from 'react';
 import { Formik } from 'formik';
 import { useTheme } from 'styled-components/native';
+import { useTranslation } from 'react-i18next';
 import { DefaultInput } from '../Inputs/defaultInput';
 import { ButtonContainer } from '@/components/forms/style';
 import { ArrowSVG } from '@/components/svg/arrow';
@@ -18,6 +19,7 @@ const schema = object().shape({
 });
 
 export const RiffleForm: React.FC<IForm> = ({ goBack, goForward }) => {
+    const { t } = useTranslation();
     const { rem, colors } = useTheme();
 
     const { riffle, setRiffle } = useNewProfileStore(state => ({
@@ -25,25 +27,24 @@ export const RiffleForm: React.FC<IForm> = ({ goBack, goForward }) => {
         setRiffle: state.setRiffle,
     }));
 
-    const inputValue = riffle;
+    const list = ['left', 'right'] as const;
 
-    const list = ['left', 'right'];
-    const [twistDirectionState, setTwistDirectionState] = useState(
-        list.findIndex(el => el === inputValue.twistDirection),
-    );
+    const translateList = [t('profile_twist_direction_left'), t('profile_twist_direction_right')];
+
+    const [twistDirectionState, setTwistDirectionState] = useState(list.findIndex(el => el === riffle.twistDirection));
 
     return (
         <Formik
-            initialValues={inputValue}
+            initialValues={riffle}
             onSubmit={value => {
-                setRiffle(value);
+                setRiffle({ ...value, twistDirection: list[twistDirectionState] });
                 goForward();
             }}
             validationSchema={schema}>
             {({ isValid, handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                 <>
                     <DefaultInput
-                        label="Calibre"
+                        label={t('profile_calibre')}
                         value={values.calibre}
                         onChangeText={handleChange('calibre')}
                         error={errors.calibre}
@@ -53,8 +54,8 @@ export const RiffleForm: React.FC<IForm> = ({ goBack, goForward }) => {
                     />
 
                     <NumericInput
-                        label="Twist rate"
-                        uint="inches/turn"
+                        label={t('profile_twist_rate')}
+                        uint={t('uint_inches_dash_turn')}
                         value={values.twistRate}
                         onChangeText={handleChange('twistRate')}
                         error={errors.twistRate}
@@ -64,16 +65,16 @@ export const RiffleForm: React.FC<IForm> = ({ goBack, goForward }) => {
                     />
 
                     <SelectInput
-                        label="Twist direction"
+                        label={t('profile_twist_direction')}
                         background={colors.appBg}
                         chosenEl={twistDirectionState}
-                        list={list}
+                        list={translateList}
                         setElem={val => setTwistDirectionState(val)}
                     />
 
                     <NumericInput
-                        label="Scope height"
-                        uint="mm"
+                        label={t('profile_scope_height')}
+                        uint={t('uint_mm')}
                         value={values.scopeHeight}
                         onChangeText={handleChange('scopeHeight')}
                         error={errors.scopeHeight}
@@ -85,13 +86,15 @@ export const RiffleForm: React.FC<IForm> = ({ goBack, goForward }) => {
                     <ButtonContainer>
                         <ArrowSVG
                             orientation="left"
-                            size={rem * 5.5}
-                            fillColor={colors.secondary}
+                            width={rem * 5.5}
+                            height={rem * 5.5}
+                            fillColor={colors.primary}
                             onPress={() => goBack()}
                         />
                         <ArrowSVG
                             orientation="right"
-                            size={rem * 5.5}
+                            width={rem * 5.5}
+                            height={rem * 5.5}
                             fillColor={isAllTouched(values) && isValid ? colors.activeTab : colors.l1ActiveEl}
                             onPress={handleSubmit}
                         />

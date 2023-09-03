@@ -27,7 +27,6 @@ export const SelectInput: React.FC<SelectInputProps> = ({ list, setElem, chosenE
         setElem(index);
     };
 
-    // TODO  <PureArrow size={15} orientation="bottom" fillColor="white" />
     return (
         <Container zIndex={zIndex}>
             <PressableTextContainer
@@ -36,7 +35,12 @@ export const SelectInput: React.FC<SelectInputProps> = ({ list, setElem, chosenE
                 <Text isActive={!!chosenEl || chosenEl === 0}>
                     {chosenEl || chosenEl === 0 ? list[chosenEl] : label}
                 </Text>
-                <PureArrow size={rem * 1.5} orientation={isOpen ? 'top' : 'bottom'} fillColor={colors.secondary} />
+                <PureArrow
+                    width={rem * 1.5}
+                    height={rem * 1.5}
+                    orientation={isOpen ? 'top' : 'bottom'}
+                    fillColor={colors.primary}
+                />
             </PressableTextContainer>
             {chosenEl !== null && (
                 <InputLabel isActive background={background}>
@@ -62,7 +66,7 @@ export const SelectInput: React.FC<SelectInputProps> = ({ list, setElem, chosenE
                         return (
                             <SelectItem
                                 key={el}
-                                style={{ borderBottomLeftRadius: 4, borderBottomRightRadius: 4, borderTopWidth: 0 }}
+                                style={{ borderBottomLeftRadius: 16, borderBottomRightRadius: 16, borderTopWidth: 0 }}
                                 onPress={() => handlePress(index)}>
                                 <Text isActive>{el}</Text>
                             </SelectItem>

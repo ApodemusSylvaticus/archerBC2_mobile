@@ -2,6 +2,7 @@ import React from 'react';
 import { Formik } from 'formik';
 import { object, string } from 'yup';
 import { useTheme } from 'styled-components/native';
+import { useTranslation } from 'react-i18next';
 import { DefaultInput } from '../Inputs/defaultInput';
 import { ArrowSVG } from '@/components/svg/arrow';
 import { ButtonContainer } from '@/components/forms/style';
@@ -21,6 +22,7 @@ export const DescriptionForm: React.FC<IForm> = ({ goForward }) => {
         description: state.description,
         setDescription: state.setDescription,
     }));
+    const { t } = useTranslation();
 
     return (
         <Formik
@@ -33,7 +35,7 @@ export const DescriptionForm: React.FC<IForm> = ({ goForward }) => {
             {({ touched, handleChange, handleBlur, handleSubmit, values, errors, isValid }) => (
                 <>
                     <DefaultInput
-                        label="Profile name"
+                        label={t('profile_profile_name')}
                         value={values.name}
                         onChangeText={handleChange('name')}
                         error={errors.name}
@@ -43,7 +45,7 @@ export const DescriptionForm: React.FC<IForm> = ({ goForward }) => {
                     />
 
                     <DefaultInput
-                        label="Cartridge name"
+                        label={t('profile_cartridge_name')}
                         value={values.cartridge}
                         onChangeText={handleChange('cartridge')}
                         error={errors.cartridge}
@@ -53,7 +55,7 @@ export const DescriptionForm: React.FC<IForm> = ({ goForward }) => {
                     />
 
                     <DefaultInput
-                        label="Bullet name"
+                        label={t('profile_bullet_name')}
                         value={values.bullet}
                         onChangeText={handleChange('bullet')}
                         error={errors.bullet}
@@ -65,13 +67,15 @@ export const DescriptionForm: React.FC<IForm> = ({ goForward }) => {
                     <ButtonContainer>
                         <ArrowSVG
                             orientation="left"
-                            size={rem * 5.5}
+                            width={rem * 5.5}
+                            height={rem * 5.5}
                             fillColor="transparent"
                             onPress={() => undefined}
                         />
                         <ArrowSVG
                             orientation="right"
-                            size={rem * 5.5}
+                            width={rem * 5.5}
+                            height={rem * 5.5}
                             fillColor={isAllTouched(values) && isValid ? colors.activeTab : colors.l1ActiveEl}
                             onPress={handleSubmit}
                         />

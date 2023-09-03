@@ -2,6 +2,7 @@ import React from 'react';
 import { Formik } from 'formik';
 import { number, object } from 'yup';
 import { useTheme } from 'styled-components/native';
+import { useTranslation } from 'react-i18next';
 import { ButtonContainer } from '@/components/forms/style';
 import { ArrowSVG } from '@/components/svg/arrow';
 import { IForm } from '@/interface/form';
@@ -16,6 +17,7 @@ const schema = object().shape({
 });
 export const BulletForm: React.FC<IForm> = ({ goForward, goBack }) => {
     const { rem, colors } = useTheme();
+    const { t } = useTranslation();
 
     const { bullet, setBullet } = useNewProfileStore(state => ({
         bullet: state.bullet,
@@ -33,8 +35,8 @@ export const BulletForm: React.FC<IForm> = ({ goForward, goBack }) => {
             {({ isValid, handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                 <>
                     <NumericInput
-                        uint="inches"
-                        label="Diameter"
+                        uint={t('uint_inches')}
+                        label={t('profile_diameter')}
                         value={values.diameter}
                         onChangeText={handleChange('diameter')}
                         error={errors.diameter}
@@ -44,8 +46,8 @@ export const BulletForm: React.FC<IForm> = ({ goForward, goBack }) => {
                     />
 
                     <NumericInput
-                        uint="grains"
-                        label="Weight"
+                        uint={t('uint_grains')}
+                        label={t('profile_weight')}
                         value={values.weight}
                         onChangeText={handleChange('weight')}
                         error={errors.weight}
@@ -55,8 +57,8 @@ export const BulletForm: React.FC<IForm> = ({ goForward, goBack }) => {
                     />
 
                     <NumericInput
-                        uint="inches"
-                        label="Length"
+                        uint={t('uint_inches')}
+                        label={t('profile_length')}
                         value={values.length}
                         onChangeText={handleChange('length')}
                         error={errors.length}
@@ -68,13 +70,15 @@ export const BulletForm: React.FC<IForm> = ({ goForward, goBack }) => {
                     <ButtonContainer>
                         <ArrowSVG
                             orientation="left"
-                            size={rem * 5.5}
-                            fillColor={colors.secondary}
+                            width={rem * 5.5}
+                            height={rem * 5.5}
+                            fillColor={colors.primary}
                             onPress={() => goBack()}
                         />
                         <ArrowSVG
                             orientation="right"
-                            size={rem * 5.5}
+                            width={rem * 5.5}
+                            height={rem * 5.5}
                             fillColor={isAllTouched(values) && isValid ? colors.activeTab : colors.l1ActiveEl}
                             onPress={handleSubmit}
                         />

@@ -1,5 +1,6 @@
 import React, { PropsWithChildren } from 'react';
 import { Modal, ScrollView } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Container, ContentContainer, GoBackButton, GoBackButtonText } from '@/components/modals/style';
 
 interface DefaultModalProps {
@@ -11,11 +12,12 @@ export const DefaultModal: React.FC<PropsWithChildren<DefaultModalProps>> = ({
     backButtonHandler,
     children,
 }) => {
+    const { t } = useTranslation();
     return (
         <Modal animationType="slide" visible={isVisible}>
             <Container>
                 <GoBackButton onPress={backButtonHandler}>
-                    <GoBackButtonText>Go back</GoBackButtonText>
+                    <GoBackButtonText>{t('default_go_back')}</GoBackButtonText>
                 </GoBackButton>
 
                 <ScrollView>

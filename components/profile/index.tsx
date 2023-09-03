@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button, Platform } from 'react-native';
 import { Description } from '@/components/profile/components/description';
 import { Rifle } from '@/components/profile/components/rifle';
 import { Bullet } from '@/components/profile/components/bullet';
@@ -7,6 +8,7 @@ import { DefaultColumnContainer } from '@/components/container/defaultBox';
 import { ProfileWithId } from '@/interface/profile';
 import { Zeroing } from '@/components/profile/components/zeroing';
 import { Cartridge } from '@/components/profile/components/cartridge';
+import { useModalControllerStore } from '@/store/useModalControllerStore';
 
 export const Profile: React.FC<ProfileWithId> = ({
     profileName,
@@ -43,6 +45,7 @@ export const Profile: React.FC<ProfileWithId> = ({
     deviceUuid,
 }) => {
     console.log(switches, deviceUuid);
+    const openDistanceList = useModalControllerStore(state => state.openDistanceList);
     return (
         <DefaultColumnContainer>
             <Rifle scHeight={scHeight} rTwist={rTwist} caliber={caliber} twistDir={twistDir} id={id} />
@@ -84,6 +87,10 @@ export const Profile: React.FC<ProfileWithId> = ({
                 cartridgeName={cartridgeName}
                 userNote={userNote}
             />
+
+            {Platform.OS !== 'web' && (
+                <Button title="open modal" onPress={() => openDistanceList({ distances, cZeroDistanceIdx })} />
+            )}
         </DefaultColumnContainer>
     );
 };

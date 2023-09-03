@@ -1,9 +1,8 @@
 import React from 'react';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { usePathname } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import {
     ButtonText,
-    Container,
     FirstButton,
     Line,
     SecondButton,
@@ -12,47 +11,46 @@ import {
 } from '@/components/header/style';
 import { Routing } from '@/constant/routing';
 import { useModalControllerStore } from '@/store/useModalControllerStore';
+import { NameBar } from '@/components/header/nameBar';
+import { useProfileStore } from '@/store/useProfileStore';
 
 export const Header: React.FC = () => {
-    const { top, left, right } = useSafeAreaInsets();
     const pathname = usePathname();
+    const { t } = useTranslation();
     const openNewProfileModal = useModalControllerStore(state => state.openNewProfileModal);
+    const sendSelected = useProfileStore(state => state.sendSelected);
 
     switch (pathname) {
         case Routing.PROFILES:
             return (
-                <Container top={top} left={left} right={right}>
+                <NameBar>
                     <TripleButtonContainer>
                         <FirstButton onPress={openNewProfileModal}>
-                            <ButtonText>Create new</ButtonText>
+                            <ButtonText>{t('default_create_new')}</ButtonText>
                         </FirstButton>
 
                         <Line />
 
-                        <SecondButton>
-                            <ButtonText>Send selected</ButtonText>
+                        <SecondButton onPress={sendSelected}>
+                            <ButtonText>{t('default_send_selected')}</ButtonText>
                         </SecondButton>
 
                         <Line />
 
                         <ThirdButton>
-                            <ButtonText>Import</ButtonText>
+                            <ButtonText>{t('default_import')}</ButtonText>
                         </ThirdButton>
                     </TripleButtonContainer>
-                </Container>
+                </NameBar>
             );
         case Routing.ENVI:
-            // eslint-disable-next-line react/jsx-no-useless-fragment
-            return <></>;
+            return <NameBar />;
         case Routing.SETTING:
-            // eslint-disable-next-line react/jsx-no-useless-fragment
-            return <></>;
+            return <NameBar />;
         case Routing.RETICLES:
-            // eslint-disable-next-line react/jsx-no-useless-fragment
-            return <></>;
+            return <NameBar />;
         case Routing.CURRENT_PROFILE:
-            // eslint-disable-next-line react/jsx-no-useless-fragment
-            return <></>;
+            return <NameBar />;
         default:
             // eslint-disable-next-line react/jsx-no-useless-fragment
             return <></>;

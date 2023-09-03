@@ -107,10 +107,17 @@ export const MultiCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => 
             )}
 
             <ButtonContainer>
-                <ArrowSVG orientation="left" size={rem * 5.5} fillColor={colors.secondary} onPress={() => goBack()} />
+                <ArrowSVG
+                    orientation="left"
+                    width={rem * 5.5}
+                    height={rem * 5.5}
+                    fillColor={colors.primary}
+                    onPress={() => goBack()}
+                />
                 <ArrowSVG
                     orientation="right"
-                    size={rem * 5.5}
+                    width={rem * 5.5}
+                    height={rem * 5.5}
                     fillColor={coefficients ? colors.activeTab : colors.l1ActiveEl}
                     onPress={handleSubmit}
                 />
@@ -159,10 +166,17 @@ export const SingleCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) =>
             />
             {handleError && <ErrorText>{handleError}</ErrorText>}
             <ButtonContainer>
-                <ArrowSVG orientation="left" size={rem * 5.5} fillColor={colors.secondary} onPress={() => goBack()} />
+                <ArrowSVG
+                    orientation="left"
+                    width={rem * 5.5}
+                    height={rem * 5.5}
+                    fillColor={colors.primary}
+                    onPress={() => goBack()}
+                />
                 <ArrowSVG
                     orientation="right"
-                    size={rem * 5.5}
+                    width={rem * 5.5}
+                    height={rem * 5.5}
                     fillColor={coefficient ? colors.activeTab : colors.l1ActiveEl}
                     onPress={handleSubmit}
                 />

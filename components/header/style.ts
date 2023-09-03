@@ -3,33 +3,15 @@ import { rem } from '@/helpers/rem';
 import { TextBold16 } from '@/components/text/styled';
 import { VerticalLine } from '@/components/line';
 
-interface ContainerProps {
-    right: number;
-    left: number;
-    top: number;
-}
-export const Container = styled.View<ContainerProps>`
-    display: flex;
-    flex-direction: row;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 5;
-    width: 100%;
-    padding-top: ${props => props.top + props.theme.rem * 1.6}px;
-    padding-bottom: ${props => rem(props, 0.8)};
-    padding-right: ${props => props.right + props.theme.rem * 0.8}px;
-    padding-left: ${props => props.left + props.theme.rem * 0.8}px;
-    background: ${props => props.theme.colors.appBg};
-`;
+export const Container = styled.View``;
 
 export const TripleButtonContainer = styled.View`
     display: flex;
     flex-direction: row;
-    width: 100%;
     align-items: center;
     border-radius: 16px;
     border-width: 2px;
+    margin: ${props => rem(props, 1.6)} ${props => rem(props, 0.8)} 0;
     border-color: ${props => props.theme.colors.activeTab};
     overflow: hidden;
     background: ${props => props.theme.colors.l1ActiveEl};
@@ -37,20 +19,26 @@ export const TripleButtonContainer = styled.View`
 
 export const Button = styled.Pressable`
     padding: ${props => rem(props, 1.2)} 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
     background: ${props => props.theme.colors.l1ActiveEl};
 `;
 
 export const FirstButton = styled(Button)`
-    width: 30%;
+    flex-grow: 3;
+    max-width: 30%;
 `;
 
 export const SecondButton = styled(Button)`
     background: ${props => props.theme.colors.l1ActiveEl};
-    flex-grow: 1;
+    flex-grow: 4;
 `;
 
 export const ThirdButton = styled(Button)`
-    width: 30%;
+    flex-grow: 3;
+    max-width: 30%;
 `;
 
 export const ButtonText = styled(TextBold16)`

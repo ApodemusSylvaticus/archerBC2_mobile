@@ -4,14 +4,13 @@ import 'styled-components/native';
 declare module 'styled-components' {
     export interface DefaultTheme {
         rem: number;
+        name: string;
         colors: {
             appBg: string;
             cardBg: string;
             primary: string;
             l1ActiveEl: string;
-            l2ActiveEl: string;
             activeTab: string;
-            secondary: string;
             error: string;
         };
     }

@@ -27,5 +27,5 @@ export const GoBackButton = styled(DefaultButton)`
 `;
 
 export const GoBackButtonText = styled(TextSemiBold20)`
-    color: ${props => props.theme.colors.secondary};
+    color: ${props => props.theme.colors.primary};
 `;

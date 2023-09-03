@@ -4,7 +4,7 @@ import { ProfileTab } from '@/components/profile/profileTab';
 import { useProfileStore } from '@/store/useProfileStore';
 import { DefaultColumnContainer } from '@/components/container/defaultBox';
 
-const CurrProfile: React.FC = () => {
+const Profiles: React.FC = () => {
     const profiles = useProfileStore(state => state.profiles);
 
     return (
@@ -24,4 +24,4 @@ const CurrProfile: React.FC = () => {
     );
 };
 
-export default CurrProfile;
+export default Profiles;

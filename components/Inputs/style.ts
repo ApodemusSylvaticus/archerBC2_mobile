@@ -11,7 +11,7 @@ export const Container = styled.View`
 export const InputWrapper = styled.View`
     flex-grow: 1;
     position: relative;
-    border: 1px solid ${props => props.theme.colors.secondary};
+    border: 1px solid ${props => props.theme.colors.primary};
     border-radius: 16px;
     display: flex;
     flex-direction: row;
@@ -31,7 +31,7 @@ export const InputLabel = styled.Text<IInputLabelProps>`
     left: ${props => (props.isActive ? rem(props, 0.8) : rem(props, 1.2))};
     top: ${props => (props.isActive ? rem(props, -1) : rem(props, 1.3))};
     z-index: ${props => (props.isActive ? 2 : -1)};
-    color: ${props => (props.isActive ? props.theme.colors.secondary : props.theme.colors.l1ActiveEl)};
+    color: ${props => (props.isActive ? props.theme.colors.primary : props.theme.colors.l1ActiveEl)};
     background: ${props => (props.isActive ? props.background : 'transparent')};
     padding: 0 ${props => rem(props, 0.4)};
 `;
@@ -39,7 +39,7 @@ export const InputLabel = styled.Text<IInputLabelProps>`
 export const Input = styled.TextInput`
     padding: ${props => rem(props, 1.2)} ${props => rem(props, 1.6)};
     font-size: ${props => rem(props, 2)};
-    color: ${props => props.theme.colors.secondary};
+    color: ${props => props.theme.colors.primary};
     flex-grow: 1;
 `;
 export const InputError = styled.Text`

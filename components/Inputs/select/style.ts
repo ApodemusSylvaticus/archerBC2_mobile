@@ -15,12 +15,12 @@ export const PressableTextContainer = styled.Pressable`
     align-items: center;
     width: 100%;
     padding: ${props => rem(props, 1.2)} ${props => rem(props, 1.6)};
-    border: 1px solid ${props => props.theme.colors.secondary};
+    border: 1px solid ${props => props.theme.colors.primary};
     border-radius: 16px;
 `;
 
 export const Text = styled(Text20)<{ isActive: boolean }>`
-    color: ${props => (props.isActive ? props.theme.colors.secondary : props.theme.colors.l1ActiveEl)};
+    color: ${props => (props.isActive ? props.theme.colors.primary : props.theme.colors.l1ActiveEl)};
 `;
 
 interface SelectBoxProps {
@@ -43,7 +43,7 @@ export const SelectBox = styled.View<SelectBoxProps>`
 export const SelectItem = styled.Pressable`
     position: relative;
     z-index: 10;
-    border: 1px solid ${props => props.theme.colors.secondary};
+    border: 1px solid ${props => props.theme.colors.primary};
     padding: ${props => rem(props, 1.2)} ${props => rem(props, 1.6)};
     background: ${props => props.theme.colors.cardBg};
 `;

@@ -5,10 +5,16 @@ import { Slot, SplashScreen } from 'expo-router';
 import { ThemeProvider } from 'styled-components/native';
 import { ClickOutsideProvider } from 'react-native-click-outside';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Alert, I18nManager } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { TabBar } from '@/components/tabBar';
 import { ModalControllerWrapper } from '@/components/modals/modalControllerWrapper';
 import { useProfileStore } from '@/store/useProfileStore';
 import { Header } from '@/components/header';
+import '@/i18n/index';
+import { useSettingStore } from '@/store/useSettingStore';
+import { languageArray } from '@/i18n';
 
 export {
     // Catch any errors thrown by the Layout component.
@@ -19,6 +25,13 @@ export {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+    const { getDataFromStorage, theme, size, language } = useSettingStore(state => ({
+        getDataFromStorage: state.getDataFromStorage,
+        theme: state.theme,
+        size: state.size,
+        language: state.language,
+    }));
+    const { i18n } = useTranslation();
     const getProfileFromStore = useProfileStore(state => state.getProfileFromStore);
     const [loaded, error] = useFonts({
         'Lato-Bold': require('../assets/fonts/Lato-Bold.ttf'),
@@ -44,34 +57,41 @@ export default function RootLayout() {
         }
     }, [loaded]);
 
+    useEffect(() => {
+        getDataFromStorage();
+    }, [getDataFromStorage]);
+
+    useEffect(() => {
+        if (language !== i18n.language) {
+            i18n.changeLanguage(language);
+            I18nManager.forceRTL(!languageArray.find(el => el.simbol === language)!.isLTR);
+            // TODO set normal alert
+            Alert.alert(
+                'Reload this page',
+                'Please reload this page to change the UI direction! ' +
+                    'All examples in this app will be affected. ' +
+                    'Check them out to see what they look like in RTL layout.',
+            );
+        }
+    }, [i18n, language]);
+
     if (!loaded) {
         return null;
     }
 
-    const defaultTheme = {
-        colors: {
-            appBg: '#212121',
-            cardBg: '#616161',
-            primary: '#E0E0E0',
-            l1ActiveEl: '#757575',
-            l2ActiveEl: '#D9D9D9',
-            activeTab: '#8BC34A',
-            secondary: '#EEEEEE',
-            error: '#B00020',
-        },
-    };
-
     return (
-        <SafeAreaProvider>
-            <ClickOutsideProvider>
-                <ThemeProvider theme={{ rem: 10, ...defaultTheme }}>
-                    <ModalControllerWrapper>
-                        <Header />
-                        <Slot />
-                        <TabBar />
-                    </ModalControllerWrapper>
-                </ThemeProvider>
-            </ClickOutsideProvider>
-        </SafeAreaProvider>
+        <GestureHandlerRootView style={{ flex: 1, backgroundColor: theme.colors.appBg, width: '100%', height: '100%' }}>
+            <SafeAreaProvider>
+                <ClickOutsideProvider>
+                    <ThemeProvider theme={{ rem: size, ...theme }}>
+                        <ModalControllerWrapper>
+                            <Header />
+                            <Slot />
+                            <TabBar />
+                        </ModalControllerWrapper>
+                    </ThemeProvider>
+                </ClickOutsideProvider>
+            </SafeAreaProvider>
+        </GestureHandlerRootView>
     );
 }
