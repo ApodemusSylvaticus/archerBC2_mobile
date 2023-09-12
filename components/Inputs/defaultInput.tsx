@@ -10,6 +10,7 @@ export const DefaultInput: React.FC<DefaultInputProps> = ({
     touched,
     background,
     onBlur,
+    disabled,
     style,
 }) => {
     const [isActive, setIsActive] = useState(!!value);
@@ -25,11 +26,12 @@ export const DefaultInput: React.FC<DefaultInputProps> = ({
 
     return (
         <Container style={style}>
-            <InputWrapper>
-                <InputLabel isActive={isActive} background={background}>
+            <InputWrapper isDisabled={!!disabled}>
+                <InputLabel isDisabled={!!disabled} isActive={isActive} background={background}>
                     {label}
                 </InputLabel>
                 <Input
+                    isDisabled={!!disabled}
                     value={value}
                     onFocus={handleFocus}
                     onBlur={onBlur}

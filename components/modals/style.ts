@@ -13,9 +13,9 @@ export const Container = styled.View`
 export const ContentContainer = styled.View`
     margin-top: ${props => rem(props, 1.6)};
     padding: ${props => rem(props, 1.6)} ${props => rem(props, 0.8)};
+    gap: ${props => rem(props, 1.6)};
     display: flex;
     flex-direction: column;
-    gap: ${props => rem(props, 1.6)};
 `;
 
 export const GoBackButton = styled(DefaultButton)`

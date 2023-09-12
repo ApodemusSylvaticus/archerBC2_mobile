@@ -8,7 +8,6 @@ export default function Home() {
     const rootNavigation = useRootNavigation();
     useEffect(() => {
         const unsubscribe = rootNavigation?.addListener('state', () => {
-            // console.log("INFO: rootNavigation?.addListener('state')", event);
             setNavigationReady(true);
         });
         return function cleanup() {

@@ -7,22 +7,22 @@ export interface IDescriptionForm {
 }
 
 export interface IRiffleForm {
-    calibre: string;
-    twistRate: string;
-    twistDirection: TwistDirection;
-    scopeHeight: string;
+    caliber: string;
+    rTwist: string;
+    twistDir: TwistDirection;
+    scHeight: string;
 }
 
 export interface ICartridgeForm {
-    muzzleVelocity: string;
-    powderTemperature: string;
-    ratio: string;
+    cMuzzleVelocity: string;
+    cZeroTemperature: string;
+    cTCoeff: string;
 }
 
 export interface IBulletForm {
-    diameter: string;
-    weight: string;
-    length: string;
+    bDiameter: string;
+    bWeight: string;
+    bLength: string;
 }
 
 export enum RANGE {

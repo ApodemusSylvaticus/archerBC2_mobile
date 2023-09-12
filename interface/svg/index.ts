@@ -1,14 +1,13 @@
 export interface BaseSVGProps {
-    width: number;
-    height: number;
+    width: number | string;
+    height: number | string;
     fillColor: string;
 }
 
-export interface ArrowSVGProps extends BaseSVGProps {
-    onPress: () => void;
-    orientation: 'top' | 'bottom' | 'left' | 'right';
+export interface PressableSVGProps extends BaseSVGProps {
+    onPress?: () => void;
 }
 
-export interface PureArrowProps extends BaseSVGProps {
+export interface ArrowSVGProps extends BaseSVGProps, PressableSVGProps {
     orientation: 'top' | 'bottom' | 'left' | 'right';
 }

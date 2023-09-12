@@ -43,7 +43,7 @@ export const Header: React.FC = () => {
                     </TripleButtonContainer>
                 </NameBar>
             );
-        case Routing.ENVI:
+        case Routing.SHOT_CONDITIONS:
             return <NameBar />;
         case Routing.SETTING:
             return <NameBar />;

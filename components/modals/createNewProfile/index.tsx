@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { DescriptionForm } from '@/components/forms/descriptionForm';
-import { RiffleForm } from '@/components/forms/riffleForm';
-import { CartridgeForm } from '@/components/forms/cartridgeForm';
-import { BulletForm } from '@/components/forms/bulletForm';
+import { DescriptionForm } from '@/components/forms/newProfile/descriptionForm';
+import { NewRiffleForm } from '@/components/forms/riffleForm';
+import { NewCartridgeForm } from '@/components/forms/cartridgeForm';
+import { BulletForm } from '@/components/forms/newProfile/bulletForm';
 import { useModalControllerStore } from '@/store/useModalControllerStore';
-import { BallisticProfileForm } from '@/components/forms/ballisticProfileForm';
-import { CoefficientForm } from '@/components/forms/coefficientForm';
+import { BallisticProfileForm } from '@/components/forms/newProfile/ballisticProfileForm';
+import { CoefficientForm } from '@/components/forms/newProfile/coefficientForm';
 import { useConvertProfile } from '@/hooks/useConvertProfile';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
 import { DefaultModal } from '@/components/modals/DefaultModal';
@@ -51,8 +51,8 @@ export const CreateNewProfileModal: React.FC = () => {
     return (
         <DefaultModal backButtonHandler={() => setShouldClose(true)} isVisible={isNewProfileOpen}>
             {page === 0 && <DescriptionForm goBack={goBack} goForward={goForward} />}
-            {page === 1 && <RiffleForm goBack={goBack} goForward={goForward} />}
-            {page === 2 && <CartridgeForm goBack={goBack} goForward={goForward} />}
+            {page === 1 && <NewRiffleForm goBack={goBack} goForward={goForward} />}
+            {page === 2 && <NewCartridgeForm goBack={goBack} goForward={goForward} />}
             {page === 3 && <BulletForm goBack={goBack} goForward={goForward} />}
             {page === 4 && <BallisticProfileForm goBack={goBack} goForward={goForward} />}
             {page === 5 && <CoefficientForm goBack={goBack} goForward={goForward} />}

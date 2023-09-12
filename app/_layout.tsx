@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
 import { Slot, SplashScreen } from 'expo-router';
 import { ThemeProvider } from 'styled-components/native';
 import { ClickOutsideProvider } from 'react-native-click-outside';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Alert, I18nManager } from 'react-native';
+import { Alert, I18nManager, Platform, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { TabBar } from '@/components/tabBar';
@@ -15,6 +15,8 @@ import { Header } from '@/components/header';
 import '@/i18n/index';
 import { useSettingStore } from '@/store/useSettingStore';
 import { languageArray } from '@/i18n';
+import { CoreProtobuf } from '@/core/coreProtobuf';
+import { useEnvironmentStore } from '@/store/useEnvironment';
 
 export {
     // Catch any errors thrown by the Layout component.
@@ -25,6 +27,23 @@ export {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+    const [wsMsg, setWsMsg] = useState();
+    const setEnvProfile = useEnvironmentStore(state => state.setEnvProfile);
+    useEffect(() => {
+        const coreProtobuf = new CoreProtobuf(setWsMsg);
+
+        coreProtobuf.loadProto();
+    }, []);
+
+    useEffect(() => {
+        if (wsMsg) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            setEnvProfile(wsMsg.devStatus);
+        }
+    }, [setEnvProfile, wsMsg]);
+
+    console.log('wsMsg', wsMsg);
     const { getDataFromStorage, theme, size, language } = useSettingStore(state => ({
         getDataFromStorage: state.getDataFromStorage,
         theme: state.theme,
@@ -77,6 +96,24 @@ export default function RootLayout() {
 
     if (!loaded) {
         return null;
+    }
+
+    if (Platform.OS === 'web') {
+        return (
+            <View style={{ flex: 1, backgroundColor: theme.colors.appBg, width: '100%', height: '100%' }}>
+                <SafeAreaProvider>
+                    <ClickOutsideProvider>
+                        <ThemeProvider theme={{ rem: size, ...theme }}>
+                            <ModalControllerWrapper>
+                                <Header />
+                                <Slot />
+                                <TabBar />
+                            </ModalControllerWrapper>
+                        </ThemeProvider>
+                    </ClickOutsideProvider>
+                </SafeAreaProvider>
+            </View>
+        );
     }
 
     return (

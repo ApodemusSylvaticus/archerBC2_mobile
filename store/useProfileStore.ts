@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { IBullet, ICartridge, IDescription, IRiffle, IZeroing, ProfileWithId } from '@/interface/profile';
+import { Distances, IBullet, ICartridge, IDescription, IRiffle, IZeroing, ProfileWithId } from '@/interface/profile';
 import { AsyncStore } from '@/constant/asyncStore';
 import { WithId } from '@/interface/helper';
 
@@ -15,6 +15,7 @@ interface IUseProfileStore {
     setZeroing: (data: WithId<IZeroing>) => void;
     setCartridge: (data: WithId<ICartridge>) => void;
     setDescription: (data: WithId<IDescription>) => void;
+    setDistance: (data: WithId<Distances>) => void;
     selectProfile: (data: string) => void;
     deselectProfile: (data: string) => void;
     sendSelected: () => void;
@@ -220,5 +221,19 @@ export const useProfileStore = create<IUseProfileStore>()(set => ({
             ).catch(console.log);
 
             return { actualProfiles: [...state.actualProfiles, ...selectedProfiles], selectedProfiles: [] };
+        }),
+    setDistance: ({ id, distances }) =>
+        set(state => {
+            return {
+                profiles: state.profiles.map(el => {
+                    if (el.id !== id) {
+                        return el;
+                    }
+                    return {
+                        ...el,
+                        distances,
+                    };
+                }),
+            };
         }),
 }));

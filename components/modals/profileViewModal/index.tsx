@@ -61,7 +61,6 @@ export const ProfileViewModal: React.FC = () => {
 
     return (
         <DefaultModal backButtonHandler={closeProfileViewModal} isVisible={isProfileViewModalOpen}>
-            {/* eslint-disable-next-line react/jsx-props-no-spreading */}
             <Profile {...profile} />
         </DefaultModal>
     );

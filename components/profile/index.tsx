@@ -88,9 +88,7 @@ export const Profile: React.FC<ProfileWithId> = ({
                 userNote={userNote}
             />
 
-            {Platform.OS !== 'web' && (
-                <Button title="open modal" onPress={() => openDistanceList({ distances, cZeroDistanceIdx })} />
-            )}
+            {Platform.OS !== 'web' && <Button title="open modal" onPress={() => openDistanceList(id)} />}
         </DefaultColumnContainer>
     );
 };

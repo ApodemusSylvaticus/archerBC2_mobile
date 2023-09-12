@@ -17,13 +17,13 @@ export const MultiCoefficientWrapper = styled.View`
     flex-direction: row;
     align-items: baseline;
     width: 100%;
-    gap: ${props => rem(props, 1)};
+    gap: ${props => rem(props, 0.8)};
 `;
 
 export const AddNewCoeffButton = styled(DefaultButton)`
     max-width: max-content;
     align-self: center;
-    margin-top: ${props => rem(props, 1)};
+    margin-top: ${props => rem(props, 0.8)};
 `;
 export const ErrorText = styled(ButtonTextBold18)`
     color: ${props => props.theme.colors.error};

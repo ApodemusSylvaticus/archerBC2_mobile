@@ -30,10 +30,10 @@ export const TabBar: React.FC = () => {
                 <EnviSVG
                     height={30}
                     width={30}
-                    fillColor={pathName === Routing.ENVI ? colors.activeTab : colors.appBg}
+                    fillColor={pathName === Routing.SHOT_CONDITIONS ? colors.activeTab : colors.appBg}
                 />
             ),
-            to: Routing.ENVI,
+            to: Routing.SHOT_CONDITIONS,
         },
         {
             svg: (

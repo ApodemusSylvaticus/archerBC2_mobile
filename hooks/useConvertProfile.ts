@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
 import { Profile, SwitchPosition } from '@/interface/profile';
 import { ballisticFunctionList } from '@/constant/data';
@@ -45,6 +46,7 @@ const switches: SwitchPosition[] = [
 ];
 
 export const useConvertProfile = () => {
+    const { t } = useTranslation();
     const { ballisticFunction, ballisticProfile, description, riffle, range, bullet, cartridge } = useNewProfileStore(
         state => ({
             ballisticProfile: state.ballisticProfile,
@@ -73,23 +75,22 @@ export const useConvertProfile = () => {
             profileName: description.name,
             cartridgeName: description.cartridge,
             bulletName: description.bullet,
-            caliber: riffle.calibre,
+            caliber: riffle.caliber,
             deviceUuid: '',
             shortNameTop: description.cartridge.slice(0, 8),
             shortNameBot: description.bullet.slice(0, 8),
-            userNote: 'Add your profile specific notes here',
+            userNote: t('default_add_description'),
             zeroX: 0,
             zeroY: 0,
             distances: distants[range!],
             switches,
 
-            scHeight: +riffle.scopeHeight,
-            rTwist: +riffle.twistRate,
-            twistDir: riffle.twistDirection,
-            cMuzzleVelocity: +cartridge.muzzleVelocity,
-
-            cZeroTemperature: +cartridge.powderTemperature,
-            cTCoeff: +cartridge.ratio,
+            scHeight: +riffle.scHeight,
+            rTwist: +riffle.rTwist,
+            twistDir: riffle.twistDir,
+            cMuzzleVelocity: +cartridge.cMuzzleVelocity,
+            cZeroTemperature: +cartridge.cZeroTemperature,
+            cTCoeff: +cartridge.cTCoeff,
             cZeroDistanceIdx: 0,
 
             cZeroAirTemperature: 15,
@@ -97,9 +98,9 @@ export const useConvertProfile = () => {
             cZeroAirHumidity: 40,
             cZeroWPitch: 0,
             cZeroPTemperature: 15,
-            bDiameter: +bullet.diameter,
-            bWeight: +bullet.weight,
-            bLength: +bullet.length,
+            bDiameter: +bullet.bDiameter,
+            bWeight: +bullet.bWeight,
+            bLength: +bullet.bLength,
             bcType: ballisticFunctionList[ballisticFunction!],
             coefG1: ballisticFunction === BallisticFunctionType.G1 ? getCoefficient() : [],
             coefG7: ballisticFunction === BallisticFunctionType.G7 ? getCoefficient() : [],

@@ -10,8 +10,8 @@ interface IModalsController {
     closeProfileViewModal: () => void;
 
     isDistanceListOpen: boolean;
-    distanceListData: { distances: number[]; cZeroDistanceIdx: number };
-    openDistanceList: (data: { distances: number[]; cZeroDistanceIdx: number }) => void;
+    distanceListId: string;
+    openDistanceList: (id: string) => void;
     closeDistanceList: () => void;
 }
 
@@ -25,8 +25,7 @@ export const useModalControllerStore = create<IModalsController>()(set => ({
     closeProfileViewModal: () => set({ profileViewModalId: '', isProfileViewModalOpen: false }),
 
     isDistanceListOpen: false,
-    distanceListData: { distances: [], cZeroDistanceIdx: 0 },
-    openDistanceList: data => set({ distanceListData: data, isDistanceListOpen: true }),
-    closeDistanceList: () =>
-        set({ distanceListData: { distances: [], cZeroDistanceIdx: 0 }, isDistanceListOpen: false }),
+    distanceListId: '',
+    openDistanceList: id => set({ distanceListId: id, isDistanceListOpen: true }),
+    closeDistanceList: () => set({ distanceListId: 'distanceListId', isDistanceListOpen: false }),
 }));

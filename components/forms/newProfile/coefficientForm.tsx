@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTheme } from 'styled-components/native';
 import { number } from 'yup';
+import { useTranslation } from 'react-i18next';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
 import { BallisticProfileType } from '@/interface/newProfile';
 import { AddNewCoeffButton, ButtonContainer, ErrorText, MultiCoefficientWrapper } from '@/components/forms/style';
@@ -9,8 +10,11 @@ import { IForm } from '@/interface/form';
 import { Text20, TextSemiBold20 } from '@/components/text/styled';
 import { NumericInput } from '@/components/Inputs/numericInput';
 import { Coefficient } from '@/interface/profile';
+import { useValidationSchema } from '@/hooks/useValidationSchema';
+import { DefaultRow } from '@/components/container/defaultBox';
 
 export const MultiCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => {
+    const { t } = useTranslation();
     const { ballisticProfile, setMultiCoefficient } = useNewProfileStore(state => ({
         ballisticProfile: state.ballisticProfile,
         setMultiCoefficient: state.setMultiCoefficient,
@@ -71,29 +75,29 @@ export const MultiCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => 
         goForward();
     };
 
+    const { mvSchema, bcSchema } = useValidationSchema();
+
     return (
         <>
             {coefficients.map((el, index) => (
                 // eslint-disable-next-line react/no-array-index-key
                 <MultiCoefficientWrapper key={index}>
                     <NumericInput
-                        uint="m/s"
-                        label="mv"
+                        uint={t('uint_m_dash_s')}
+                        label={t('profile_mv')}
                         value={el.mv}
-                        schema={number().min(0).max(3000)}
+                        schema={mvSchema}
                         onChangeText={(val: string) => handleChangeMV(val, index)}
                         onBlur={() => undefined}
-                        style={{ flex: 1 }}
                         background={colors.appBg}
                     />
                     <NumericInput
-                        uint="lb/in^2"
-                        label="bc"
+                        uint={t('uint_lb_dash_square_in')}
+                        label={t('profile_bc')}
                         value={el.bc}
-                        schema={number().min(0).max(10)}
+                        schema={bcSchema}
                         onChangeText={(val: string) => handleChangeBC(val, index)}
                         onBlur={() => undefined}
-                        style={{ flex: 1 }}
                         background={colors.appBg}
                     />
                 </MultiCoefficientWrapper>
@@ -102,7 +106,7 @@ export const MultiCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => 
             {handleError && <ErrorText>{handleError}</ErrorText>}
             {coefficients.length < 5 && (
                 <AddNewCoeffButton onPress={addOneMoreCoeff}>
-                    <TextSemiBold20>Add new coefficient</TextSemiBold20>
+                    <TextSemiBold20>{t('profile_add_new_coefficient')}</TextSemiBold20>
                 </AddNewCoeffButton>
             )}
 
@@ -127,10 +131,13 @@ export const MultiCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => 
 };
 
 export const SingleCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => {
+    const { t } = useTranslation();
+
     const { ballisticProfile, setSingleCoefficient } = useNewProfileStore(state => ({
         ballisticProfile: state.ballisticProfile,
         setSingleCoefficient: state.setSingleCoefficient,
     }));
+    const { bcSchema } = useValidationSchema();
 
     if (ballisticProfile === null || ballisticProfile.type === BallisticProfileType.MULTI) {
         throw new Error('Use this component with single ballistic profile');
@@ -155,15 +162,18 @@ export const SingleCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) =>
 
     return (
         <>
-            <NumericInput
-                uint="lb/in^2"
-                label="bc"
-                schema={number().min(0).max(10)}
-                value={coefficient}
-                onChangeText={handleChangeCoefficient}
-                onBlur={() => undefined}
-                background={colors.appBg}
-            />
+            <DefaultRow>
+                <NumericInput
+                    uint={t('uint_lb_dash_square_in')}
+                    label={t('profile_bc')}
+                    schema={bcSchema}
+                    value={coefficient}
+                    onChangeText={handleChangeCoefficient}
+                    onBlur={() => undefined}
+                    background={colors.appBg}
+                />
+            </DefaultRow>
+
             {handleError && <ErrorText>{handleError}</ErrorText>}
             <ButtonContainer>
                 <ArrowSVG

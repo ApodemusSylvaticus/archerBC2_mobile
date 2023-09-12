@@ -1,13 +1,15 @@
 import { useTheme } from 'styled-components/native';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
 import { ButtonContainer } from '@/components/forms/style';
 import { ArrowSVG } from '@/components/svg/arrow';
 import { IForm } from '@/interface/form';
 import { SelectInput } from '@/components/Inputs/select/select';
-import { rangeList, ballisticFunctionList, ballisticProfileList } from '@/constant/data';
+import { ballisticFunctionList } from '@/constant/data';
 
 export const BallisticProfileForm: React.FC<IForm> = ({ goForward, goBack }) => {
+    const { t } = useTranslation();
     const { rem, colors } = useTheme();
 
     const { range, setRange, ballisticProfile, setBallisticProfile, setBallisticFunctionType, ballisticFunction } =
@@ -39,10 +41,19 @@ export const BallisticProfileForm: React.FC<IForm> = ({ goForward, goBack }) => 
         }
     };
 
+    const rangeList = [
+        t('profile_range_subsonic'),
+        t('profile_range_short'),
+        t('profile_range_middle'),
+        t('profile_range_long'),
+    ];
+
+    const ballisticProfileList = [t('profile_ballistic_profile_single'), t('profile_ballistic_profile_multi')];
+
     return (
         <>
             <SelectInput
-                label="This profile will be user for"
+                label={t('profile_range_list_title')}
                 background={colors.appBg}
                 chosenEl={actualRange}
                 list={rangeList}
@@ -50,7 +61,7 @@ export const BallisticProfileForm: React.FC<IForm> = ({ goForward, goBack }) => 
                 zIndex={4}
             />
             <SelectInput
-                label="Ballistic function"
+                label={t('profile_ballistic_function')}
                 background={colors.appBg}
                 chosenEl={actualBallisticFunction}
                 list={ballisticFunctionList}
@@ -58,7 +69,7 @@ export const BallisticProfileForm: React.FC<IForm> = ({ goForward, goBack }) => 
                 zIndex={3}
             />
             <SelectInput
-                label="Ballistic profile"
+                label={t('profile_ballistic_profile')}
                 background={colors.appBg}
                 chosenEl={actualBallisticProfile}
                 list={ballisticProfileList}

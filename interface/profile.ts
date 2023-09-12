@@ -63,6 +63,10 @@ export interface IZeroing {
     distances: number[];
 }
 
+export interface Distances {
+    distances: number[];
+}
+
 export interface Profile extends IRiffle, ICartridge, IDescription, IBullet, IZeroing {
     deviceUuid: string;
     switches: SwitchPosition[];
