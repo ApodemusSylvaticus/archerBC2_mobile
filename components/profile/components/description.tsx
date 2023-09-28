@@ -4,18 +4,19 @@ import { DefaultCard, DefaultRow, SeparateRow } from '@/components/container/def
 import { Text20, TextSemiBold24 } from '@/components/text/styled';
 import { DefaultButton } from '@/components/button/style';
 import { ButtonText } from '@/components/profile/components/style';
-import { WithId } from '@/interface/helper';
-import { IDescription } from '@/interface/profile';
 import { DescriptionForm } from '@/components/forms/profileChange/descriptionForm';
+import { DescriptionProfileProps } from '@/interface/form';
 
-export const Description: React.FC<WithId<IDescription>> = ({
+export const Description: React.FC<DescriptionProfileProps> = ({
     shortNameBot,
     bulletName,
     shortNameTop,
     cartridgeName,
     profileName,
-    id,
+    fileName,
     userNote,
+    handleChange,
+    isFileNameChangeable,
 }) => {
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const { t } = useTranslation();
@@ -31,14 +32,18 @@ export const Description: React.FC<WithId<IDescription>> = ({
 
             {isEditMode ? (
                 <DescriptionForm
-                    profileName={profileName}
-                    cartridgeName={cartridgeName}
-                    bulletName={bulletName}
-                    shortNameTop={shortNameTop}
-                    shortNameBot={shortNameBot}
-                    userNote={userNote}
+                    isFileNameChangeable={isFileNameChangeable}
+                    description={{
+                        profileName,
+                        cartridgeName,
+                        bulletName,
+                        shortNameTop,
+                        shortNameBot,
+                        userNote,
+                        fileName,
+                    }}
+                    onSubmit={handleChange}
                     close={() => setIsEditMode(false)}
-                    id={id}
                 />
             ) : (
                 <>
@@ -54,9 +59,7 @@ export const Description: React.FC<WithId<IDescription>> = ({
                         <Text20>{t('profile_bottom')}</Text20>
                         <Text20>{shortNameBot}</Text20>
                     </DefaultRow>
-                    <DefaultRow>
-                        <TextSemiBold24>{t('profile_round')}</TextSemiBold24>
-                    </DefaultRow>
+
                     <DefaultRow>
                         <Text20>{t('profile_cartridge_name')}</Text20>
                         <Text20>{cartridgeName}</Text20>
@@ -64,6 +67,11 @@ export const Description: React.FC<WithId<IDescription>> = ({
                     <DefaultRow>
                         <Text20>{t('profile_bullet_name')}</Text20>
                         <Text20>{bulletName}</Text20>
+                    </DefaultRow>
+
+                    <DefaultRow>
+                        <Text20>{t('profile_file_name')}</Text20>
+                        <Text20>{fileName}</Text20>
                     </DefaultRow>
                     <DefaultRow>
                         <Text20>{t('profile_user_note')}</Text20>

@@ -1,7 +1,8 @@
 import { TwistDirection } from '@/interface/profile';
 
 export interface IDescriptionForm {
-    name: string;
+    fileName: string;
+    profileName: string;
     cartridge: string;
     bullet: string;
 }
@@ -49,7 +50,7 @@ export interface SingleProfileType {
 
 export interface CoefficientForm {
     mv: string;
-    bc: string;
+    bcCd: string;
 }
 export interface MultiProfileType {
     type: BallisticProfileType.MULTI;

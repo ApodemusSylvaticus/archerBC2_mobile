@@ -18,8 +18,8 @@ interface IDATA {
     id: string;
 }
 export const DraggableDistanceList: React.FC = () => {
-    const { distanceListId } = useModalControllerStore(state => ({
-        distanceListId: state.distanceListId,
+    const { distanceListFileName } = useModalControllerStore(state => ({
+        distanceListFileName: state.distanceListFileName,
     }));
     const { setDistance, profiles } = useProfileStore(state => ({
         setDistance: state.setDistance,
@@ -32,7 +32,7 @@ export const DraggableDistanceList: React.FC = () => {
     const [state, setState] = useState<IDATA[]>([]);
 
     useEffect(() => {
-        const actualProfile = profiles.find(el => el.id === distanceListId);
+        const actualProfile = profiles.find(el => el.fileName === distanceListFileName);
         if (actualProfile) {
             setState(
                 actualProfile.distances.map((el, index) => ({
@@ -42,23 +42,23 @@ export const DraggableDistanceList: React.FC = () => {
                 })),
             );
         }
-    }, [profiles, distanceListId]);
+    }, [profiles, distanceListFileName]);
 
     const swapAction = (data: IDATA[]) => {
-        setDistance({ id: distanceListId, distances: data.map(el => +el.title) });
+        setDistance({ fileName: distanceListFileName, distances: data.map(el => +el.title) });
     };
 
     const addNewDistant = () => {
         if (newDistantValue && +newDistantValue > 0) {
             const newDistances = [+newDistantValue, ...state.map(el => +el.title)];
-            setDistance({ distances: newDistances, id: distanceListId });
+            setDistance({ distances: newDistances, fileName: distanceListFileName });
             setNewDistantValue('');
         }
     };
 
     const removeDistant = (item: IDATA) => {
         const newDistances = state.filter(el => el.id !== item.id).map(el => +el.title);
-        setDistance({ distances: newDistances, id: distanceListId });
+        setDistance({ distances: newDistances, fileName: distanceListFileName });
     };
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

@@ -2,6 +2,7 @@ import styled from 'styled-components/native';
 import { DefaultCard } from '@/components/container/defaultBox';
 import { rem } from '@/helpers/rem';
 import { DefaultButton } from '@/components/button/style';
+import { Text20 } from '@/components/text/styled';
 
 export const Container = styled(DefaultCard)`
     flex-direction: column;
@@ -22,4 +23,11 @@ export const Row = styled.View`
 export const Button = styled(DefaultButton)`
     align-self: end;
     margin-left: auto;
+`;
+
+interface ButtonTextProps {
+    isActive: boolean;
+}
+export const ButtonText = styled(Text20)<ButtonTextProps>`
+    color: ${props => (props.isActive ? props.theme.colors.primary : props.theme.colors.cardBg)};
 `;

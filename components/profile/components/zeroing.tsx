@@ -4,12 +4,10 @@ import { DefaultCard, DefaultRow, SeparateRow } from '@/components/container/def
 import { Text20, TextSemiBold24 } from '@/components/text/styled';
 import { DefaultButton } from '@/components/button/style';
 import { ButtonText } from '@/components/profile/components/style';
-import { WithId } from '@/interface/helper';
-import { IZeroing } from '@/interface/profile';
-
 import { ZeroingForm } from '@/components/forms/profileChange/zeroingForm';
+import { ZeroingProfileProps } from '@/interface/form';
 
-export const Zeroing: React.FC<WithId<IZeroing>> = ({
+export const Zeroing: React.FC<ZeroingProfileProps> = ({
     zeroY,
     zeroX,
     cZeroPTemperature,
@@ -20,6 +18,7 @@ export const Zeroing: React.FC<WithId<IZeroing>> = ({
     cZeroDistanceIdx,
     distances,
     id,
+    handleChange,
 }) => {
     const { t } = useTranslation();
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
@@ -35,16 +34,19 @@ export const Zeroing: React.FC<WithId<IZeroing>> = ({
 
             {isEditMode ? (
                 <ZeroingForm
-                    zeroX={zeroX}
-                    zeroY={zeroY}
-                    cZeroAirHumidity={cZeroAirHumidity}
-                    cZeroAirPressure={cZeroAirPressure}
-                    cZeroAirTemperature={cZeroAirTemperature}
-                    cZeroDistanceIdx={cZeroDistanceIdx}
-                    cZeroWPitch={cZeroWPitch}
-                    distances={distances}
-                    cZeroPTemperature={cZeroPTemperature}
-                    id={id}
+                    onSubmit={handleChange}
+                    zeroing={{
+                        zeroY,
+                        zeroX,
+                        cZeroPTemperature,
+                        cZeroAirTemperature,
+                        cZeroAirHumidity,
+                        cZeroAirPressure,
+                        cZeroWPitch,
+                        cZeroDistanceIdx,
+                        distances,
+                        id,
+                    }}
                     close={() => setIsEditMode(false)}
                 />
             ) : (

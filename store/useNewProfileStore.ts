@@ -36,20 +36,21 @@ interface IUseNewProfileStore extends INewProfile {
 }
 
 const a: CoefficientForm[] = [
-    { mv: '', bc: '' },
-    { bc: '', mv: '' },
+    { mv: '', bcCd: '' },
+    { bcCd: '', mv: '' },
 ];
 
 export const emptyProfile: INewProfile = {
     description: {
-        name: '',
+        fileName: '',
+        profileName: '',
         bullet: '',
         cartridge: '',
     },
     riffle: {
         rTwist: '',
         scHeight: '',
-        twistDir: 'right',
+        twistDir: 'RIGHT',
         caliber: '',
     },
     ballisticFunction: null,

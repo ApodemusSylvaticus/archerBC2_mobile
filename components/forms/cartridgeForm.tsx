@@ -2,24 +2,16 @@ import React from 'react';
 import { Formik } from 'formik';
 import { useTheme } from 'styled-components/native';
 import { useTranslation } from 'react-i18next';
-import { IForm } from '@/interface/form';
+import { CartridgeProfileFormProps, IForm } from '@/interface/form';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
 import { isAllTouched } from '@/helpers/isAllTached';
 import { NumericInput } from '@/components/Inputs/numericInput';
-import { WithId } from '@/interface/helper';
-import { ICartridgeForm } from '@/interface/newProfile';
 import { DefaultFormNavigation } from '@/components/forms/newProfile/defaultFormNavigation';
 import { SubmitButton, SubmitButtonText } from '@/components/profile/components/style';
 import { useValidationSchema } from '@/hooks/useValidationSchema';
 import { DefaultRow } from '../container/defaultBox';
 
-interface CartridgeFormProps {
-    cartridge: WithId<ICartridgeForm>;
-    onSubmit: (data: WithId<ICartridgeForm>) => void;
-    labelBg: string;
-    navigation: { type: 'V1'; goBack: () => void } | { type: 'V2' };
-}
-export const CartridgeForm: React.FC<CartridgeFormProps> = ({ cartridge, navigation, labelBg, onSubmit }) => {
+export const CartridgeForm: React.FC<CartridgeProfileFormProps> = ({ cartridge, navigation, labelBg, onSubmit }) => {
     const { colors } = useTheme();
     const { t } = useTranslation();
 
@@ -104,7 +96,7 @@ export const NewCartridgeForm: React.FC<IForm> = ({ goBack, goForward }) => {
 
     return (
         <CartridgeForm
-            cartridge={{ ...cartridge, id: 'crunch' }}
+            cartridge={{ ...cartridge, fileName: 'crunch' }}
             onSubmit={({ cZeroTemperature, cMuzzleVelocity, cTCoeff }) => {
                 setCartridge({
                     cZeroTemperature,

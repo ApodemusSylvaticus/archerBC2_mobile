@@ -1,9 +1,7 @@
 import React, { PropsWithChildren } from 'react';
 import { CreateNewProfileModal } from '@/components/modals/createNewProfile';
 import { ProfileViewModal } from '@/components/modals/profileViewModal';
-/*
-import { DraggableDistanceListModal } from '@/components/modals/draggebleDistanceList';
-*/
+import { ChooseActiveProfileModal } from '@/components/modals/chooseActiveProfileModal';
 
 export const ModalControllerWrapper: React.FC<PropsWithChildren> = ({ children }) => {
     return (
@@ -11,9 +9,7 @@ export const ModalControllerWrapper: React.FC<PropsWithChildren> = ({ children }
             {children}
             <CreateNewProfileModal />
             <ProfileViewModal />
-            {/*
-            <DraggebleDistanceListModal />
-*/}
+            <ChooseActiveProfileModal />
         </>
     );
 };

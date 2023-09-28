@@ -12,13 +12,14 @@ import {
 import { Routing } from '@/constant/routing';
 import { useModalControllerStore } from '@/store/useModalControllerStore';
 import { NameBar } from '@/components/header/nameBar';
-import { useProfileStore } from '@/store/useProfileStore';
+import { CurrentProfileSelector } from '@/components/header/currentProfileSelector';
+import { useSendSelected } from '@/hooks/useSendSelected';
 
 export const Header: React.FC = () => {
     const pathname = usePathname();
     const { t } = useTranslation();
     const openNewProfileModal = useModalControllerStore(state => state.openNewProfileModal);
-    const sendSelected = useProfileStore(state => state.sendSelected);
+    const { sendSelected } = useSendSelected();
 
     switch (pathname) {
         case Routing.PROFILES:
@@ -50,7 +51,12 @@ export const Header: React.FC = () => {
         case Routing.RETICLES:
             return <NameBar />;
         case Routing.CURRENT_PROFILE:
-            return <NameBar />;
+            return (
+                <NameBar>
+                    <CurrentProfileSelector />
+                </NameBar>
+            );
+
         default:
             // eslint-disable-next-line react/jsx-no-useless-fragment
             return <></>;

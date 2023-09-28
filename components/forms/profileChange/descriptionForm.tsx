@@ -2,43 +2,29 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'styled-components/native';
 import { Formik } from 'formik';
-import { WithId } from '@/interface/helper';
-import { IDescription } from '@/interface/profile';
-import { useProfileStore } from '@/store/useProfileStore';
 import { DefaultInput } from '@/components/Inputs/defaultInput';
 import { SubmitButton, SubmitButtonText } from '@/components/profile/components/style';
 import { useValidationSchema } from '@/hooks/useValidationSchema';
 import { DefaultRow } from '@/components/container/defaultBox';
+import { DescriptionProfileFormProps } from '@/interface/form';
 
-export const DescriptionForm: React.FC<WithId<IDescription & { close: () => void }>> = ({
-    shortNameBot,
-    bulletName,
-    shortNameTop,
-    cartridgeName,
-    profileName,
-    id,
-    userNote,
+export const DescriptionForm: React.FC<DescriptionProfileFormProps> = ({
+    description,
+    onSubmit,
     close,
+    isFileNameChangeable,
 }) => {
-    const inputValue = {
-        shortNameBot,
-        bulletName,
-        shortNameTop,
-        cartridgeName,
-        profileName,
-        userNote,
-    };
-    const setDescription = useProfileStore(state => state.setDescription);
     const { t } = useTranslation();
     const { fullDescriptionSchema } = useValidationSchema();
+    const schema = fullDescriptionSchema(description.fileName);
     const { colors } = useTheme();
-
     return (
         <Formik
-            initialValues={inputValue}
+            initialValues={description}
             onSubmit={value => {
-                setDescription({
-                    id,
+                onSubmit({
+                    prevFileName: description.fileName,
+                    fileName: value.fileName,
                     profileName: value.profileName,
                     userNote: value.userNote,
                     cartridgeName: value.cartridgeName,
@@ -48,7 +34,7 @@ export const DescriptionForm: React.FC<WithId<IDescription & { close: () => void
                 });
                 close();
             }}
-            validationSchema={fullDescriptionSchema}>
+            validationSchema={schema}>
             {({ isValid, handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                 <>
                     <DefaultRow>
@@ -107,6 +93,19 @@ export const DescriptionForm: React.FC<WithId<IDescription & { close: () => void
                             error={errors.bulletName}
                             touched={touched.bulletName}
                             onBlur={handleBlur('bulletName')}
+                            background={colors.cardBg}
+                        />
+                    </DefaultRow>
+
+                    <DefaultRow>
+                        <DefaultInput
+                            disabled={!isFileNameChangeable}
+                            label={t('profile_file_name')}
+                            value={values.fileName}
+                            onChangeText={handleChange('fileName')}
+                            error={errors.fileName}
+                            touched={touched.fileName}
+                            onBlur={handleBlur('fileName')}
                             background={colors.cardBg}
                         />
                     </DefaultRow>

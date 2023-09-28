@@ -7,6 +7,8 @@ export interface ITheme {
         l1ActiveEl: string;
         activeTab: string;
         error: string;
+        warn: string;
+        success: string;
     };
 }
 
@@ -16,9 +18,11 @@ export const darkTheme: ITheme = {
         appBg: '#212121',
         cardBg: '#616161',
         primary: '#E0E0E0',
-        l1ActiveEl: '#757575',
+        l1ActiveEl: '#868787',
         activeTab: '#8BC34A',
         error: '#B00020',
+        warn: '#FE7F2D',
+        success: '#8BC34A',
     },
 };
 
@@ -31,6 +35,8 @@ export const lightTheme: ITheme = {
         l1ActiveEl: '#70bdf2',
         activeTab: '#03131f',
         error: '#B00020',
+        warn: '#FE7F2D',
+        success: '#8BC34A',
     },
 };
 
@@ -46,5 +52,7 @@ export const lightDark: ITheme = {
         // 9C6615
         // FE7F2D
         error: '#D32F2F',
+        warn: '#FE7F2D',
+        success: '#8BC34A',
     },
 };

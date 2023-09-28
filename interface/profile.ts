@@ -1,5 +1,5 @@
 export type GType = 'G1' | 'G7' | 'Custom';
-export type TwistDirection = 'right' | 'left';
+export type TwistDirection = 'RIGHT' | 'LEFT';
 
 export interface Reticle {
     reticleIdx: number;
@@ -15,7 +15,7 @@ export interface SwitchPosition {
 }
 
 export interface Coefficient {
-    bc: number;
+    bcCd: number;
     mv: number;
 }
 
@@ -38,6 +38,7 @@ export interface IDescription {
     bulletName: string;
     shortNameTop: string;
     shortNameBot: string;
+    fileName: string;
     userNote: string;
 }
 
@@ -51,7 +52,11 @@ export interface IBullet {
     bcType: GType;
 }
 
-export interface IZeroing {
+export interface Distances {
+    distances: number[];
+}
+
+export interface IZeroing extends Distances {
     zeroX: number;
     zeroY: number;
     cZeroDistanceIdx: number;
@@ -60,11 +65,6 @@ export interface IZeroing {
     cZeroAirHumidity: number;
     cZeroWPitch: number;
     cZeroPTemperature: number;
-    distances: number[];
-}
-
-export interface Distances {
-    distances: number[];
 }
 
 export interface Profile extends IRiffle, ICartridge, IDescription, IBullet, IZeroing {
@@ -72,6 +72,4 @@ export interface Profile extends IRiffle, ICartridge, IDescription, IBullet, IZe
     switches: SwitchPosition[];
 }
 
-export interface ProfileWithId extends Profile {
-    id: string;
-}
+export type ServerProfile = Omit<Profile, 'coefG1' | 'coefG7' | 'coefCustom'> & { coefRows: Coefficient[] };

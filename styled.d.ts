@@ -12,6 +12,8 @@ declare module 'styled-components' {
             l1ActiveEl: string;
             activeTab: string;
             error: string;
+            success: string;
+            warn: string;
         };
     }
 }

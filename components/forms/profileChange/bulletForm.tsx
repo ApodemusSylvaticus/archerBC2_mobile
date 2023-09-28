@@ -2,9 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'styled-components/native';
 import { Formik } from 'formik';
-import { WithId } from '@/interface/helper';
-import { Coefficient, IBullet } from '@/interface/profile';
-import { useProfileStore } from '@/store/useProfileStore';
+import { Coefficient } from '@/interface/profile';
 import { ballisticFunctionList } from '@/constant/data';
 import { NumericInput } from '@/components/Inputs/numericInput';
 import { SelectInput } from '@/components/Inputs/select/select';
@@ -13,21 +11,12 @@ import { ButtonTextBold18 } from '@/components/text/styled';
 import { SubmitButton, SubmitButtonText } from '@/components/profile/components/style';
 import { useValidationSchema } from '@/hooks/useValidationSchema';
 import { DefaultRow } from '@/components/container/defaultBox';
+import { BulletProfileFormProps } from '@/interface/form';
 
 // TODO: unite with another bullet form and split this
-export const BulletForm: React.FC<WithId<IBullet & { close: () => void }>> = ({
-    bDiameter,
-    coefG1,
-    coefG7,
-    coefCustom,
-    bcType,
-    bLength,
-    bWeight,
-    id,
-    close,
-}) => {
+export const BulletForm: React.FC<BulletProfileFormProps> = ({ bullet, onSubmit, close }) => {
+    const { bDiameter, bWeight, bLength, bcType, fileName, coefG1, coefG7, coefCustom } = bullet;
     const { bulletSchema } = useValidationSchema();
-    const setProfileBullet = useProfileStore(state => state.setProfileBullet);
     const inputValue = { bDiameter: bDiameter.toString(), bLength: bLength.toString(), bWeight: bWeight.toString() };
     const { t } = useTranslation();
     const { colors } = useTheme();
@@ -38,35 +27,35 @@ export const BulletForm: React.FC<WithId<IBullet & { close: () => void }>> = ({
 
     const [coefficients, setCoefficients] = useState(
         coefG1.map(el => ({
-            bc: el.bc.toString(),
+            bcCd: el.bcCd.toString(),
             mv: el.mv.toString(),
         })),
     );
     const { mvSchema, bcSchema } = useValidationSchema();
 
     const [handleError, setHandleError] = useState('');
-    const addOneMoreCoeff = () => setCoefficients(prevState => [...prevState, { mv: '', bc: '' }]);
+    const addOneMoreCoeff = () => setCoefficients(prevState => [...prevState, { mv: '', bcCd: '' }]);
 
     const handleChangeMV = (val: string, index: number) => {
         setCoefficients(prevState => prevState.map((el, arrIndex) => (index === arrIndex ? { ...el, mv: val } : el)));
     };
     const handleChangeBC = (val: string, index: number) => {
         setHandleError('');
-        setCoefficients(prevState => prevState.map((el, arrIndex) => (index === arrIndex ? { ...el, bc: val } : el)));
+        setCoefficients(prevState => prevState.map((el, arrIndex) => (index === arrIndex ? { ...el, bcCd: val } : el)));
     };
 
     const handleDataSubmit = (value: { bDiameter: string; bLength: string; bWeight: string }) => {
         const validCoefficient: Coefficient[] = [];
         coefficients.forEach(el => {
-            const bc = +el.bc;
-            if (el.bc === '' || Number.isNaN(bc)) {
+            const bcCd = +el.bcCd;
+            if (el.bcCd === '' || Number.isNaN(bcCd)) {
                 return;
             }
-            if (bc <= 0 || bc > 10) {
+            if (bcCd <= 0 || bcCd > 10) {
                 return;
             }
             if (el.mv === '') {
-                validCoefficient.push({ mv: 0, bc });
+                validCoefficient.push({ mv: 0, bcCd });
                 return;
             }
 
@@ -79,7 +68,7 @@ export const BulletForm: React.FC<WithId<IBullet & { close: () => void }>> = ({
             if (mv <= 0 || mv > 3000) {
                 return;
             }
-            validCoefficient.push({ mv, bc });
+            validCoefficient.push({ mv, bcCd });
         });
 
         if (validCoefficient.length === 0) {
@@ -87,9 +76,9 @@ export const BulletForm: React.FC<WithId<IBullet & { close: () => void }>> = ({
             return;
         }
 
-        const newCoefficients = coefficients.map(el => ({ bc: +el.bc, mv: +el.mv }));
+        const newCoefficients = coefficients.map(el => ({ bcCd: +el.bcCd, mv: +el.mv }));
 
-        setProfileBullet({
+        onSubmit({
             bDiameter: +value.bDiameter,
             coefG1: ballisticFunctionList[actualBallisticFunction] === 'G1' ? newCoefficients : coefG1,
             coefG7: ballisticFunctionList[actualBallisticFunction] === 'G7' ? newCoefficients : coefG7,
@@ -97,7 +86,7 @@ export const BulletForm: React.FC<WithId<IBullet & { close: () => void }>> = ({
             bcType: ballisticFunctionList[actualBallisticFunction],
             bLength: +value.bLength,
             bWeight: +value.bWeight,
-            id,
+            fileName,
         });
         close();
     };
@@ -108,7 +97,7 @@ export const BulletForm: React.FC<WithId<IBullet & { close: () => void }>> = ({
             case 'G1':
                 setCoefficients(
                     coefG1.map(el => ({
-                        bc: el.bc.toString(),
+                        bcCd: el.bcCd.toString(),
                         mv: el.mv.toString(),
                     })),
                 );
@@ -116,7 +105,7 @@ export const BulletForm: React.FC<WithId<IBullet & { close: () => void }>> = ({
             case 'G7':
                 setCoefficients(
                     coefG7.map(el => ({
-                        bc: el.bc.toString(),
+                        bcCd: el.bcCd.toString(),
                         mv: el.mv.toString(),
                     })),
                 );
@@ -124,7 +113,7 @@ export const BulletForm: React.FC<WithId<IBullet & { close: () => void }>> = ({
             case 'Custom':
                 setCoefficients(
                     coefCustom.map(el => ({
-                        bc: el.bc.toString(),
+                        bcCd: el.bcCd.toString(),
                         mv: el.mv.toString(),
                     })),
                 );
@@ -203,7 +192,7 @@ export const BulletForm: React.FC<WithId<IBullet & { close: () => void }>> = ({
                             <NumericInput
                                 uint={t('uint_lb_dash_square_in')}
                                 label={t('profile_bc')}
-                                value={el.bc}
+                                value={el.bcCd}
                                 schema={bcSchema}
                                 onChangeText={(val: string) => handleChangeBC(val, index)}
                                 onBlur={() => undefined}

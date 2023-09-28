@@ -1,18 +1,24 @@
 import { create } from 'zustand';
+import { Nullable } from '@/interface/helper';
 
 interface IModalsController {
     isNewProfileOpen: boolean;
     openNewProfileModal: () => void;
     closeNewProfileModal: () => void;
     isProfileViewModalOpen: boolean;
-    profileViewModalId: string;
-    openProfileViewModal: (data: string) => void;
+    profileViewModalFileName: Nullable<string>;
+    setProfileViewModalFileName: (fileName: string) => void;
+    openProfileViewModal: (fileName: string) => void;
     closeProfileViewModal: () => void;
 
     isDistanceListOpen: boolean;
-    distanceListId: string;
-    openDistanceList: (id: string) => void;
+    distanceListFileName: string;
+    openDistanceList: (fileName: string) => void;
     closeDistanceList: () => void;
+
+    isChooseActiveProfileOpen: boolean;
+    openChooseActiveProfileModal: () => void;
+    closeChooseActiveProfileModal: () => void;
 }
 
 export const useModalControllerStore = create<IModalsController>()(set => ({
@@ -20,12 +26,17 @@ export const useModalControllerStore = create<IModalsController>()(set => ({
     openNewProfileModal: () => set(state => ({ ...state, isNewProfileOpen: true })),
     closeNewProfileModal: () => set(state => ({ ...state, isNewProfileOpen: false })),
     isProfileViewModalOpen: false,
-    profileViewModalId: '',
-    openProfileViewModal: data => set({ profileViewModalId: data, isProfileViewModalOpen: true }),
-    closeProfileViewModal: () => set({ profileViewModalId: '', isProfileViewModalOpen: false }),
+    profileViewModalFileName: null,
+    setProfileViewModalFileName: fileName => set({ profileViewModalFileName: fileName }),
+    openProfileViewModal: fileName => set({ profileViewModalFileName: fileName, isProfileViewModalOpen: true }),
+    closeProfileViewModal: () => set({ profileViewModalFileName: null, isProfileViewModalOpen: false }),
+
+    isChooseActiveProfileOpen: false,
+    openChooseActiveProfileModal: () => set({ isChooseActiveProfileOpen: true }),
+    closeChooseActiveProfileModal: () => set({ isChooseActiveProfileOpen: false }),
 
     isDistanceListOpen: false,
-    distanceListId: '',
-    openDistanceList: id => set({ distanceListId: id, isDistanceListOpen: true }),
-    closeDistanceList: () => set({ distanceListId: 'distanceListId', isDistanceListOpen: false }),
+    distanceListFileName: '',
+    openDistanceList: fileName => set({ distanceListFileName: fileName, isDistanceListOpen: true }),
+    closeDistanceList: () => set({ distanceListFileName: '', isDistanceListOpen: false }),
 }));

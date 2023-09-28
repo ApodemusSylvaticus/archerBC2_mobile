@@ -5,16 +5,19 @@ import { DefaultCard, DefaultRow, SeparateRow } from '@/components/container/def
 import { Text20, TextSemiBold24 } from '@/components/text/styled';
 import { DefaultButton } from '@/components/button/style';
 import { ButtonText } from '@/components/profile/components/style';
-import { WithId } from '@/interface/helper';
-import { ICartridge } from '@/interface/profile';
-import { useProfileStore } from '@/store/useProfileStore';
 import { CartridgeForm } from '@/components/forms/cartridgeForm';
+import { CartridgeProfileProps } from '@/interface/form';
 
-export const Cartridge: React.FC<WithId<ICartridge>> = ({ cTCoeff, cMuzzleVelocity, cZeroTemperature, id }) => {
+export const Cartridge: React.FC<CartridgeProfileProps> = ({
+    cTCoeff,
+    cMuzzleVelocity,
+    cZeroTemperature,
+    id,
+    handleChange,
+}) => {
     const { t } = useTranslation();
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const { colors } = useTheme();
-    const setCartridge = useProfileStore(state => state.setCartridge);
 
     return (
         <DefaultCard>
@@ -34,7 +37,7 @@ export const Cartridge: React.FC<WithId<ICartridge>> = ({ cTCoeff, cMuzzleVeloci
                         cZeroTemperature: cZeroTemperature.toString(),
                     }}
                     onSubmit={value => {
-                        setCartridge({
+                        handleChange({
                             id: value.id,
                             cZeroTemperature: +value.cZeroTemperature,
                             cTCoeff: +value.cTCoeff,

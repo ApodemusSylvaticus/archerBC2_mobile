@@ -6,27 +6,19 @@ import { DefaultInput } from '../Inputs/defaultInput';
 import { SelectInput } from '@/components/Inputs/select/select';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
 import { isAllTouched } from '@/helpers/isAllTached';
-import { IForm } from '@/interface/form';
+import { IForm, RiffleProfileFormProps } from '@/interface/form';
 import { NumericInput } from '@/components/Inputs/numericInput';
 import { DefaultFormNavigation } from '@/components/forms/newProfile/defaultFormNavigation';
 import { SubmitButton, SubmitButtonText } from '@/components/profile/components/style';
-import { IRiffleForm } from '@/interface/newProfile';
-import { WithId } from '@/interface/helper';
 import { useValidationSchema } from '@/hooks/useValidationSchema';
 import { DefaultRow } from '@/components/container/defaultBox';
 
-interface RiffleFormProps {
-    riffle: WithId<IRiffleForm>;
-    onSubmit: (data: WithId<IRiffleForm>) => void;
-    labelBg: string;
-    navigation: { type: 'V1'; goBack: () => void } | { type: 'V2' };
-}
-export const RiffleForm: React.FC<RiffleFormProps> = ({ riffle, onSubmit, navigation, labelBg }) => {
+export const RiffleForm: React.FC<RiffleProfileFormProps> = ({ riffle, onSubmit, navigation, labelBg }) => {
     const { t } = useTranslation();
     const { colors } = useTheme();
     const { riffleSchema } = useValidationSchema();
 
-    const list = ['left', 'right'] as const;
+    const list = ['LEFT', 'RIGHT'] as const;
 
     const translateList = [t('profile_twist_direction_left'), t('profile_twist_direction_right')];
 
@@ -34,9 +26,15 @@ export const RiffleForm: React.FC<RiffleFormProps> = ({ riffle, onSubmit, naviga
 
     return (
         <Formik
-            initialValues={{ caliber: riffle.caliber, scHeight: riffle.scHeight, rTwist: riffle.rTwist }}
-            onSubmit={({ rTwist, scHeight, caliber }) => {
-                onSubmit({ twistDir: list[twistDirectionState], rTwist, scHeight, id: riffle.id, caliber });
+            initialValues={riffle}
+            onSubmit={({ rTwist, scHeight, caliber, fileName }) => {
+                onSubmit({
+                    twistDir: list[twistDirectionState],
+                    rTwist,
+                    scHeight,
+                    fileName,
+                    caliber,
+                });
             }}
             validationSchema={riffleSchema}>
             {({ isValid, handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
@@ -122,7 +120,7 @@ export const NewRiffleForm: React.FC<IForm> = ({ goBack, goForward }) => {
 
     return (
         <RiffleForm
-            riffle={{ ...riffle, id: 'crunch' }}
+            riffle={{ ...riffle, fileName: 'crunch' }}
             onSubmit={({ twistDir, caliber, scHeight, rTwist }) => {
                 setRiffle({ twistDir, caliber, scHeight, rTwist });
                 goForward();

@@ -9,41 +9,46 @@ import { Alert, I18nManager, Platform, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { TabBar } from '@/components/tabBar';
-import { ModalControllerWrapper } from '@/components/modals/modalControllerWrapper';
 import { useProfileStore } from '@/store/useProfileStore';
 import { Header } from '@/components/header';
 import '@/i18n/index';
 import { useSettingStore } from '@/store/useSettingStore';
 import { languageArray } from '@/i18n';
 import { CoreProtobuf } from '@/core/coreProtobuf';
-import { useEnvironmentStore } from '@/store/useEnvironment';
-
-export {
-    // Catch any errors thrown by the Layout component.
-    ErrorBoundary,
-} from 'expo-router';
+import { useDevStatusStore } from '@/store/useDevStatusStore';
+import { ProfileWorker } from '@/core/profileWorker';
+import { ErrorBoundary } from '@/components/errorBoundary';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-    const [wsMsg, setWsMsg] = useState();
-    const setEnvProfile = useEnvironmentStore(state => state.setEnvProfile);
-    useEffect(() => {
-        const coreProtobuf = new CoreProtobuf(setWsMsg);
+    const [wsMsg, setWsMsg] = useState(null);
+    const { setDevStatus, getActualProfile } = useDevStatusStore(
+        (state: { setDevStatus: any; getActualProfile: any }) => ({
+            setDevStatus: state.setDevStatus,
+            getActualProfile: state.getActualProfile,
+        }),
+    );
 
-        coreProtobuf.loadProto();
+    useEffect(() => {
+        const coreProtobuf = new CoreProtobuf(setWsMsg, getActualProfile);
+        console.log(coreProtobuf);
+    }, []);
+
+    useEffect(() => {
+        const profileWorker = new ProfileWorker();
+        profileWorker.loadProto();
     }, []);
 
     useEffect(() => {
         if (wsMsg) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            setEnvProfile(wsMsg.devStatus);
+            setDevStatus(wsMsg);
         }
-    }, [setEnvProfile, wsMsg]);
+    }, [setDevStatus, wsMsg]);
 
-    console.log('wsMsg', wsMsg);
     const { getDataFromStorage, theme, size, language } = useSettingStore(state => ({
         getDataFromStorage: state.getDataFromStorage,
         theme: state.theme,
@@ -104,11 +109,9 @@ export default function RootLayout() {
                 <SafeAreaProvider>
                     <ClickOutsideProvider>
                         <ThemeProvider theme={{ rem: size, ...theme }}>
-                            <ModalControllerWrapper>
-                                <Header />
-                                <Slot />
-                                <TabBar />
-                            </ModalControllerWrapper>
+                            <Header />
+                            <Slot />
+                            <TabBar />
                         </ThemeProvider>
                     </ClickOutsideProvider>
                 </SafeAreaProvider>
@@ -117,18 +120,19 @@ export default function RootLayout() {
     }
 
     return (
-        <GestureHandlerRootView style={{ flex: 1, backgroundColor: theme.colors.appBg, width: '100%', height: '100%' }}>
-            <SafeAreaProvider>
-                <ClickOutsideProvider>
-                    <ThemeProvider theme={{ rem: size, ...theme }}>
-                        <ModalControllerWrapper>
+        <ErrorBoundary>
+            <GestureHandlerRootView
+                style={{ flex: 1, backgroundColor: theme.colors.appBg, width: '100%', height: '100%' }}>
+                <SafeAreaProvider>
+                    <ClickOutsideProvider>
+                        <ThemeProvider theme={{ rem: size, ...theme }}>
                             <Header />
                             <Slot />
                             <TabBar />
-                        </ModalControllerWrapper>
-                    </ThemeProvider>
-                </ClickOutsideProvider>
-            </SafeAreaProvider>
-        </GestureHandlerRootView>
+                        </ThemeProvider>
+                    </ClickOutsideProvider>
+                </SafeAreaProvider>
+            </GestureHandlerRootView>
+        </ErrorBoundary>
     );
 }

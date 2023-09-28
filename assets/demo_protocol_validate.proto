@@ -7,16 +7,16 @@ import "buf/validate/validate.proto";
 option go_package = "github.com/JAremko/env-protocol-demo/demo_protocol";
 
 message HostPayload {
-    HostProfile profile = 1;
-    HostDevStatus devStatus = 2;
-    CommandResponse response = 3;
+	HostProfile profile = 1;
+	HostDevStatus devStatus = 2;
+	CommandResponse response = 3;
 }
 
 message ClientPayload {
-    ClientProfile profile = 1;
-    ClientDevStatus devStatus = 2;
-    Command command = 3;
-    CommandResponse response = 4;
+	ClientProfile profile = 1;
+	ClientDevStatus devStatus = 2;
+	Command command = 3;
+	CommandResponse response = 4;
 }
 
 message CommandResponse {
@@ -61,20 +61,20 @@ message StatusError
 
 enum OkStatusCode {
 	UNKNOWN_OK_STATUS = 0;
-    SUCCESS = 1;
+	SUCCESS = 1;
 }
 
 enum ErrorStatusCode {
 	UNKNOWN_ERROR_STATUS = 0;
-    FAILURE = 1;
+	FAILURE = 1;
 	INVALID_DATA = 2;
 }
 
 message SetZoomLevel {
-    Zoom zoomLevel = 1;
+	Zoom zoomLevel = 1;
 }
 message SetColorScheme {
-    ColorScheme scheme = 1;
+	ColorScheme scheme = 1;
 }
 message GetHostDevStatus {
 }
@@ -84,10 +84,10 @@ message SetAirTemp {
 	int32 temperature = 1 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100];
 }
 message SetPowderTemp {
-    int32 temperature = 1 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100]; //[-100..100] C°
+	int32 temperature = 1 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100]; //[-100..100] C°
 }
 message SetAirHumidity {
-    int32 humidity = 1 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lte = 100]; //[0..100]%
+	int32 humidity = 1 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lte = 100]; //[0..100]%
 }
 message SetAirPressure {
 	int32 pressure = 1 [(buf.validate.field).int32.gte = 3000, (buf.validate.field).int32.lte = 12000]; //[3000..12000] decaPascal
@@ -121,7 +121,7 @@ message SetZeroing{
 }
 
 message HostDevStatus {
-    int32 charge = 1; // Represented as percentage
+	int32 charge = 1; // Represented as percentage
 	Zoom zoom = 2; // zoom multiplier
 	int32 airTemp = 3 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100]; //-100..100 C°
 	int32 airHum = 4 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lte = 100];	//0..100%
@@ -140,9 +140,9 @@ message ClientDevStatus {
 
 enum ColorScheme {
 	UNKNOWN_COLOR_SHEME = 0;
-    SEPIA = 1;
-    BLACK_HOT = 2;
-    WHITE_HOT = 3;
+	SEPIA = 1;
+	BLACK_HOT = 2;
+	WHITE_HOT = 3;
 }
 
 enum AGCMode {
@@ -182,8 +182,8 @@ enum CMDDirect {
 }
 
 message CoefRow {
-	int32 first = 1;
-	int32 second = 2;
+	int32 bc_cd = 1;
+	int32 mv = 2;
 }
 
 enum DType {
@@ -226,7 +226,7 @@ message HostProfile {
 	int32 c_t_coeff = 13 [(buf.validate.field).int32.gte = 2, (buf.validate.field).int32.lte = 3000];
 	int32 c_zero_distance_idx = 14 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lt = 200];
 	int32 c_zero_air_temperature = 15 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100];
-	int32 c_zero_air_pressure = 16 [(buf.validate.field).int32.gte = 3000, (buf.validate.field).int32.lte = 12000];
+	int32 c_zero_air_pressure = 16;
 	int32 c_zero_air_humidity = 17 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lte = 100];
 	int32 c_zero_w_pitch = 18[(buf.validate.field).int32.gte = -90, (buf.validate.field).int32.lte = 90];
 	int32 c_zero_p_temperature = 19 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100];
@@ -236,7 +236,7 @@ message HostProfile {
 	TwistDir twist_dir = 23;
 	GType bc_type = 24;
 	repeated SwPos switches = 25;
-	repeated int32 distances = 26 [(buf.validate.field).int32.gte = 50, (buf.validate.field).int32.lte = 30000];
+	repeated int32 distances = 26;
 	repeated CoefRow coef_rows = 27;
 	string caliber = 28 [(buf.validate.field).string.max_len = 50];
 	string device_uuid = 29 [(buf.validate.field).string.max_len = 50];
@@ -257,7 +257,7 @@ message ClientProfile {
 	int32 c_t_coeff = 13 [(buf.validate.field).int32.gte = 2, (buf.validate.field).int32.lte = 3000];
 	int32 c_zero_distance_idx = 14 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lt = 200];
 	int32 c_zero_air_temperature = 15 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100];
-	int32 c_zero_air_pressure = 16 [(buf.validate.field).int32.gte = 3000, (buf.validate.field).int32.lte = 12000];
+	int32 c_zero_air_pressure = 16;
 	int32 c_zero_air_humidity = 17 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lte = 100];
 	int32 c_zero_w_pitch = 18[(buf.validate.field).int32.gte = -90, (buf.validate.field).int32.lte = 90];
 	int32 c_zero_p_temperature = 19 [(buf.validate.field).int32.gte = -100, (buf.validate.field).int32.lte = 100];
@@ -267,7 +267,7 @@ message ClientProfile {
 	TwistDir twist_dir = 23;
 	GType bc_type = 24;
 	repeated SwPos switches = 25;
-	repeated int32 distances = 26 [(buf.validate.field).int32.gte = 50, (buf.validate.field).int32.lte = 30000];
+	repeated int32 distances = 26;
 	repeated CoefRow coef_rows = 27;
 	string caliber = 28 [(buf.validate.field).string.max_len = 50];
 	string device_uuid = 29 [(buf.validate.field).string.max_len = 50];

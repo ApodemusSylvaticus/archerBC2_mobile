@@ -5,18 +5,22 @@ import { DefaultCard, DefaultRow, SeparateRow } from '@/components/container/def
 import { Text20, TextSemiBold24 } from '@/components/text/styled';
 import { DefaultButton } from '@/components/button/style';
 import { ButtonText } from '@/components/profile/components/style';
-import { IRiffle } from '@/interface/profile';
-import { WithId } from '@/interface/helper';
-import { useProfileStore } from '@/store/useProfileStore';
 import { RiffleForm } from '@/components/forms/riffleForm';
+import { RiffleProfileProps } from '@/interface/form';
 
-export const Rifle: React.FC<WithId<IRiffle>> = ({ scHeight, rTwist, twistDir, caliber, id }) => {
+export const Rifle: React.FC<RiffleProfileProps> = ({
+    scHeight,
+    rTwist,
+    twistDir,
+    caliber,
+    fileName,
+    handleChange,
+}) => {
     const { t } = useTranslation();
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
-    const setProfileRifle = useProfileStore(state => state.setProfileRifle);
     const { colors } = useTheme();
 
-    const list = ['left', 'right'] as const;
+    const list = ['LEFT', 'RIGHT'] as const;
     const index = list.findIndex(el => el === twistDir);
     const translatedList = [t('profile_twist_direction_left'), t('profile_twist_direction_right')];
 
@@ -31,11 +35,11 @@ export const Rifle: React.FC<WithId<IRiffle>> = ({ scHeight, rTwist, twistDir, c
 
             {isEditMode ? (
                 <RiffleForm
-                    riffle={{ caliber, scHeight: scHeight.toString(), twistDir, rTwist: rTwist.toString(), id }}
+                    riffle={{ caliber, scHeight: scHeight.toString(), twistDir, rTwist: rTwist.toString(), fileName }}
                     labelBg={colors.cardBg}
                     onSubmit={value => {
-                        setProfileRifle({
-                            id,
+                        handleChange({
+                            fileName,
                             rTwist: +value.rTwist,
                             scHeight: +value.scHeight,
                             twistDir: value.twistDir,

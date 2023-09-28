@@ -1,0 +1,15 @@
+export const Decimals = {
+    cMuzzleVelocity: 10,
+    rTwist: 100,
+    zeroY: 1000,
+    zeroX: 1000,
+    bDiameter: 1000,
+    cTCoeff: 1000,
+    distances: 100,
+    bLength: 1000,
+    bcCd: 10000,
+    mv: 10,
+    cZeroPitch: 100,
+    cZeroAirPressure: 10,
+    bWeight: 10,
+};

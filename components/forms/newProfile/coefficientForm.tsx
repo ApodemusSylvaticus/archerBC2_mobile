@@ -29,28 +29,28 @@ export const MultiCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => 
     const [coefficients, setCoefficients] = useState(ballisticProfile.coefficient);
     const [handleError, setHandleError] = useState('');
 
-    const addOneMoreCoeff = () => setCoefficients(prevState => [...prevState, { mv: '', bc: '' }]);
+    const addOneMoreCoeff = () => setCoefficients(prevState => [...prevState, { mv: '', bcCd: '' }]);
 
     const handleChangeMV = (val: string, index: number) => {
         setCoefficients(prevState => prevState.map((el, arrIndex) => (index === arrIndex ? { ...el, mv: val } : el)));
     };
     const handleChangeBC = (val: string, index: number) => {
         setHandleError('');
-        setCoefficients(prevState => prevState.map((el, arrIndex) => (index === arrIndex ? { ...el, bc: val } : el)));
+        setCoefficients(prevState => prevState.map((el, arrIndex) => (index === arrIndex ? { ...el, bcCd: val } : el)));
     };
 
     const handleSubmit = async () => {
         const validCoefficient: Coefficient[] = [];
         coefficients.forEach(el => {
-            const bc = +el.bc;
-            if (el.bc === '' || Number.isNaN(bc)) {
+            const bcCd = +el.bcCd;
+            if (el.bcCd === '' || Number.isNaN(bcCd)) {
                 return;
             }
-            if (bc <= 0 || bc > 10) {
+            if (bcCd <= 0 || bcCd > 10) {
                 return;
             }
             if (el.mv === '') {
-                validCoefficient.push({ mv: 0, bc });
+                validCoefficient.push({ mv: 0, bcCd });
                 return;
             }
 
@@ -63,7 +63,7 @@ export const MultiCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => 
             if (mv <= 0 || mv > 3000) {
                 return;
             }
-            validCoefficient.push({ mv, bc });
+            validCoefficient.push({ mv, bcCd });
         });
 
         if (validCoefficient.length === 0) {
@@ -94,7 +94,7 @@ export const MultiCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => 
                     <NumericInput
                         uint={t('uint_lb_dash_square_in')}
                         label={t('profile_bc')}
-                        value={el.bc}
+                        value={el.bcCd}
                         schema={bcSchema}
                         onChangeText={(val: string) => handleChangeBC(val, index)}
                         onBlur={() => undefined}

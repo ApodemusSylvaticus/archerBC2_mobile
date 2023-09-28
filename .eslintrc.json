@@ -36,6 +36,7 @@
                 "endOfLine": "auto"
             }
         ],
+        "react-hooks/exhaustive-deps": "warn",
         "global-require": "warn",
         "no-use-before-define": "off",
         "prefer-arrow-callback": "warn",

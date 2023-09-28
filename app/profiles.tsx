@@ -11,13 +11,7 @@ const Profiles: React.FC = () => {
         <AppContainer>
             <DefaultColumnContainer>
                 {profiles.map(el => (
-                    <ProfileTab
-                        id={el.id}
-                        profileName={el.profileName}
-                        cartridge={el.cartridgeName}
-                        bullet={el.bulletName}
-                        key={el.id}
-                    />
+                    <ProfileTab {...el} key={el.fileName} />
                 ))}
             </DefaultColumnContainer>
         </AppContainer>

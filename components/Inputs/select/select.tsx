@@ -43,7 +43,7 @@ export const SelectInput: React.FC<SelectInputProps> = ({ list, setElem, chosenE
                 />
             </PressableTextContainer>
             {chosenEl !== null && (
-                <InputLabel isActive background={background}>
+                <InputLabel isActive background={background} isDisabled={false}>
                     {label}
                 </InputLabel>
             )}

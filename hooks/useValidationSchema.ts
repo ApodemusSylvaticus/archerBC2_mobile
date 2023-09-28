@@ -1,9 +1,16 @@
 import { number, object, string } from 'yup';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
+import { useProfileStore } from '@/store/useProfileStore';
 
 export const useValidationSchema = () => {
     const { t } = useTranslation();
+    const profiles = useProfileStore(state => state.profiles);
+    // TODo optimized
+    const profileFileNameList = useMemo(() => {
+        return profiles.map(el => el.fileName);
+    }, [profiles]);
+
     return useMemo(
         () => ({
             bulletSchema: object().shape({
@@ -81,9 +88,15 @@ export const useValidationSchema = () => {
                     .min(0, `${t('default_minimum_value')} - 0`)
                     .max(100, `${t('default_maximum_value')} - 100`),
             }),
-
             descriptionSchema: object().shape({
-                name: string()
+                fileName: string()
+                    .required(t('default_input_required'))
+                    .matches(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/, t('profile_file_name_should_contain'))
+                    .max(30, `${t('default_maximum_str_length')} - 30`)
+                    .test('is-not-in-dynamic-list', t('profile_file_already_exist'), value => {
+                        return !profileFileNameList.includes(value);
+                    }),
+                profileName: string()
                     .required(t('default_input_required'))
                     .max(50, `${t('default_maximum_str_length')} - 50`),
                 cartridge: string()
@@ -93,25 +106,6 @@ export const useValidationSchema = () => {
                     .required(t('default_input_required'))
                     .max(50, `${t('default_maximum_str_length')} - 50`),
             }),
-
-            fullDescriptionSchema: object().shape({
-                shortNameBot: string()
-                    .required(t('default_input_required'))
-                    .max(15, `${t('default_maximum_str_length')} - 15`),
-                bulletName: string()
-                    .required(t('default_input_required'))
-                    .max(50, `${t('default_maximum_str_length')} - 50`),
-                shortNameTop: string()
-                    .required(t('default_input_required'))
-                    .max(15, `${t('default_maximum_str_length')} - 15`),
-                cartridgeName: string()
-                    .required(t('default_input_required'))
-                    .max(50, `${t('default_maximum_str_length')} - 50`),
-                profileName: string()
-                    .required(t('default_input_required'))
-                    .max(50, `${t('default_maximum_str_length')} - 50`),
-            }),
-
             bcSchema: number()
                 .min(0, `${t('default_minimum_value')} - 0`)
                 .max(10, `${t('default_maximum_value')} - 10`),
@@ -149,7 +143,38 @@ export const useValidationSchema = () => {
                     .min(-0, `${t('default_minimum_value')} - 0`)
                     .max(359, `${t('default_maximum_value')} - 359`),
             }),
+            fullDescriptionSchema: (prevFileName: string) =>
+                object().shape({
+                    shortNameBot: string()
+                        .required(t('default_input_required'))
+                        .max(15, `${t('default_maximum_str_length')} - 15`),
+                    bulletName: string()
+                        .required(t('default_input_required'))
+                        .max(50, `${t('default_maximum_str_length')} - 50`),
+                    shortNameTop: string()
+                        .required(t('default_input_required'))
+                        .max(15, `${t('default_maximum_str_length')} - 15`),
+                    cartridgeName: string()
+                        .required(t('default_input_required'))
+                        .max(50, `${t('default_maximum_str_length')} - 50`),
+                    profileName: string()
+                        .required(t('default_input_required'))
+                        .max(50, `${t('default_maximum_str_length')} - 50`),
+                    fileName: string()
+                        .required(t('default_input_required'))
+                        .matches(
+                            /^[a-zA-Z0-9][a-zA-Z0-9_]*[a-zA-Z0-9]\.a7p$/,
+                            t('profile_file_name_should_contain_extra'),
+                        )
+                        .max(30, `${t('default_maximum_str_length')} - 30`)
+                        .test('is-not-in-dynamic-list', t('profile_file_already_exist'), value => {
+                            if (value === prevFileName) {
+                                return true;
+                            }
+                            return !profileFileNameList.includes(value);
+                        }),
+                }),
         }),
-        [t],
+        [t, profileFileNameList],
     );
 };

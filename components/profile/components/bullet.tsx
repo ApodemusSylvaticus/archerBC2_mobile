@@ -4,19 +4,20 @@ import { DefaultCard, DefaultRow, SeparateRow } from '@/components/container/def
 import { Text20, TextSemiBold24 } from '@/components/text/styled';
 import { DefaultButton } from '@/components/button/style';
 import { ButtonText } from '@/components/profile/components/style';
-import { WithId } from '@/interface/helper';
-import { IBullet } from '@/interface/profile';
-import { BulletForm } from '@/components/forms/profileChange/bulletForm';
 
-export const Bullet: React.FC<WithId<IBullet>> = ({
+import { BulletForm } from '@/components/forms/profileChange/bulletForm';
+import { BulletProfileProps } from '@/interface/form';
+
+export const Bullet: React.FC<BulletProfileProps> = ({
     coefCustom,
     coefG1,
     coefG7,
     bcType,
-    id,
+    fileName,
     bLength,
     bWeight,
     bDiameter,
+    handleChange,
 }) => {
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const { t } = useTranslation();
@@ -33,15 +34,9 @@ export const Bullet: React.FC<WithId<IBullet>> = ({
 
             {isEditMode ? (
                 <BulletForm
-                    id={id}
+                    bullet={{ coefCustom, coefG1, coefG7, bcType, fileName, bLength, bWeight, bDiameter }}
+                    onSubmit={handleChange}
                     close={() => setIsEditMode(false)}
-                    bWeight={bWeight}
-                    bLength={bLength}
-                    bDiameter={bDiameter}
-                    bcType={bcType}
-                    coefG7={coefG7}
-                    coefG1={coefG1}
-                    coefCustom={coefCustom}
                 />
             ) : (
                 <>
@@ -72,7 +67,7 @@ export const Bullet: React.FC<WithId<IBullet>> = ({
                         {coefArr.map((el, index) => (
                             // eslint-disable-next-line react/no-array-index-key
                             <Text20 key={index}>
-                                {t('profile_mv')} {el.mv} {t('uint_m_dash_s')}; {t('profile_bc')} {el.bc}{' '}
+                                {t('profile_mv')} {el.mv} {t('uint_m_dash_s')}; {t('profile_bc')} {el.bcCd}{' '}
                                 {t('uint_lb_dash_square_in')}
                             </Text20>
                         ))}

@@ -6,31 +6,25 @@ import { ButtonTextBold18, Text20, TextSemiBold24 } from '@/components/text/styl
 import { useModalControllerStore } from '@/store/useModalControllerStore';
 import { useProfileStore } from '@/store/useProfileStore';
 import { ProfileTabCard } from '@/components/profile/style';
+import { Profile } from '@/interface/profile';
 
-export interface IProfileTab {
-    profileName: string;
-    bullet: string;
-    cartridge: string;
-    id: string;
-}
-
-export const ProfileTab: React.FC<IProfileTab> = ({ profileName, bullet, cartridge, id }) => {
+export const ProfileTab: React.FC<Profile> = profile => {
     const { t } = useTranslation();
+    const { profileName, bulletName, cartridgeName, fileName } = profile;
     const openProfileViewModal = useModalControllerStore(store => store.openProfileViewModal);
     const { selectedProfiles, deselectProfile, selectProfile } = useProfileStore(state => ({
         selectedProfiles: state.selectedProfiles,
         selectProfile: state.selectProfile,
         deselectProfile: state.deselectProfile,
     }));
-
-    const isSelected = !!selectedProfiles.find(el => el === id);
+    const isSelected = !!selectedProfiles.find(el => el === fileName);
 
     const handlePress = () => {
         if (isSelected) {
-            deselectProfile(id);
+            deselectProfile(fileName);
             return;
         }
-        selectProfile(id);
+        selectProfile(fileName);
     };
 
     return (
@@ -43,14 +37,14 @@ export const ProfileTab: React.FC<IProfileTab> = ({ profileName, bullet, cartrid
             </SeparateRow>
             <DefaultRow>
                 <Text20>{t('profile_bullet')}</Text20>
-                <Text20>{bullet}</Text20>
+                <Text20>{bulletName}</Text20>
             </DefaultRow>
             <DefaultRow>
                 <Text20>{t('profile_cartridge')}</Text20>
-                <Text20>{cartridge}</Text20>
+                <Text20>{cartridgeName}</Text20>
             </DefaultRow>
 
-            <DefaultButton onPress={() => openProfileViewModal(id)}>
+            <DefaultButton onPress={() => openProfileViewModal(fileName)}>
                 <ButtonTextBold18>{t('default_more_info')}</ButtonTextBold18>
             </DefaultButton>
         </ProfileTabCard>

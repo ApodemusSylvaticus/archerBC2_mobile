@@ -1,10 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
-import { Profile, SwitchPosition } from '@/interface/profile';
+import { Coefficient, Profile, SwitchPosition } from '@/interface/profile';
 import { ballisticFunctionList } from '@/constant/data';
 import { BallisticFunctionType, BallisticProfileType } from '@/interface/newProfile';
 import { useProfileStore } from '@/store/useProfileStore';
-import { calculateProfileHash } from '@/helpers/hashFunc';
 
 const distants: number[][] = [
     [
@@ -60,19 +59,20 @@ export const useConvertProfile = () => {
     );
     const addNewProfile = useProfileStore(addNewProfileState => addNewProfileState.addNewProfile);
 
-    const getCoefficient = () => {
+    const getCoefficient = (): Coefficient[] => {
         switch (ballisticProfile!.type) {
             case BallisticProfileType.MULTI:
-                return ballisticProfile!.coefficient.map(el => ({ mv: +el.mv, bc: +el.bc }));
+                return ballisticProfile!.coefficient.map(el => ({ mv: +el.mv, bcCd: +el.bcCd }));
             case BallisticProfileType.SINGLE:
-                return [{ bc: +ballisticProfile!.coefficient, mv: 0 }];
+                return [{ bcCd: +ballisticProfile!.coefficient, mv: 0 }];
             default:
                 return [];
         }
     };
     const convert = (): Profile => {
         return {
-            profileName: description.name,
+            fileName: `${description.fileName}.a7p`,
+            profileName: description.profileName,
             cartridgeName: description.cartridge,
             bulletName: description.bullet,
             caliber: riffle.caliber,
@@ -110,6 +110,6 @@ export const useConvertProfile = () => {
 
     return () => {
         const convertProfile = convert();
-        addNewProfile({ ...convertProfile, id: calculateProfileHash(convertProfile) });
+        addNewProfile({ ...convertProfile });
     };
 };

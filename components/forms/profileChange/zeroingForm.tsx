@@ -2,27 +2,25 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'styled-components/native';
 import { Formik } from 'formik';
-import { WithId } from '@/interface/helper';
-import { IZeroing } from '@/interface/profile';
-import { useProfileStore } from '@/store/useProfileStore';
 import { NumericInput } from '@/components/Inputs/numericInput';
 import { SubmitButton, SubmitButtonText } from '@/components/profile/components/style';
 import { useValidationSchema } from '@/hooks/useValidationSchema';
 import { DefaultRow } from '@/components/container/defaultBox';
+import { ZeroingProfileFormProps } from '@/interface/form';
 
-export const ZeroingForm: React.FC<WithId<IZeroing & { close: () => void }>> = ({
-    zeroY,
-    zeroX,
-    cZeroPTemperature,
-    cZeroAirTemperature,
-    cZeroAirHumidity,
-    cZeroAirPressure,
-    cZeroWPitch,
-    cZeroDistanceIdx,
-    distances,
-    id,
-    close,
-}) => {
+export const ZeroingForm: React.FC<ZeroingProfileFormProps> = ({ zeroing, onSubmit, close }) => {
+    const {
+        zeroY,
+        zeroX,
+        cZeroPTemperature,
+        cZeroAirTemperature,
+        cZeroAirHumidity,
+        cZeroAirPressure,
+        cZeroWPitch,
+        cZeroDistanceIdx,
+        distances,
+        id,
+    } = zeroing;
     const inputValue = {
         zeroY: zeroY.toString(),
         zeroX: zeroX.toString(),
@@ -35,7 +33,6 @@ export const ZeroingForm: React.FC<WithId<IZeroing & { close: () => void }>> = (
     };
     const { t } = useTranslation();
     const { colors } = useTheme();
-    const setZeroing = useProfileStore(state => state.setZeroing);
     const { zeroingSchema } = useValidationSchema();
 
     return (
@@ -44,7 +41,7 @@ export const ZeroingForm: React.FC<WithId<IZeroing & { close: () => void }>> = (
             onSubmit={value => {
                 const newDistance = [...distances];
                 newDistance[cZeroDistanceIdx] = +value.cZeroDistanceValue;
-                setZeroing({
+                onSubmit({
                     zeroX: +value.zeroX,
                     zeroY: +value.zeroY,
                     cZeroPTemperature: +value.cZeroPTemperature,

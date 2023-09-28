@@ -31,6 +31,7 @@ export const DefaultInput: React.FC<DefaultInputProps> = ({
                     {label}
                 </InputLabel>
                 <Input
+                    editable={!disabled}
                     isDisabled={!!disabled}
                     value={value}
                     onFocus={handleFocus}

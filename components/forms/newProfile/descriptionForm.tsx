@@ -32,11 +32,11 @@ export const DescriptionForm: React.FC<IForm> = ({ goForward }) => {
                     <DefaultRow>
                         <DefaultInput
                             label={t('profile_profile_name')}
-                            value={values.name}
-                            onChangeText={handleChange('name')}
-                            error={errors.name}
-                            touched={touched.name}
-                            onBlur={handleBlur('name')}
+                            value={values.profileName}
+                            onChangeText={handleChange('profileName')}
+                            error={errors.profileName}
+                            touched={touched.profileName}
+                            onBlur={handleBlur('profileName')}
                             background={colors.appBg}
                         />
                     </DefaultRow>
@@ -61,6 +61,18 @@ export const DescriptionForm: React.FC<IForm> = ({ goForward }) => {
                             error={errors.bullet}
                             touched={touched.bullet}
                             onBlur={handleBlur('bullet')}
+                            background={colors.appBg}
+                        />
+                    </DefaultRow>
+
+                    <DefaultRow>
+                        <DefaultInput
+                            label={t('profile_file_name')}
+                            value={values.fileName}
+                            onChangeText={handleChange('fileName')}
+                            error={errors.fileName}
+                            touched={touched.fileName}
+                            onBlur={handleBlur('fileName')}
                             background={colors.appBg}
                         />
                     </DefaultRow>
