@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { DefaultCard, DefaultRow, SeparateRow } from '@/components/container/defaultBox';
 import { Text20, TextSemiBold24 } from '@/components/text/styled';
 import { DefaultButton } from '@/components/button/style';
-import { ButtonText } from '@/components/profile/components/style';
+import { ButtonText, Text20Uint, TextWithUintContainer } from '@/components/profile/components/style';
 import { RiffleForm } from '@/components/forms/riffleForm';
 import { RiffleProfileProps } from '@/interface/form';
 
@@ -35,6 +35,7 @@ export const Rifle: React.FC<RiffleProfileProps> = ({
 
             {isEditMode ? (
                 <RiffleForm
+                    withList={false}
                     riffle={{ caliber, scHeight: scHeight.toString(), twistDir, rTwist: rTwist.toString(), fileName }}
                     labelBg={colors.cardBg}
                     onSubmit={value => {
@@ -63,12 +64,20 @@ export const Rifle: React.FC<RiffleProfileProps> = ({
 
                     <DefaultRow>
                         <Text20>{t('profile_twist_rate')}</Text20>
-                        <Text20>{rTwist} inches/turn</Text20>
+
+                        <TextWithUintContainer>
+                            <Text20>{rTwist}</Text20>
+                            <Text20Uint>{t('uint_inches_dash_turn')}</Text20Uint>
+                        </TextWithUintContainer>
                     </DefaultRow>
 
                     <DefaultRow>
                         <Text20>{t('profile_scope_height')}</Text20>
-                        <Text20>{scHeight} mm</Text20>
+
+                        <TextWithUintContainer>
+                            <Text20>{scHeight}</Text20>
+                            <Text20Uint>{t('uint_mm')}</Text20Uint>
+                        </TextWithUintContainer>
                     </DefaultRow>
                 </>
             )}

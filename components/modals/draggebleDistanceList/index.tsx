@@ -24,3 +24,5 @@ export const DraggableDistanceListModal: React.FC = () => {
         </Modal>
     );
 };
+
+export const DraggableDistanceListModalMemo = React.memo(DraggableDistanceListModal);

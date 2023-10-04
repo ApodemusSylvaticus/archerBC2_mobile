@@ -10,6 +10,7 @@ export const ButtonContainer = styled.View`
     justify-content: space-between;
     align-items: center;
     margin-top: ${props => rem(props, 1)};
+    padding-bottom: 40px;
 `;
 
 export const MultiCoefficientWrapper = styled.View`

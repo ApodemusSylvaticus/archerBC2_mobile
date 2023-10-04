@@ -12,10 +12,12 @@ import { WithFileName } from '@/interface/helper';
 import { IBullet, ICartridge, IDescription, IRiffle, IZeroing } from '@/interface/profile';
 import { DefaultInput } from '@/components/Inputs/defaultInput';
 import { DefaultButton, DeleteButton } from '@/components/button/style';
-import { AreYouSureModal } from '@/components/modals/alertModal/areYouSure';
+import { AreYouSureModal } from '../components/modals/specificModal/alertModal/areYouSure';
 import { Loader } from '@/components/loader';
 import { NotificationEnum, useNotificationStore } from '@/store/useNotificationStore';
 import { useProfileStore } from '@/store/useProfileStore';
+import { IDraggableListItem } from '@/store/useModalControllerStore';
+import { DraggableDistanceListModalMemo } from '@/components/modals/draggebleDistanceList';
 
 // TODO Ref
 const SetHttp: React.FC = () => {
@@ -190,6 +192,107 @@ const Content: React.FC = () => {
         setIsAlertModalOpen(true);
     };
 
+    const handleRefreshList = () => {
+        profileWorker
+            .serveRefreshList()
+            .then(() => {
+                sendNotification({ msg: 'List refreshed', type: NotificationEnum.SUCCESS });
+                deleteProfile(activeProfile);
+            })
+            .catch(e => {
+                console.log(e);
+                sendNotification({ msg: 'Failed to refresh list', type: NotificationEnum.ERROR });
+            });
+    };
+
+    const handleChangeDistances = (data: IDraggableListItem[]) => {
+        const list: number[] = [];
+        let zeroIdx: number = 0;
+        data.forEach((el, index) => {
+            if (el.isZeroDistance) {
+                zeroIdx = index;
+            }
+            list.push(+el.title);
+        });
+
+        const {
+            switches,
+            profileName,
+            rTwist,
+            twistDir,
+            caliber,
+            coefG1,
+            coefG7,
+            bcType,
+            bLength,
+            bWeight,
+            zeroX,
+            zeroY,
+            cZeroPTemperature,
+            cZeroAirTemperature,
+            cZeroAirHumidity,
+            cZeroAirPressure,
+            cZeroWPitch,
+            cZeroTemperature,
+            cTCoeff,
+            cMuzzleVelocity,
+            deviceUuid,
+            bulletName,
+            shortNameTop,
+            cartridgeName,
+            shortNameBot,
+            userNote,
+            bDiameter,
+            scHeight,
+            fileName,
+        } = activeProfilesMap[activeProfile]!;
+
+        profileWorker
+            .saveChanges(activeProfile, {
+                deviceUuid,
+                fileName,
+                profileName,
+                userNote,
+                cTCoeff,
+                cMuzzleVelocity,
+                cZeroTemperature,
+                zeroY,
+                cZeroPTemperature,
+                cZeroAirTemperature,
+                cZeroAirHumidity,
+                cZeroAirPressure,
+                cZeroWPitch,
+                cZeroDistanceIdx: zeroIdx,
+                distances: list,
+                twistDir,
+                rTwist,
+                bulletName,
+                shortNameTop,
+                cartridgeName,
+                shortNameBot,
+                bLength,
+                bWeight,
+                zeroX,
+                bDiameter,
+                switches,
+                scHeight,
+                bcType,
+                caliber,
+                coefRows: bcType === 'G1' ? coefG1 : coefG7,
+            })
+            .then(res => {
+                if (res.ok) {
+                    profileWorker.getProfile(activeProfile).then(value => {
+                        sendNotification({ type: NotificationEnum.SUCCESS, msg: 'profile updated' });
+                        setProfile(activeProfile, value);
+                    });
+                } else {
+                    console.log(res);
+                    sendNotification({ type: NotificationEnum.SUCCESS, msg: 'Smth go wrong' });
+                }
+            });
+    };
+
     if (activeProfile === '' || activeProfilesMap[activeProfile] === null) {
         return <Loader size={rem * 3.2} />;
     }
@@ -204,13 +307,18 @@ const Content: React.FC = () => {
                 setDescription={handleChange}
                 setRiffle={handleChange}
                 setZeroing={handleChange}
+                setDistances={handleChangeDistances}
             />
 
-            <DefaultButton onPress={exportProfileHandler}>
+            <DefaultButton onPress={exportProfileHandler} style={{ marginTop: 16 }}>
                 <Text20>{t('profile_export_this_to_all')}</Text20>
             </DefaultButton>
 
-            <DeleteButton onPress={openModalHandler}>
+            <DefaultButton onPress={handleRefreshList} style={{ marginTop: 16 }}>
+                <Text20>Server: refresh list</Text20>
+            </DefaultButton>
+
+            <DeleteButton onPress={openModalHandler} style={{ marginTop: 16 }}>
                 <Text20>{t('profile_delete_profile')}</Text20>
             </DeleteButton>
             <AreYouSureModal
@@ -228,6 +336,7 @@ export const CurrProfile: React.FC = () => {
         <AppContainer>
             <SetHttp />
             <Content />
+            <DraggableDistanceListModalMemo />
         </AppContainer>
     );
 };

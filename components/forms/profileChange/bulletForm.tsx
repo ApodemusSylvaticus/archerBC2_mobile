@@ -76,7 +76,7 @@ export const BulletForm: React.FC<BulletProfileFormProps> = ({ bullet, onSubmit,
             return;
         }
 
-        const newCoefficients = coefficients.map(el => ({ bcCd: +el.bcCd, mv: +el.mv }));
+        const newCoefficients = validCoefficient.map(el => ({ bcCd: +el.bcCd, mv: +el.mv }));
 
         onSubmit({
             bDiameter: +value.bDiameter,
@@ -138,6 +138,7 @@ export const BulletForm: React.FC<BulletProfileFormProps> = ({ bullet, onSubmit,
                             value={values.bDiameter}
                             onChangeText={handleChange('bDiameter')}
                             error={errors.bDiameter}
+                            uint={t('uint_inches')}
                             touched={touched.bDiameter}
                             onBlur={handleBlur('bDiameter')}
                             background={colors.cardBg}
@@ -153,6 +154,7 @@ export const BulletForm: React.FC<BulletProfileFormProps> = ({ bullet, onSubmit,
                             touched={touched.bWeight}
                             onBlur={handleBlur('bWeight')}
                             background={colors.cardBg}
+                            uint={t('uint_grains')}
                         />
                     </DefaultRow>
 
@@ -164,6 +166,7 @@ export const BulletForm: React.FC<BulletProfileFormProps> = ({ bullet, onSubmit,
                             error={errors.bLength}
                             touched={touched.bLength}
                             onBlur={handleBlur('bLength')}
+                            uint={t('uint_inches')}
                             background={colors.cardBg}
                         />
                     </DefaultRow>

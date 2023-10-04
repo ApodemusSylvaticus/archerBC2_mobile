@@ -12,8 +12,9 @@ import { DefaultFormNavigation } from '@/components/forms/newProfile/defaultForm
 import { SubmitButton, SubmitButtonText } from '@/components/profile/components/style';
 import { useValidationSchema } from '@/hooks/useValidationSchema';
 import { DefaultRow } from '@/components/container/defaultBox';
+import { SelectRiffleFromListButton } from '@/components/button/selectRiffleFromListButton';
 
-export const RiffleForm: React.FC<RiffleProfileFormProps> = ({ riffle, onSubmit, navigation, labelBg }) => {
+export const RiffleForm: React.FC<RiffleProfileFormProps> = ({ riffle, onSubmit, navigation, labelBg, withList }) => {
     const { t } = useTranslation();
     const { colors } = useTheme();
     const { riffleSchema } = useValidationSchema();
@@ -27,6 +28,7 @@ export const RiffleForm: React.FC<RiffleProfileFormProps> = ({ riffle, onSubmit,
     return (
         <Formik
             initialValues={riffle}
+            enableReinitialize
             onSubmit={({ rTwist, scHeight, caliber, fileName }) => {
                 onSubmit({
                     twistDir: list[twistDirectionState],
@@ -49,6 +51,7 @@ export const RiffleForm: React.FC<RiffleProfileFormProps> = ({ riffle, onSubmit,
                             onBlur={handleBlur('caliber')}
                             background={labelBg}
                         />
+                        {withList && <SelectRiffleFromListButton />}
                     </DefaultRow>
 
                     <DefaultRow>
@@ -120,6 +123,7 @@ export const NewRiffleForm: React.FC<IForm> = ({ goBack, goForward }) => {
 
     return (
         <RiffleForm
+            withList
             riffle={{ ...riffle, fileName: 'crunch' }}
             onSubmit={({ twistDir, caliber, scHeight, rTwist }) => {
                 setRiffle({ twistDir, caliber, scHeight, rTwist });

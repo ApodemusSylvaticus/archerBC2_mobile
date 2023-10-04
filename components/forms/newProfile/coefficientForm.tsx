@@ -3,7 +3,7 @@ import { useTheme } from 'styled-components/native';
 import { number } from 'yup';
 import { useTranslation } from 'react-i18next';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
-import { BallisticProfileType } from '@/interface/newProfile';
+import { BallisticFunctionType, BallisticProfileType } from '@/interface/newProfile';
 import { AddNewCoeffButton, ButtonContainer, ErrorText, MultiCoefficientWrapper } from '@/components/forms/style';
 import { ArrowSVG } from '@/components/svg/arrow';
 import { IForm } from '@/interface/form';
@@ -15,18 +15,25 @@ import { DefaultRow } from '@/components/container/defaultBox';
 
 export const MultiCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => {
     const { t } = useTranslation();
-    const { ballisticProfile, setMultiCoefficient } = useNewProfileStore(state => ({
+    const { ballisticProfile, setMultiCoefficient, ballisticFunction } = useNewProfileStore(state => ({
         ballisticProfile: state.ballisticProfile,
+        ballisticFunction: state.ballisticFunction,
         setMultiCoefficient: state.setMultiCoefficient,
     }));
 
-    if (ballisticProfile === null || ballisticProfile.type === BallisticProfileType.SINGLE) {
+    if (
+        ballisticFunction === null ||
+        ballisticProfile === null ||
+        ballisticProfile.type === BallisticProfileType.SINGLE
+    ) {
         throw new Error('Use this component with multi ballistic profile');
     }
 
     const { rem, colors } = useTheme();
 
-    const [coefficients, setCoefficients] = useState(ballisticProfile.coefficient);
+    const [coefficients, setCoefficients] = useState(
+        BallisticFunctionType.G1 ? ballisticProfile.G1.multi : ballisticProfile.G7.multi,
+    );
     const [handleError, setHandleError] = useState('');
 
     const addOneMoreCoeff = () => setCoefficients(prevState => [...prevState, { mv: '', bcCd: '' }]);
@@ -71,8 +78,10 @@ export const MultiCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => 
             return;
         }
 
-        setMultiCoefficient(coefficients);
-        goForward();
+        setMultiCoefficient(validCoefficient.map(({ bcCd, mv }) => ({ bcCd: bcCd.toString(), mv: mv.toString() })));
+        setTimeout(() => {
+            goForward();
+        }, 200);
     };
 
     const { mvSchema, bcSchema } = useValidationSchema();
@@ -133,19 +142,26 @@ export const MultiCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => 
 export const SingleCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => {
     const { t } = useTranslation();
 
-    const { ballisticProfile, setSingleCoefficient } = useNewProfileStore(state => ({
+    const { ballisticProfile, setSingleCoefficient, ballisticFunction } = useNewProfileStore(state => ({
         ballisticProfile: state.ballisticProfile,
         setSingleCoefficient: state.setSingleCoefficient,
+        ballisticFunction: state.ballisticFunction,
     }));
     const { bcSchema } = useValidationSchema();
 
-    if (ballisticProfile === null || ballisticProfile.type === BallisticProfileType.MULTI) {
+    if (
+        ballisticFunction === null ||
+        ballisticProfile === null ||
+        ballisticProfile.type === BallisticProfileType.MULTI
+    ) {
         throw new Error('Use this component with single ballistic profile');
     }
 
     const [handleError, setHandleError] = useState('');
     const { rem, colors } = useTheme();
-    const [coefficient, setCoefficient] = useState('');
+    const [coefficient, setCoefficient] = useState(
+        BallisticFunctionType.G1 ? ballisticProfile.G1.single : ballisticProfile.G7.single,
+    );
     const handleSubmit = async () => {
         try {
             await number().required().min(0).max(10).validate(coefficient);

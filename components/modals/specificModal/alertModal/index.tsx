@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from 'react';
 import { Modal } from 'react-native';
-import { Container } from '@/components/modals/alertModal/style';
+import { Container } from '@/components/modals/specificModal/alertModal/style';
 
 interface AlertModalProps extends PropsWithChildren {
     closeHandler: () => void;

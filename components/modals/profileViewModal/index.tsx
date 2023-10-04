@@ -1,11 +1,11 @@
 import React from 'react';
 import { DefaultModal } from '@/components/modals/DefaultModal';
-import { useModalControllerStore } from '@/store/useModalControllerStore';
+import { IDraggableListItem, useModalControllerStore } from '@/store/useModalControllerStore';
 import { Profile } from '@/components/profile';
 import { useProfileStore } from '@/store/useProfileStore';
 import { WithFileName } from '@/interface/helper';
 import { IDescription } from '@/interface/profile';
-import { DraggableDistanceListModal } from '@/components/modals/draggebleDistanceList';
+import { DraggableDistanceListModalMemo } from '@/components/modals/draggebleDistanceList';
 
 export const ProfileViewModal: React.FC = () => {
     const { profileViewModalFileName, isProfileViewModalOpen, closeProfileViewModal, setProfileViewModalFileName } =
@@ -18,13 +18,15 @@ export const ProfileViewModal: React.FC = () => {
 
     const profiles = useProfileStore(state => state.profiles);
 
-    const { setProfileRifle, setZeroing, setProfileBullet, setCartridge, setDescription } = useProfileStore(state => ({
-        setProfileRifle: state.setProfileRifle,
-        setZeroing: state.setZeroing,
-        setProfileBullet: state.setProfileBullet,
-        setCartridge: state.setCartridge,
-        setDescription: state.setDescription,
-    }));
+    const { setProfileRifle, setZeroing, setProfileBullet, setCartridge, setDescription, setDistances } =
+        useProfileStore(state => ({
+            setProfileRifle: state.setProfileRifle,
+            setZeroing: state.setZeroing,
+            setProfileBullet: state.setProfileBullet,
+            setCartridge: state.setCartridge,
+            setDescription: state.setDescription,
+            setDistances: state.setDistance,
+        }));
 
     if (profileViewModalFileName === null) {
         // TODO
@@ -43,6 +45,9 @@ export const ProfileViewModal: React.FC = () => {
         throw new Error('TODO ERRRO');
     }
 
+    const handleSetDistances = (data: IDraggableListItem[]) => {
+        setDistances({ fileName: profile.fileName, data });
+    };
     return (
         <DefaultModal backButtonHandler={closeProfileViewModal} isVisible={isProfileViewModalOpen}>
             <Profile
@@ -53,8 +58,9 @@ export const ProfileViewModal: React.FC = () => {
                 setCartridge={setCartridge}
                 setBullet={setProfileBullet}
                 setZeroing={setZeroing}
+                setDistances={handleSetDistances}
             />
-            <DraggableDistanceListModal />
+            <DraggableDistanceListModalMemo />
         </DefaultModal>
     );
 };

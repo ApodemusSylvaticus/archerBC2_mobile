@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Input, InputError, InputLabel, InputWrapper } from '@/components/Inputs/style';
 import { DefaultInputProps } from '@/interface/components/input';
 
@@ -13,7 +13,11 @@ export const DefaultInput: React.FC<DefaultInputProps> = ({
     disabled,
     style,
 }) => {
-    const [isActive, setIsActive] = useState(!!value);
+    const [isActive, setIsActive] = useState<boolean>(false);
+
+    useEffect(() => {
+        setIsActive(!!value);
+    }, [value]);
     const handleFocus = () => {
         setIsActive(true);
     };

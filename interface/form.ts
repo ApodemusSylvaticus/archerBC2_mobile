@@ -1,6 +1,7 @@
 import { IBullet, ICartridge, IDescription, IRiffle, IZeroing, Profile } from '@/interface/profile';
 import { WithFileName } from '@/interface/helper';
 import { ICartridgeForm, IRiffleForm } from '@/interface/newProfile';
+import { IDraggableListItem } from '@/store/useModalControllerStore';
 
 export interface IForm {
     goBack: () => void;
@@ -25,6 +26,7 @@ export interface RiffleProfileFormProps {
     onSubmit: (data: WithFileName<IRiffleForm>) => void;
     navigation: NavigationFormType;
     labelBg: string;
+    withList: boolean;
 }
 
 export interface CartridgeProfileFormProps {
@@ -60,4 +62,5 @@ export interface IProfileProps extends Profile {
     setDescription: (data: WithFileName<IDescription & { prevFileName: string }>) => void;
     setCartridge: (data: WithFileName<ICartridge>) => void;
     setRiffle: (data: WithFileName<IRiffle>) => void;
+    setDistances: (data: IDraggableListItem[]) => void;
 }

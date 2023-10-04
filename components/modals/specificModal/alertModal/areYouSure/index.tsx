@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertModalContainer } from '@/components/modals/alertModal';
+import { AlertModalContainer } from '../index';
 import { Text20, TextSemiBold20 } from '@/components/text/styled';
-import { Button, CardContainer, Container, Row } from '@/components/modals/alertModal/areYouSure/style';
+import { Button, CardContainer, Container, Row } from '@/components/modals/specificModal/alertModal/areYouSure/style';
 
 interface AreYouSureModalProps {
     isOpen: boolean;

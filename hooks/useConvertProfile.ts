@@ -57,18 +57,21 @@ export const useConvertProfile = () => {
             ballisticFunction: state.ballisticFunction,
         }),
     );
-    const addNewProfile = useProfileStore(addNewProfileState => addNewProfileState.addNewProfile);
 
+    const addNewProfile = useProfileStore(addNewProfileState => addNewProfileState.addNewProfile);
     const getCoefficient = (): Coefficient[] => {
+        const ballisticProfileVal =
+            ballisticFunction === BallisticFunctionType.G1 ? ballisticProfile!.G1 : ballisticProfile!.G7;
         switch (ballisticProfile!.type) {
             case BallisticProfileType.MULTI:
-                return ballisticProfile!.coefficient.map(el => ({ mv: +el.mv, bcCd: +el.bcCd }));
+                return ballisticProfileVal.multi.map(el => ({ mv: +el.mv, bcCd: +el.bcCd }));
             case BallisticProfileType.SINGLE:
-                return [{ bcCd: +ballisticProfile!.coefficient, mv: 0 }];
+                return [{ bcCd: +ballisticProfileVal.single, mv: 0 }];
             default:
                 return [];
         }
     };
+
     const convert = (): Profile => {
         return {
             fileName: `${description.fileName}.a7p`,
@@ -109,7 +112,13 @@ export const useConvertProfile = () => {
     };
 
     return () => {
-        const convertProfile = convert();
-        addNewProfile({ ...convertProfile });
+        if (ballisticProfile) {
+            const coef = getCoefficient();
+            const filter = coef.filter(el => el.bcCd > 0 && el.mv >= 0);
+            if (filter.length > 0) {
+                const convertProfile = convert();
+                addNewProfile({ ...convertProfile });
+            }
+        }
     };
 };

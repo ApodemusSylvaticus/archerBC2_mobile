@@ -1,6 +1,14 @@
 import { create } from 'zustand';
 import { Nullable } from '@/interface/helper';
 
+export interface IDraggableListItem {
+    title: string;
+    isZeroDistance: boolean;
+    id: string;
+}
+
+type distanceHandler = (data: IDraggableListItem[]) => void;
+
 interface IModalsController {
     isNewProfileOpen: boolean;
     openNewProfileModal: () => void;
@@ -12,8 +20,10 @@ interface IModalsController {
     closeProfileViewModal: () => void;
 
     isDistanceListOpen: boolean;
-    distanceListFileName: string;
-    openDistanceList: (fileName: string) => void;
+    distanceList: number[];
+    zeroDistanceIdx: number;
+    distanceListHandler: distanceHandler;
+    openDistanceList: (distances: number[], zeroDistanceIdx: number, handler: distanceHandler) => void;
     closeDistanceList: () => void;
 
     isChooseActiveProfileOpen: boolean;
@@ -36,7 +46,10 @@ export const useModalControllerStore = create<IModalsController>()(set => ({
     closeChooseActiveProfileModal: () => set({ isChooseActiveProfileOpen: false }),
 
     isDistanceListOpen: false,
-    distanceListFileName: '',
-    openDistanceList: fileName => set({ distanceListFileName: fileName, isDistanceListOpen: true }),
-    closeDistanceList: () => set({ distanceListFileName: '', isDistanceListOpen: false }),
+    distanceList: [],
+    zeroDistanceIdx: 0,
+    distanceListHandler: () => undefined,
+    openDistanceList: (distances, zeroDistanceIdx, handler) =>
+        set({ zeroDistanceIdx, distanceListHandler: handler, distanceList: distances, isDistanceListOpen: true }),
+    closeDistanceList: () => set({ distanceListHandler: () => undefined, distanceList: [], isDistanceListOpen: false }),
 }));

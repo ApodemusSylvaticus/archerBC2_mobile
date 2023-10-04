@@ -1,5 +1,4 @@
 import React from 'react';
-import { Button } from 'react-native';
 import { Description } from '@/components/profile/components/description';
 import { Rifle } from '@/components/profile/components/rifle';
 import { Bullet } from '@/components/profile/components/bullet';
@@ -9,6 +8,8 @@ import { Zeroing } from '@/components/profile/components/zeroing';
 import { Cartridge } from '@/components/profile/components/cartridge';
 import { useModalControllerStore } from '@/store/useModalControllerStore';
 import { IProfileProps } from '@/interface/form';
+import { DefaultButton } from '@/components/button/style';
+import { TextSemiBold20 } from '@/components/text/styled';
 
 export const Profile: React.FC<IProfileProps> = ({
     isFileNameChangeable,
@@ -47,6 +48,7 @@ export const Profile: React.FC<IProfileProps> = ({
     setCartridge,
     setDescription,
     setBullet,
+    setDistances,
 }) => {
     const openDistanceList = useModalControllerStore(state => state.openDistanceList);
     return (
@@ -103,7 +105,9 @@ export const Profile: React.FC<IProfileProps> = ({
                 userNote={userNote}
             />
 
-            <Button title="open modal" onPress={() => openDistanceList(fileName)} />
+            <DefaultButton onPress={() => openDistanceList(distances, cZeroDistanceIdx, setDistances)}>
+                <TextSemiBold20>Open distant list</TextSemiBold20>
+            </DefaultButton>
         </DefaultColumnContainer>
     );
 };

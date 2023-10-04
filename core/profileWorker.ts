@@ -242,4 +242,8 @@ export class ProfileWorker {
 
         return Promise.all(promises);
     }
+
+    serveRefreshList() {
+        return fetch(`${this.hrefBase}filelist`, { method: 'POST' });
+    }
 }

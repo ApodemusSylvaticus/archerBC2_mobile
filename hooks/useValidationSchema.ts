@@ -6,11 +6,10 @@ import { useProfileStore } from '@/store/useProfileStore';
 export const useValidationSchema = () => {
     const { t } = useTranslation();
     const profiles = useProfileStore(state => state.profiles);
-    // TODo optimized
+
     const profileFileNameList = useMemo(() => {
         return profiles.map(el => el.fileName);
     }, [profiles]);
-
     return useMemo(
         () => ({
             bulletSchema: object().shape({
@@ -91,10 +90,10 @@ export const useValidationSchema = () => {
             descriptionSchema: object().shape({
                 fileName: string()
                     .required(t('default_input_required'))
-                    .matches(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/, t('profile_file_name_should_contain'))
+                    .matches(/^(?![_ -])[A-Za-z0-9_ -]+$/, t('profile_file_name_should_contain'))
                     .max(30, `${t('default_maximum_str_length')} - 30`)
                     .test('is-not-in-dynamic-list', t('profile_file_already_exist'), value => {
-                        return !profileFileNameList.includes(value);
+                        return !profileFileNameList.includes(`${value}.a7p`);
                     }),
                 profileName: string()
                     .required(t('default_input_required'))
@@ -162,10 +161,7 @@ export const useValidationSchema = () => {
                         .max(50, `${t('default_maximum_str_length')} - 50`),
                     fileName: string()
                         .required(t('default_input_required'))
-                        .matches(
-                            /^[a-zA-Z0-9][a-zA-Z0-9_]*[a-zA-Z0-9]\.a7p$/,
-                            t('profile_file_name_should_contain_extra'),
-                        )
+                        .matches(/^(?![_ -])[A-Za-z0-9_ -]+\.a7p$/, t('profile_file_name_should_contain_extra'))
                         .max(30, `${t('default_maximum_str_length')} - 30`)
                         .test('is-not-in-dynamic-list', t('profile_file_already_exist'), value => {
                             if (value === prevFileName) {

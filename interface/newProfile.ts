@@ -43,16 +43,13 @@ export enum BallisticProfileType {
     MULTI,
 }
 
-export interface SingleProfileType {
-    type: BallisticProfileType.SINGLE;
-    coefficient: string;
-}
-
 export interface CoefficientForm {
     mv: string;
     bcCd: string;
 }
-export interface MultiProfileType {
-    type: BallisticProfileType.MULTI;
-    coefficient: CoefficientForm[];
+
+export interface IBallisticProfile {
+    type: BallisticProfileType;
+    G1: { single: string; multi: CoefficientForm[] };
+    G7: { single: string; multi: CoefficientForm[] };
 }

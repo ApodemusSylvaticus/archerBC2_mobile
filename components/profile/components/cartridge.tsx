@@ -4,7 +4,7 @@ import { useTheme } from 'styled-components/native';
 import { DefaultCard, DefaultRow, SeparateRow } from '@/components/container/defaultBox';
 import { Text20, TextSemiBold24 } from '@/components/text/styled';
 import { DefaultButton } from '@/components/button/style';
-import { ButtonText } from '@/components/profile/components/style';
+import { ButtonText, Text20Uint, TextWithUintContainer } from '@/components/profile/components/style';
 import { CartridgeForm } from '@/components/forms/cartridgeForm';
 import { CartridgeProfileProps } from '@/interface/form';
 
@@ -12,7 +12,7 @@ export const Cartridge: React.FC<CartridgeProfileProps> = ({
     cTCoeff,
     cMuzzleVelocity,
     cZeroTemperature,
-    id,
+    fileName,
     handleChange,
 }) => {
     const { t } = useTranslation();
@@ -31,14 +31,14 @@ export const Cartridge: React.FC<CartridgeProfileProps> = ({
             {isEditMode ? (
                 <CartridgeForm
                     cartridge={{
-                        id,
+                        fileName,
                         cTCoeff: cTCoeff.toString(),
                         cMuzzleVelocity: cMuzzleVelocity.toString(),
                         cZeroTemperature: cZeroTemperature.toString(),
                     }}
                     onSubmit={value => {
                         handleChange({
-                            id: value.id,
+                            fileName: value.fileName,
                             cZeroTemperature: +value.cZeroTemperature,
                             cTCoeff: +value.cTCoeff,
                             cMuzzleVelocity: +value.cMuzzleVelocity,
@@ -52,23 +52,29 @@ export const Cartridge: React.FC<CartridgeProfileProps> = ({
                 <>
                     <DefaultRow>
                         <Text20>{t('profile_muzzle_velocity')}</Text20>
-                        <Text20>
-                            {cMuzzleVelocity} {t('uint_m_dash_s')}
-                        </Text20>
+
+                        <TextWithUintContainer>
+                            <Text20>{cMuzzleVelocity}</Text20>
+                            <Text20Uint>{t('uint_m_dash_s')}</Text20Uint>
+                        </TextWithUintContainer>
                     </DefaultRow>
 
                     <DefaultRow>
                         <Text20>{t('profile_powder_temperature')}</Text20>
-                        <Text20>
-                            {cZeroTemperature} {t('uint_temperature')}
-                        </Text20>
+
+                        <TextWithUintContainer>
+                            <Text20>{cZeroTemperature}</Text20>
+                            <Text20Uint>{t('uint_temperature')}</Text20Uint>
+                        </TextWithUintContainer>
                     </DefaultRow>
 
                     <DefaultRow>
                         <Text20>{t('profile_ratio')}</Text20>
-                        <Text20>
-                            {cTCoeff} {t('uint_percent_dash_temperature')}
-                        </Text20>
+
+                        <TextWithUintContainer>
+                            <Text20>{cTCoeff}</Text20>
+                            <Text20Uint>{t('uint_percent_dash_temperature')}</Text20Uint>
+                        </TextWithUintContainer>
                     </DefaultRow>
                 </>
             )}

@@ -1,8 +1,9 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Distances, IBullet, ICartridge, IDescription, IRiffle, IZeroing, Profile } from '@/interface/profile';
+import { IBullet, ICartridge, IDescription, IRiffle, IZeroing, Profile } from '@/interface/profile';
 import { AsyncStore } from '@/constant/asyncStore';
 import { WithFileName } from '@/interface/helper';
+import { IDraggableListItem } from '@/store/useModalControllerStore';
 
 interface IUseProfileStore {
     //
@@ -18,7 +19,7 @@ interface IUseProfileStore {
     setZeroing: (data: WithFileName<IZeroing>) => void;
     setCartridge: (data: WithFileName<ICartridge>) => void;
     setDescription: (data: WithFileName<IDescription & { prevFileName: string }>) => void;
-    setDistance: (data: WithFileName<Distances>) => void;
+    setDistance: (data: WithFileName<{ data: IDraggableListItem[] }>) => void;
     //
 
     selectProfile: (data: string) => void;
@@ -248,8 +249,18 @@ export const useProfileStore = create<IUseProfileStore>()(set => ({
 
     sendSelected: () => set({ selectedProfiles: [] }),
 
-    setDistance: ({ fileName, distances }) =>
+    setDistance: ({ fileName, data }) =>
         set(state => {
+            const distances: number[] = [];
+            let zeroIndex = 0;
+
+            data.forEach((el, index) => {
+                distances.push(+el.title);
+                if (el.isZeroDistance) {
+                    zeroIndex = index;
+                }
+            });
+
             const profiles = state.profiles.map(el => {
                 if (el.fileName !== fileName) {
                     return el;
@@ -257,6 +268,7 @@ export const useProfileStore = create<IUseProfileStore>()(set => ({
                 return {
                     ...el,
                     distances,
+                    cZeroDistanceIdx: zeroIndex,
                 };
             });
             AsyncStorage.setItem(AsyncStore.profiles, JSON.stringify(profiles)).catch(console.log);

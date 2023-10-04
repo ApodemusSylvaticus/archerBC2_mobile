@@ -19,7 +19,7 @@ export const ZeroingForm: React.FC<ZeroingProfileFormProps> = ({ zeroing, onSubm
         cZeroWPitch,
         cZeroDistanceIdx,
         distances,
-        id,
+        fileName,
     } = zeroing;
     const inputValue = {
         zeroY: zeroY.toString(),
@@ -51,7 +51,7 @@ export const ZeroingForm: React.FC<ZeroingProfileFormProps> = ({ zeroing, onSubm
                     cZeroWPitch: +value.cZeroWPitch,
                     cZeroDistanceIdx,
                     distances: newDistance,
-                    id,
+                    fileName,
                 });
                 close();
             }}
@@ -66,19 +66,6 @@ export const ZeroingForm: React.FC<ZeroingProfileFormProps> = ({ zeroing, onSubm
                             error={errors.zeroX}
                             touched={touched.zeroX}
                             onBlur={handleBlur('zeroX')}
-                            background={colors.cardBg}
-                            uint={t('uint_click')}
-                        />
-                    </DefaultRow>
-
-                    <DefaultRow>
-                        <NumericInput
-                            label={t('profile_zeroY')}
-                            value={values.zeroY}
-                            onChangeText={handleChange('zeroY')}
-                            error={errors.zeroY}
-                            touched={touched.zeroY}
-                            onBlur={handleBlur('zeroY')}
                             background={colors.cardBg}
                             uint={t('uint_click')}
                         />

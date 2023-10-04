@@ -11,3 +11,7 @@ export const VerticalLine = styled.View`
     width: 1px;
     background: ${props => props.theme.colors.activeTab};
 `;
+
+export const VerticalLinePrimary = styled(VerticalLine)`
+    background: ${props => props.theme.colors.primary};
+`;
