@@ -1,6 +1,6 @@
 export enum Routing {
     CURRENT_PROFILE = '/currProfile',
-    ENVI = '/enviroment',
+    SHOT_CONDITIONS = '/shotConditions',
     PROFILES = '/profiles',
     RETICLES = '/reticles',
     SETTING = '/setting',

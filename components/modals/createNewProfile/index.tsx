@@ -1,30 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { DescriptionForm } from '@/components/forms/descriptionForm';
-import { RiffleForm } from '@/components/forms/riffleForm';
-import { CartridgeForm } from '@/components/forms/cartridgeForm';
-import { BulletForm } from '@/components/forms/bulletForm';
+import { DescriptionForm } from '@/components/forms/newProfile/descriptionForm';
+import { NewRiffleForm } from '@/components/forms/riffleForm';
+import { NewCartridgeForm } from '@/components/forms/cartridgeForm';
+import { BulletForm } from '@/components/forms/newProfile/bulletForm';
 import { useModalControllerStore } from '@/store/useModalControllerStore';
-import { BallisticProfileForm } from '@/components/forms/ballisticProfileForm';
-import { CoefficientForm } from '@/components/forms/coefficientForm';
+import { BallisticProfileForm } from '@/components/forms/newProfile/ballisticProfileForm';
+import { CoefficientForm } from '@/components/forms/newProfile/coefficientForm';
 import { useConvertProfile } from '@/hooks/useConvertProfile';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
 import { DefaultModal } from '@/components/modals/DefaultModal';
+import { FileNameForm } from '@/components/forms/newProfile/fileNameForm';
 
 export const CreateNewProfileModal: React.FC = () => {
     const [page, setPage] = useState<number>(0);
-    const [isFinished, setIsFinished] = useState<boolean>(false);
+
     const convertProfile = useConvertProfile();
     const { isNewProfileOpen, closeNewProfileModal } = useModalControllerStore(state => ({
         isNewProfileOpen: state.isNewProfileOpen,
         closeNewProfileModal: state.closeNewProfileModal,
     }));
     const reset = useNewProfileStore(state => state.reset);
-
+    const [isFinished, setIsFinished] = useState(false);
     const [shouldClose, setShouldClose] = useState(false);
 
     const goBack = () => setPage(prevState => (prevState !== 0 ? prevState - 1 : prevState));
     const goForward = async () => {
-        if (page === 5) {
+        if (page === 6) {
             setIsFinished(true);
             return;
         }
@@ -33,11 +34,11 @@ export const CreateNewProfileModal: React.FC = () => {
 
     useEffect(() => {
         if (isFinished) {
-            convertProfile();
             setIsFinished(false);
+            convertProfile();
             setShouldClose(true);
         }
-    }, [convertProfile, isFinished]);
+    }, [isFinished]);
 
     useEffect(() => {
         if (shouldClose) {
@@ -50,12 +51,14 @@ export const CreateNewProfileModal: React.FC = () => {
 
     return (
         <DefaultModal backButtonHandler={() => setShouldClose(true)} isVisible={isNewProfileOpen}>
-            {page === 0 && <DescriptionForm goBack={goBack} goForward={goForward} />}
-            {page === 1 && <RiffleForm goBack={goBack} goForward={goForward} />}
-            {page === 2 && <CartridgeForm goBack={goBack} goForward={goForward} />}
-            {page === 3 && <BulletForm goBack={goBack} goForward={goForward} />}
-            {page === 4 && <BallisticProfileForm goBack={goBack} goForward={goForward} />}
-            {page === 5 && <CoefficientForm goBack={goBack} goForward={goForward} />}
+            {page === 0 && <NewRiffleForm goBack={goBack} goForward={goForward} />}
+            {page === 1 && <NewCartridgeForm goBack={goBack} goForward={goForward} />}
+            {page === 2 && <BulletForm goBack={goBack} goForward={goForward} />}
+            {page === 3 && <BallisticProfileForm goBack={goBack} goForward={goForward} />}
+            {page === 4 && <CoefficientForm goBack={goBack} goForward={goForward} />}
+            {page === 5 && <DescriptionForm goBack={goBack} goForward={goForward} />}
+
+            {page === 6 && <FileNameForm goBack={goBack} goForward={goForward} />}
         </DefaultModal>
     );
 };

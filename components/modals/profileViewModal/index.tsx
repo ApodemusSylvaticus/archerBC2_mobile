@@ -1,68 +1,81 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { DefaultModal } from '@/components/modals/DefaultModal';
-import { useModalControllerStore } from '@/store/useModalControllerStore';
-import { ProfileWithId } from '@/interface/profile';
-import { useProfileStore } from '@/store/useProfileStore';
+import { IDraggableListItem, useModalControllerStore } from '@/store/useModalControllerStore';
 import { Profile } from '@/components/profile';
+import { useProfileStore } from '@/store/useProfileStore';
+import { WithFileName } from '@/interface/helper';
+import { IDescription } from '@/interface/profile';
+import { DraggableDistanceListModalMemo } from '@/components/modals/draggebleDistanceList';
+import { ShareButton } from '@/components/button/shareButton';
+import { DeleteButtonWithConfirm } from '@/components/button/deleteButtonWithConfirm';
 
 export const ProfileViewModal: React.FC = () => {
-    const { profileViewModalId, isProfileViewModalOpen, closeProfileViewModal } = useModalControllerStore(state => ({
-        profileViewModalId: state.profileViewModalId,
-        isProfileViewModalOpen: state.isProfileViewModalOpen,
-        closeProfileViewModal: state.closeProfileViewModal,
-    }));
+    const { profileViewModalFileName, isProfileViewModalOpen, closeProfileViewModal, setProfileViewModalFileName } =
+        useModalControllerStore(state => ({
+            profileViewModalFileName: state.profileViewModalFileName,
+            isProfileViewModalOpen: state.isProfileViewModalOpen,
+            closeProfileViewModal: state.closeProfileViewModal,
+            setProfileViewModalFileName: state.setProfileViewModalFileName,
+        }));
+    const { t } = useTranslation();
+    const deleteProfile = useProfileStore(state => state.deleteProfile);
 
-    const [profile, setProfile] = useState<ProfileWithId>({
-        bDiameter: 0,
-        bLength: 0,
-        bWeight: 0,
-        bcType: 'G1',
-        bulletName: '',
-        cMuzzleVelocity: 0,
-        cTCoeff: 0,
-        cZeroAirHumidity: 0,
-        cZeroAirPressure: 0,
-        cZeroAirTemperature: 0,
-        cZeroDistanceIdx: 0,
-        cZeroPTemperature: 0,
-        cZeroTemperature: 0,
-        cZeroWPitch: 0,
-        caliber: '',
-        cartridgeName: '',
-        coefCustom: [],
-        coefG1: [],
-        coefG7: [],
-        deviceUuid: '',
-        distances: [],
-        profileName: '',
-        rTwist: 0,
-        scHeight: 0,
-        shortNameBot: '',
-        shortNameTop: '',
-        switches: [],
-        twistDir: 'left',
-        userNote: '',
-        zeroX: 0,
-        zeroY: 0,
-        id: profileViewModalId,
-    });
-    const profiles = useProfileStore(store => store.profiles);
+    const profiles = useProfileStore(state => state.profiles);
 
-    useEffect(() => {
-        if (profileViewModalId) {
-            const actualProfile = profiles.find(el => el.id === profileViewModalId);
-            if (actualProfile) {
-                setProfile(actualProfile);
-                return;
-            }
-            throw new Error('todoError');
-        }
-    }, [profiles, profileViewModalId]);
+    const { setProfileRifle, setZeroing, setProfileBullet, setCartridge, setDescription, setDistances } =
+        useProfileStore(state => ({
+            setProfileRifle: state.setProfileRifle,
+            setZeroing: state.setZeroing,
+            setProfileBullet: state.setProfileBullet,
+            setCartridge: state.setCartridge,
+            setDescription: state.setDescription,
+            setDistances: state.setDistance,
+        }));
 
+    if (profileViewModalFileName === null) {
+        return;
+    }
+
+    const handleSetDescription = (data: WithFileName<IDescription & { prevFileName: string }>) => {
+        setDescription(data);
+        setProfileViewModalFileName(data.fileName);
+    };
+
+    const profile = profiles.find(el => el.fileName === profileViewModalFileName);
+
+    if (!profile) {
+        throw new Error('Profile not found');
+    }
+
+    const deleteConfirm = () => {
+        deleteProfile(profile!.fileName);
+        closeProfileViewModal();
+    };
+
+    const handleSetDistances = (data: IDraggableListItem[]) => {
+        setDistances({ fileName: profile.fileName, data });
+    };
+    // eslint-disable-next-line consistent-return
     return (
         <DefaultModal backButtonHandler={closeProfileViewModal} isVisible={isProfileViewModalOpen}>
-            {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-            <Profile {...profile} />
+            <Profile
+                {...profile}
+                isFileNameChangeable
+                setDescription={handleSetDescription}
+                setRiffle={setProfileRifle}
+                setCartridge={setCartridge}
+                setBullet={setProfileBullet}
+                setZeroing={setZeroing}
+                setDistances={handleSetDistances}
+            />
+            <DraggableDistanceListModalMemo />
+            <ShareButton {...profile} />
+            <DeleteButtonWithConfirm
+                buttonText={t('profile_delete_profile')}
+                confirmHandler={deleteConfirm}
+                confirmMsg={t('profile_are_you_sure_delete')}
+            />
         </DefaultModal>
     );
 };

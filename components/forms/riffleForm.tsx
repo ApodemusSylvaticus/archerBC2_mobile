@@ -1,106 +1,135 @@
-import { number, object, string } from 'yup';
 import React, { useState } from 'react';
 import { Formik } from 'formik';
 import { useTheme } from 'styled-components/native';
 import { useTranslation } from 'react-i18next';
 import { DefaultInput } from '../Inputs/defaultInput';
-import { ButtonContainer } from '@/components/forms/style';
-import { ArrowSVG } from '@/components/svg/arrow';
 import { SelectInput } from '@/components/Inputs/select/select';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
 import { isAllTouched } from '@/helpers/isAllTached';
-import { IForm } from '@/interface/form';
+import { IForm, RiffleProfileFormProps } from '@/interface/form';
 import { NumericInput } from '@/components/Inputs/numericInput';
+import { DefaultFormNavigation } from '@/components/forms/newProfile/defaultFormNavigation';
+import { SubmitButton, SubmitButtonText } from '@/components/profile/components/style';
+import { useValidationSchema } from '@/hooks/useValidationSchema';
+import { DefaultRow } from '@/components/container/defaultBox';
+import { SelectCaliberFromListButton } from '@/components/button/selectCaliberFromListButton';
 
-const schema = object().shape({
-    calibre: string().required('Required').max(50, 'Too Long!'),
-    twistRate: number().required('Required').min(0).max(100),
-    scopeHeight: number().required('Required').min(-5000).max(5000),
-});
-
-export const RiffleForm: React.FC<IForm> = ({ goBack, goForward }) => {
+export const RiffleForm: React.FC<RiffleProfileFormProps> = ({ riffle, onSubmit, navigation, labelBg, withList }) => {
     const { t } = useTranslation();
-    const { rem, colors } = useTheme();
+    const { colors } = useTheme();
+    const { riffleSchema } = useValidationSchema();
 
-    const { riffle, setRiffle } = useNewProfileStore(state => ({
-        riffle: state.riffle,
-        setRiffle: state.setRiffle,
-    }));
-
-    const list = ['left', 'right'] as const;
+    const list = ['LEFT', 'RIGHT'] as const;
 
     const translateList = [t('profile_twist_direction_left'), t('profile_twist_direction_right')];
 
-    const [twistDirectionState, setTwistDirectionState] = useState(list.findIndex(el => el === riffle.twistDirection));
+    const [twistDirectionState, setTwistDirectionState] = useState(list.findIndex(el => el === riffle.twistDir));
 
     return (
         <Formik
             initialValues={riffle}
-            onSubmit={value => {
-                setRiffle({ ...value, twistDirection: list[twistDirectionState] });
-                goForward();
+            enableReinitialize
+            onSubmit={({ rTwist, scHeight, caliber, fileName }) => {
+                onSubmit({
+                    twistDir: list[twistDirectionState],
+                    rTwist,
+                    scHeight,
+                    fileName,
+                    caliber,
+                });
             }}
-            validationSchema={schema}>
+            validationSchema={riffleSchema}>
             {({ isValid, handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                 <>
-                    <DefaultInput
-                        label={t('profile_calibre')}
-                        value={values.calibre}
-                        onChangeText={handleChange('calibre')}
-                        error={errors.calibre}
-                        touched={touched.calibre}
-                        onBlur={handleBlur('calibre')}
-                        background={colors.appBg}
-                    />
+                    <DefaultRow>
+                        <DefaultInput
+                            label={t('profile_caliber')}
+                            value={values.caliber}
+                            onChangeText={handleChange('caliber')}
+                            error={errors.caliber}
+                            touched={touched.caliber}
+                            onBlur={handleBlur('caliber')}
+                            background={labelBg}
+                        />
+                        {withList && <SelectCaliberFromListButton />}
+                    </DefaultRow>
 
-                    <NumericInput
-                        label={t('profile_twist_rate')}
-                        uint={t('uint_inches_dash_turn')}
-                        value={values.twistRate}
-                        onChangeText={handleChange('twistRate')}
-                        error={errors.twistRate}
-                        touched={touched.twistRate}
-                        onBlur={handleBlur('twistRate')}
-                        background={colors.appBg}
-                    />
+                    <DefaultRow>
+                        <NumericInput
+                            label={t('profile_twist_rate')}
+                            uint={t('uint_inches_dash_turn')}
+                            value={values.rTwist}
+                            onChangeText={handleChange('rTwist')}
+                            error={errors.rTwist}
+                            touched={touched.rTwist}
+                            onBlur={handleBlur('rTwist')}
+                            background={labelBg}
+                        />
+                    </DefaultRow>
 
                     <SelectInput
                         label={t('profile_twist_direction')}
-                        background={colors.appBg}
+                        background={labelBg}
                         chosenEl={twistDirectionState}
                         list={translateList}
                         setElem={val => setTwistDirectionState(val)}
                     />
-
-                    <NumericInput
-                        label={t('profile_scope_height')}
-                        uint={t('uint_mm')}
-                        value={values.scopeHeight}
-                        onChangeText={handleChange('scopeHeight')}
-                        error={errors.scopeHeight}
-                        touched={touched.scopeHeight}
-                        onBlur={handleBlur('scopeHeight')}
-                        background={colors.appBg}
-                    />
-
-                    <ButtonContainer>
-                        <ArrowSVG
-                            orientation="left"
-                            width={rem * 5.5}
-                            height={rem * 5.5}
-                            fillColor={colors.primary}
-                            onPress={() => goBack()}
+                    <DefaultRow>
+                        <NumericInput
+                            label={t('profile_scope_height')}
+                            uint={t('uint_mm')}
+                            value={values.scHeight}
+                            onChangeText={handleChange('scHeight')}
+                            error={errors.scHeight}
+                            touched={touched.scHeight}
+                            onBlur={handleBlur('scHeight')}
+                            background={labelBg}
                         />
-                        <ArrowSVG
-                            orientation="right"
-                            width={rem * 5.5}
-                            height={rem * 5.5}
-                            fillColor={isAllTouched(values) && isValid ? colors.activeTab : colors.l1ActiveEl}
-                            onPress={handleSubmit}
+                    </DefaultRow>
+
+                    {navigation.type === 'V1' && (
+                        <DefaultFormNavigation
+                            goBackAction={navigation.goBack}
+                            goBackButtonColor={colors.transparent}
+                            goForwardAction={handleSubmit}
+                            goForwardButtonColor={
+                                isAllTouched(values) && isValid ? colors.activeTab : colors.l1ActiveEl
+                            }
                         />
-                    </ButtonContainer>
+                    )}
+                    {navigation.type === 'V2' && (
+                        <SubmitButton
+                            onPress={() => {
+                                if (isValid) {
+                                    handleSubmit();
+                                }
+                            }}>
+                            <SubmitButtonText>{t('default_apply_button')}</SubmitButtonText>
+                        </SubmitButton>
+                    )}
                 </>
             )}
         </Formik>
+    );
+};
+
+export const NewRiffleForm: React.FC<IForm> = ({ goBack, goForward }) => {
+    const { riffle, setRiffle } = useNewProfileStore(state => ({
+        riffle: state.riffle,
+        setRiffle: state.setRiffle,
+    }));
+    const { colors } = useTheme();
+
+    return (
+        <RiffleForm
+            withList
+            riffle={{ ...riffle, fileName: 'crunch' }}
+            onSubmit={({ twistDir, caliber, scHeight, rTwist }) => {
+                setRiffle({ twistDir, caliber, scHeight, rTwist });
+                goForward();
+            }}
+            labelBg={colors.appBg}
+            navigation={{ type: 'V1', goBack }}
+        />
     );
 };

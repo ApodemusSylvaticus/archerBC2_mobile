@@ -44,6 +44,10 @@ export const DefaultRow = styled.View`
     gap: ${props => rem(props, 0.8)};
 `;
 
+export const DefaultRowFlex1 = styled(DefaultRow)`
+    flex: 1;
+`;
+
 export const SeparateRow = styled.View`
     width: 100%;
     display: flex;

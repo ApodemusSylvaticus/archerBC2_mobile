@@ -1,22 +1,24 @@
 import React from 'react';
-import { Button, Platform } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Description } from '@/components/profile/components/description';
 import { Rifle } from '@/components/profile/components/rifle';
 import { Bullet } from '@/components/profile/components/bullet';
-import { Reticles } from '@/components/profile/components/reticles';
 import { DefaultColumnContainer } from '@/components/container/defaultBox';
-import { ProfileWithId } from '@/interface/profile';
 import { Zeroing } from '@/components/profile/components/zeroing';
 import { Cartridge } from '@/components/profile/components/cartridge';
 import { useModalControllerStore } from '@/store/useModalControllerStore';
+import { IProfileProps } from '@/interface/form';
+import { DefaultButton } from '@/components/button/style';
+import { TextSemiBold20 } from '@/components/text/styled';
 
-export const Profile: React.FC<ProfileWithId> = ({
+export const Profile: React.FC<IProfileProps> = ({
+    isFileNameChangeable,
     profileName,
     cartridgeName,
     bulletName,
     shortNameBot,
     shortNameTop,
-    id,
+    fileName,
     caliber,
     bcType,
     bLength,
@@ -37,20 +39,32 @@ export const Profile: React.FC<ProfileWithId> = ({
     distances,
     zeroY,
     zeroX,
-    switches,
     cMuzzleVelocity,
     scHeight,
     twistDir,
     userNote,
-    deviceUuid,
+    setRiffle,
+    setZeroing,
+    setCartridge,
+    setDescription,
+    setBullet,
+    setDistances,
 }) => {
-    console.log(switches, deviceUuid);
     const openDistanceList = useModalControllerStore(state => state.openDistanceList);
+    const { t } = useTranslation();
     return (
         <DefaultColumnContainer>
-            <Rifle scHeight={scHeight} rTwist={rTwist} caliber={caliber} twistDir={twistDir} id={id} />
+            <Rifle
+                handleChange={setRiffle}
+                scHeight={scHeight}
+                rTwist={rTwist}
+                caliber={caliber}
+                twistDir={twistDir}
+                fileName={fileName}
+            />
             <Bullet
-                id={id}
+                handleChange={setBullet}
+                fileName={fileName}
                 bcType={bcType}
                 bDiameter={bDiameter}
                 bLength={bLength}
@@ -60,14 +74,16 @@ export const Profile: React.FC<ProfileWithId> = ({
                 coefG7={coefG7}
             />
             <Cartridge
-                id={id}
+                handleChange={setCartridge}
+                fileName={fileName}
                 cMuzzleVelocity={cMuzzleVelocity}
                 cTCoeff={cTCoeff}
                 cZeroTemperature={cZeroTemperature}
             />
             <Zeroing
+                handleChange={setZeroing}
                 cZeroPTemperature={cZeroPTemperature}
-                id={id}
+                fileName={fileName}
                 zeroX={zeroX}
                 zeroY={zeroY}
                 cZeroAirHumidity={cZeroAirHumidity}
@@ -77,9 +93,10 @@ export const Profile: React.FC<ProfileWithId> = ({
                 cZeroWPitch={cZeroWPitch}
                 distances={distances}
             />
-            <Reticles />
             <Description
-                id={id}
+                isFileNameChangeable={isFileNameChangeable}
+                handleChange={setDescription}
+                fileName={fileName}
                 profileName={profileName}
                 shortNameTop={shortNameTop}
                 shortNameBot={shortNameBot}
@@ -88,9 +105,9 @@ export const Profile: React.FC<ProfileWithId> = ({
                 userNote={userNote}
             />
 
-            {Platform.OS !== 'web' && (
-                <Button title="open modal" onPress={() => openDistanceList({ distances, cZeroDistanceIdx })} />
-            )}
+            <DefaultButton onPress={() => openDistanceList(distances, cZeroDistanceIdx, setDistances)}>
+                <TextSemiBold20>{t('profile_open_dist_list')}</TextSemiBold20>
+            </DefaultButton>
         </DefaultColumnContainer>
     );
 };

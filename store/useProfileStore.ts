@@ -1,20 +1,29 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { IBullet, ICartridge, IDescription, IRiffle, IZeroing, ProfileWithId } from '@/interface/profile';
+import { IBullet, ICartridge, IDescription, IRiffle, IZeroing, Profile } from '@/interface/profile';
 import { AsyncStore } from '@/constant/asyncStore';
-import { WithId } from '@/interface/helper';
+import { WithFileName } from '@/interface/helper';
+import { IDraggableListItem } from '@/store/useModalControllerStore';
 
 interface IUseProfileStore {
-    profiles: ProfileWithId[];
-    actualProfiles: ProfileWithId[];
+    //
+    profiles: Profile[];
+    addNewProfile: (profile: Profile) => void;
+    importProfile: (profile: Profile) => void;
+    //
     selectedProfiles: string[];
-    addNewProfile: (profile: ProfileWithId) => void;
     getProfileFromStore: () => Promise<void>;
-    setProfileRifle: (data: WithId<IRiffle>) => void;
-    setProfileBullet: (data: WithId<IBullet>) => void;
-    setZeroing: (data: WithId<IZeroing>) => void;
-    setCartridge: (data: WithId<ICartridge>) => void;
-    setDescription: (data: WithId<IDescription>) => void;
+    //
+    setProfileRifle: (data: WithFileName<IRiffle>) => void;
+    setProfileBullet: (data: WithFileName<IBullet>) => void;
+    setZeroing: (data: WithFileName<IZeroing>) => void;
+    setCartridge: (data: WithFileName<ICartridge>) => void;
+    setDescription: (data: WithFileName<IDescription & { prevFileName: string }>) => void;
+    setDistance: (data: WithFileName<{ data: IDraggableListItem[] }>) => void;
+    //
+
+    deleteProfile: (fileName: string) => void;
+
     selectProfile: (data: string) => void;
     deselectProfile: (data: string) => void;
     sendSelected: () => void;
@@ -23,7 +32,7 @@ interface IUseProfileStore {
 export const useProfileStore = create<IUseProfileStore>()(set => ({
     profiles: [
         {
-            id: 'sadasdxczxs',
+            fileName: 'sadasdxczxs',
             profileName: 'Sample Profile',
             cartridgeName: 'Sample Cartridge',
             bulletName: 'Sample Bullet',
@@ -53,7 +62,7 @@ export const useProfileStore = create<IUseProfileStore>()(set => ({
             ],
             scHeight: 1000,
             rTwist: 5,
-            twistDir: 'right',
+            twistDir: 'RIGHT',
             cMuzzleVelocity: 2500,
             cZeroTemperature: 25,
             cTCoeff: 2.5,
@@ -67,18 +76,22 @@ export const useProfileStore = create<IUseProfileStore>()(set => ({
             bWeight: 150,
             bLength: 3,
             bcType: 'G1',
-            coefG1: [{ bc: 0.5, mv: 2500 }],
-            coefG7: [{ bc: 0.6, mv: 2450 }],
-            coefCustom: [{ bc: 0.55, mv: 2480 }],
+            coefG1: [{ bcCd: 0.5, mv: 2500 }],
+            coefG7: [{ bcCd: 0.6, mv: 2450 }],
+            coefCustom: [{ bcCd: 0.55, mv: 2480 }],
         },
     ],
-    actualProfiles: [],
     selectedProfiles: [],
+    deleteProfile: fileName =>
+        set(state => {
+            const newState = state.profiles.filter(el => el.fileName !== fileName);
+            AsyncStorage.setItem(AsyncStore.profiles, JSON.stringify(newState)).catch(console.log);
+            return { profiles: newState };
+        }),
     getProfileFromStore: async () => {
         try {
             const profiles = await AsyncStorage.getItem(AsyncStore.profiles);
-            const actualProfiles = await AsyncStorage.getItem(AsyncStore.actualProfiles);
-            set({ profiles: JSON.parse(profiles ?? '[]'), actualProfiles: JSON.parse(actualProfiles ?? '[]') });
+            set({ profiles: JSON.parse(profiles ?? '[]') });
         } catch (e) {
             console.log(e);
         }
@@ -92,45 +105,66 @@ export const useProfileStore = create<IUseProfileStore>()(set => ({
             AsyncStorage.setItem(AsyncStore.profiles, JSON.stringify(newState.profiles)).catch(console.log);
             return newState;
         }),
-    setProfileRifle: ({ caliber, rTwist, twistDir, scHeight, id }) =>
+    importProfile: profile =>
         set(state => {
+            const profileWithThisFileName = state.profiles.find(el => el.fileName === profile.fileName);
+            const newState = { profiles: [] as Profile[] };
+
+            if (profileWithThisFileName) {
+                newState.profiles = state.profiles.map(el => (el.fileName === profile.fileName ? profile : el));
+            } else {
+                newState.profiles = [profile, ...state.profiles];
+            }
+
+            AsyncStorage.setItem(AsyncStore.profiles, JSON.stringify(newState.profiles)).catch(console.log);
+            return newState;
+        }),
+    setProfileRifle: ({ caliber, rTwist, twistDir, scHeight, fileName }) =>
+        set(state => {
+            const profiles = state.profiles.map(el => {
+                if (el.fileName !== fileName) {
+                    return el;
+                }
+
+                return {
+                    ...el,
+                    caliber,
+                    rTwist,
+                    twistDir,
+                    scHeight,
+                };
+            });
+            AsyncStorage.setItem(AsyncStore.profiles, JSON.stringify(profiles)).catch(console.log);
+
             return {
-                profiles: state.profiles.map(el => {
-                    if (el.id !== id) {
-                        return el;
-                    }
-                    return {
-                        ...el,
-                        caliber,
-                        rTwist,
-                        twistDir,
-                        scHeight,
-                    };
-                }),
+                profiles,
             };
         }),
-    setProfileBullet: ({ id, bWeight, bcType, coefG7, coefG1, coefCustom, bLength, bDiameter }) =>
+    setProfileBullet: ({ fileName, bWeight, bcType, coefG7, coefG1, coefCustom, bLength, bDiameter }) =>
         set(state => {
+            const profiles = state.profiles.map(el => {
+                if (el.fileName !== fileName) {
+                    return el;
+                }
+                return {
+                    ...el,
+                    bWeight,
+                    bcType,
+                    coefG7,
+                    coefG1,
+                    coefCustom,
+                    bLength,
+                    bDiameter,
+                };
+            });
+            AsyncStorage.setItem(AsyncStore.profiles, JSON.stringify(profiles)).catch(console.log);
+
             return {
-                profiles: state.profiles.map(el => {
-                    if (el.id !== id) {
-                        return el;
-                    }
-                    return {
-                        ...el,
-                        bWeight,
-                        bcType,
-                        coefG7,
-                        coefG1,
-                        coefCustom,
-                        bLength,
-                        bDiameter,
-                    };
-                }),
+                profiles,
             };
         }),
     setZeroing: ({
-        id,
+        fileName,
         zeroY,
         cZeroWPitch,
         cZeroPTemperature,
@@ -142,83 +176,111 @@ export const useProfileStore = create<IUseProfileStore>()(set => ({
         distances,
     }) =>
         set(state => {
+            const profiles = state.profiles.map(el => {
+                if (el.fileName !== fileName) {
+                    return el;
+                }
+                return {
+                    ...el,
+                    zeroY,
+                    zeroX,
+                    cZeroDistanceIdx,
+                    cZeroWPitch,
+                    cZeroAirTemperature,
+                    cZeroAirPressure,
+                    cZeroAirHumidity,
+                    cZeroPTemperature,
+                    distances,
+                };
+            });
+            AsyncStorage.setItem(AsyncStore.profiles, JSON.stringify(profiles)).catch(console.log);
+
             return {
-                profiles: state.profiles.map(el => {
-                    if (el.id !== id) {
-                        return el;
-                    }
-                    return {
-                        ...el,
-                        zeroY,
-                        zeroX,
-                        cZeroDistanceIdx,
-                        cZeroWPitch,
-                        cZeroAirTemperature,
-                        cZeroAirPressure,
-                        cZeroAirHumidity,
-                        cZeroPTemperature,
-                        distances,
-                    };
-                }),
+                profiles,
             };
         }),
 
-    setCartridge: ({ id, cTCoeff, cZeroTemperature, cMuzzleVelocity }) =>
+    setCartridge: ({ fileName, cTCoeff, cZeroTemperature, cMuzzleVelocity }) =>
         set(state => {
+            const profiles = state.profiles.map(el => {
+                if (el.fileName !== fileName) {
+                    return el;
+                }
+                return {
+                    ...el,
+                    cTCoeff,
+                    cZeroTemperature,
+                    cMuzzleVelocity,
+                };
+            });
+            AsyncStorage.setItem(AsyncStore.profiles, JSON.stringify(profiles)).catch(console.log);
+
             return {
-                profiles: state.profiles.map(el => {
-                    if (el.id !== id) {
-                        return el;
-                    }
-                    return {
-                        ...el,
-                        cTCoeff,
-                        cZeroTemperature,
-                        cMuzzleVelocity,
-                    };
-                }),
+                profiles,
             };
         }),
 
-    setDescription: ({ id, profileName, cartridgeName, bulletName, shortNameBot, shortNameTop, userNote }) =>
+    setDescription: ({
+        fileName,
+        profileName,
+        cartridgeName,
+        bulletName,
+        shortNameBot,
+        shortNameTop,
+        userNote,
+        prevFileName,
+    }) =>
         set(state => {
-            return {
-                profiles: state.profiles.map(el => {
-                    if (el.id !== id) {
-                        return el;
-                    }
-                    return {
-                        ...el,
-                        profileName,
-                        cartridgeName,
-                        bulletName,
-                        shortNameTop,
-                        userNote,
-                        shortNameBot,
-                    };
-                }),
-            };
+            const profiles = state.profiles.map(el => {
+                if (el.fileName !== prevFileName) {
+                    return el;
+                }
+                return {
+                    ...el,
+                    fileName,
+                    profileName,
+                    cartridgeName,
+                    bulletName,
+                    shortNameTop,
+                    userNote,
+                    shortNameBot,
+                };
+            });
+            AsyncStorage.setItem(AsyncStore.profiles, JSON.stringify(profiles)).catch(console.log);
+
+            return { profiles };
         }),
 
     selectProfile: data => set(state => ({ selectedProfiles: [...state.selectedProfiles, data] })),
     deselectProfile: data =>
         set(state => ({ selectedProfiles: state.selectedProfiles.filter(profileId => profileId !== data) })),
 
-    sendSelected: () =>
+    sendSelected: () => set({ selectedProfiles: [] }),
+
+    setDistance: ({ fileName, data }) =>
         set(state => {
-            const selectedProfiles = state.selectedProfiles.map(el => {
-                const res = state.profiles.find(profile => profile.id === el);
-                if (res === undefined) {
-                    throw new Error('TODO ERROR');
+            const distances: number[] = [];
+            let zeroIndex = 0;
+
+            data.forEach((el, index) => {
+                distances.push(+el.title);
+                if (el.isZeroDistance) {
+                    zeroIndex = index;
                 }
-                return res;
             });
 
-            AsyncStorage.setItem(
-                AsyncStore.actualProfiles,
-                JSON.stringify([...state.actualProfiles, ...selectedProfiles]),
-            ).catch(console.log);
+            const profiles = state.profiles.map(el => {
+                if (el.fileName !== fileName) {
+                    return el;
+                }
+                return {
+                    ...el,
+                    distances,
+                    cZeroDistanceIdx: zeroIndex,
+                };
+            });
+            AsyncStorage.setItem(AsyncStore.profiles, JSON.stringify(profiles)).catch(console.log);
 
-            return { actualProfiles: [...state.actualProfiles, ...selectedProfiles], selectedProfiles: [] };
+            return { profiles };
         }),
 }));

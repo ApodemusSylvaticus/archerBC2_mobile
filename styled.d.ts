@@ -6,12 +6,15 @@ declare module 'styled-components' {
         rem: number;
         name: string;
         colors: {
+            transparent: string;
             appBg: string;
             cardBg: string;
             primary: string;
             l1ActiveEl: string;
             activeTab: string;
             error: string;
+            success: string;
+            warn: string;
         };
     }
 }

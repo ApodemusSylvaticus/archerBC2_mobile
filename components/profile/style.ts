@@ -11,6 +11,5 @@ interface ProfileTabCardProps {
     isSelected: boolean;
 }
 export const ProfileTabCard = styled(DefaultCard)<ProfileTabCardProps>`
-    border: 2px solid;
-    border-color: ${props => (props.isSelected ? props.theme.colors.activeTab : props.theme.colors.cardBg)};
+    border: 2px solid ${props => (props.isSelected ? props.theme.colors.activeTab : props.theme.colors.cardBg)};
 `;

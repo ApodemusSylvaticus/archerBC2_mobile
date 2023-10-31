@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { NumericInputProps } from '@/interface/components/input';
 import { Container, Input, InputError, InputLabel, InputUnit, InputWrapper, UintText } from './style';
 import { regexNumeric } from '@/constant/regex';
 
-export const NumericInput: React.FC<NumericInputProps> = ({
+export const NumericInput: React.FC<PropsWithChildren<NumericInputProps>> = ({
     style,
     touched,
     background,
@@ -14,6 +14,8 @@ export const NumericInput: React.FC<NumericInputProps> = ({
     onBlur,
     schema,
     uint,
+    children,
+    disabled,
 }) => {
     const [isActive, setIsActive] = useState(!!value);
     const [handleError, setHandleError] = useState('');
@@ -21,6 +23,10 @@ export const NumericInput: React.FC<NumericInputProps> = ({
         setIsActive(true);
         setHandleError('');
     };
+
+    useEffect(() => {
+        setIsActive(!!value);
+    }, [value]);
 
     const handleBlur = async (str: string) => {
         onBlur(str);
@@ -61,20 +67,24 @@ export const NumericInput: React.FC<NumericInputProps> = ({
 
     return (
         <Container style={style}>
-            <InputWrapper>
-                <InputLabel isActive={isActive} background={background}>
+            <InputWrapper isDisabled={!!disabled}>
+                <InputLabel isDisabled={!!disabled} isActive={isActive} background={background}>
                     {label}
                 </InputLabel>
                 <Input
+                    editable={!disabled}
+                    selectTextOnFocus={false}
                     value={value}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
+                    isDisabled={!!disabled}
                     keyboardType="numeric"
                     onChangeText={handleOnChangeText}
                 />
-                {!!uint && (
+                {(!!uint || children) && (
                     <InputUnit>
-                        <UintText>{uint}</UintText>
+                        {!!uint && <UintText>{uint}</UintText>}
+                        {children}
                     </InputUnit>
                 )}
             </InputWrapper>

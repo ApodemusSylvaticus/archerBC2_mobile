@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { I18nManager, View } from 'react-native';
+import { I18nManager, Pressable } from 'react-native';
 import Svg, { Path, G, Defs } from 'react-native-svg';
-import { PureArrowProps } from '@/interface/svg';
+import { ArrowSVGProps } from '@/interface/svg';
 
-export const PureArrow: React.FC<PureArrowProps> = ({ width, height, fillColor, orientation }) => {
+export const PureArrow: React.FC<ArrowSVGProps> = ({ width, height, fillColor, orientation, onPress }) => {
     const [transformParam, setTransform] = useState('0 deg');
 
     useEffect(() => {
@@ -26,7 +26,7 @@ export const PureArrow: React.FC<PureArrowProps> = ({ width, height, fillColor, 
     }, [orientation]);
 
     return (
-        <View style={{ transform: `rotate(${transformParam})` }}>
+        <Pressable style={{ transform: `rotate(${transformParam})` }} onPress={onPress}>
             <Svg width={width} height={height} viewBox="0 -4.5 20 20" xmlns="http://www.w3.org/2000/svg">
                 <Defs />
                 <G id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
@@ -40,6 +40,6 @@ export const PureArrow: React.FC<PureArrowProps> = ({ width, height, fillColor, 
                     </G>
                 </G>
             </Svg>
-        </View>
+        </Pressable>
     );
 };

@@ -10,6 +10,7 @@ export interface DefaultInputProps {
     onBlur: (text: string) => void;
     background: string;
     style?: ViewStyle;
+    disabled?: boolean;
 }
 
 export interface NumericInputProps extends DefaultInputProps {

@@ -1,28 +1,28 @@
 import { TwistDirection } from '@/interface/profile';
 
 export interface IDescriptionForm {
-    name: string;
+    profileName: string;
     cartridge: string;
     bullet: string;
 }
 
 export interface IRiffleForm {
-    calibre: string;
-    twistRate: string;
-    twistDirection: TwistDirection;
-    scopeHeight: string;
+    caliber: string;
+    rTwist: string;
+    twistDir: TwistDirection;
+    scHeight: string;
 }
 
 export interface ICartridgeForm {
-    muzzleVelocity: string;
-    powderTemperature: string;
-    ratio: string;
+    cMuzzleVelocity: string;
+    cZeroTemperature: string;
+    cTCoeff: string;
 }
 
 export interface IBulletForm {
-    diameter: string;
-    weight: string;
-    length: string;
+    bDiameter: string;
+    bWeight: string;
+    bLength: string;
 }
 
 export enum RANGE {
@@ -42,16 +42,13 @@ export enum BallisticProfileType {
     MULTI,
 }
 
-export interface SingleProfileType {
-    type: BallisticProfileType.SINGLE;
-    coefficient: string;
-}
-
 export interface CoefficientForm {
     mv: string;
-    bc: string;
+    bcCd: string;
 }
-export interface MultiProfileType {
-    type: BallisticProfileType.MULTI;
-    coefficient: CoefficientForm[];
+
+export interface IBallisticProfile {
+    type: BallisticProfileType;
+    G1: { single: string; multi: CoefficientForm[] };
+    G7: { single: string; multi: CoefficientForm[] };
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Input, InputError, InputLabel, InputWrapper } from '@/components/Inputs/style';
 import { DefaultInputProps } from '@/interface/components/input';
 
@@ -10,9 +10,14 @@ export const DefaultInput: React.FC<DefaultInputProps> = ({
     touched,
     background,
     onBlur,
+    disabled,
     style,
 }) => {
-    const [isActive, setIsActive] = useState(!!value);
+    const [isActive, setIsActive] = useState<boolean>(false);
+
+    useEffect(() => {
+        setIsActive(!!value);
+    }, [value]);
     const handleFocus = () => {
         setIsActive(true);
     };
@@ -25,11 +30,13 @@ export const DefaultInput: React.FC<DefaultInputProps> = ({
 
     return (
         <Container style={style}>
-            <InputWrapper>
-                <InputLabel isActive={isActive} background={background}>
+            <InputWrapper isDisabled={!!disabled}>
+                <InputLabel isDisabled={!!disabled} isActive={isActive} background={background}>
                     {label}
                 </InputLabel>
                 <Input
+                    editable={!disabled}
+                    isDisabled={!!disabled}
                     value={value}
                     onFocus={handleFocus}
                     onBlur={onBlur}

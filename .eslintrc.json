@@ -36,6 +36,7 @@
                 "endOfLine": "auto"
             }
         ],
+        "react-hooks/exhaustive-deps": "warn",
         "global-require": "warn",
         "no-use-before-define": "off",
         "prefer-arrow-callback": "warn",
@@ -45,6 +46,7 @@
         "react/prop-types": 0,
         "react/require-default-props": "warn",
         "no-shadow": "off",
-        "@typescript-eslint/no-shadow": ["error"]
+        "@typescript-eslint/no-shadow": ["error"],
+        "react/jsx-props-no-spreading": "warn"
     }
 }

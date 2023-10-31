@@ -1,9 +1,9 @@
 import React, { PropsWithChildren } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Container, LinkEl } from '@/components/tabBar/tab/style';
+import { IsActive } from '@/interface/components/defaultStyleProps';
 
-interface ITab {
-    isActive: boolean;
+interface ITab extends IsActive {
     href: string;
 }
 

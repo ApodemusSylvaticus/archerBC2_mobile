@@ -1,91 +1,112 @@
-import { number, object } from 'yup';
 import React from 'react';
 import { Formik } from 'formik';
 import { useTheme } from 'styled-components/native';
 import { useTranslation } from 'react-i18next';
-import { ButtonContainer } from '@/components/forms/style';
-import { ArrowSVG } from '@/components/svg/arrow';
-import { IForm } from '@/interface/form';
+import { CartridgeProfileFormProps, IForm } from '@/interface/form';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
 import { isAllTouched } from '@/helpers/isAllTached';
 import { NumericInput } from '@/components/Inputs/numericInput';
+import { DefaultFormNavigation } from '@/components/forms/newProfile/defaultFormNavigation';
+import { SubmitButton, SubmitButtonText } from '@/components/profile/components/style';
+import { useValidationSchema } from '@/hooks/useValidationSchema';
+import { DefaultRow } from '../container/defaultBox';
 
-const schema = object().shape({
-    muzzleVelocity: number().required('Required').min(10).max(3000, 'Too Long!'),
-    powderTemperature: number().required('Required').min(-100).max(100, 'Too Long!'),
-    ratio: number().required('Required').min(0).max(5, 'Too Long!'),
-});
-
-export const CartridgeForm: React.FC<IForm> = ({ goBack, goForward }) => {
-    const { rem, colors } = useTheme();
+export const CartridgeForm: React.FC<CartridgeProfileFormProps> = ({ cartridge, navigation, labelBg, onSubmit }) => {
+    const { colors } = useTheme();
     const { t } = useTranslation();
 
-    const { cartridge, setCartridge } = useNewProfileStore(state => ({
-        cartridge: state.cartridge,
-        setCartridge: state.setCartridge,
-    }));
+    const { cartridgeSchema } = useValidationSchema();
 
     return (
         <Formik
             initialValues={cartridge}
-            onSubmit={powderTemperature => {
-                setCartridge(powderTemperature);
-                goForward();
+            onSubmit={values => {
+                onSubmit(values);
             }}
-            validationSchema={schema}>
+            validationSchema={cartridgeSchema}>
             {({ isValid, handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                 <>
-                    <NumericInput
-                        uint={t('uint_m_dash_s')}
-                        label={t('profile_muzzle_velocity')}
-                        value={values.muzzleVelocity.toString()}
-                        onChangeText={handleChange('muzzleVelocity')}
-                        error={errors.muzzleVelocity}
-                        touched={touched.muzzleVelocity}
-                        onBlur={handleBlur('muzzleVelocity')}
-                        background={colors.appBg}
-                    />
-
-                    <NumericInput
-                        uint={t('uint_temperature')}
-                        label={t('profile_powder_temperature')}
-                        value={values.powderTemperature.toString()}
-                        onChangeText={handleChange('powderTemperature')}
-                        error={errors.powderTemperature}
-                        touched={touched.powderTemperature}
-                        onBlur={handleBlur('powderTemperature')}
-                        background={colors.appBg}
-                    />
-
-                    <NumericInput
-                        uint={t('uint_percent_dash_temperature')}
-                        label={t('profile_ratio')}
-                        value={values.ratio.toString()}
-                        onChangeText={handleChange('ratio')}
-                        error={errors.ratio}
-                        touched={touched.ratio}
-                        onBlur={handleBlur('ratio')}
-                        background={colors.appBg}
-                    />
-
-                    <ButtonContainer>
-                        <ArrowSVG
-                            orientation="left"
-                            width={rem * 5.5}
-                            height={rem * 5.5}
-                            fillColor={colors.primary}
-                            onPress={() => goBack()}
+                    <DefaultRow>
+                        <NumericInput
+                            uint={t('uint_m_dash_s')}
+                            label={t('profile_muzzle_velocity')}
+                            value={values.cMuzzleVelocity.toString()}
+                            onChangeText={handleChange('cMuzzleVelocity')}
+                            error={errors.cMuzzleVelocity}
+                            touched={touched.cMuzzleVelocity}
+                            onBlur={handleBlur('cMuzzleVelocity')}
+                            background={labelBg}
                         />
-                        <ArrowSVG
-                            orientation="right"
-                            width={rem * 5.5}
-                            height={rem * 5.5}
-                            fillColor={isAllTouched(values) && isValid ? colors.activeTab : colors.l1ActiveEl}
-                            onPress={handleSubmit}
+                    </DefaultRow>
+
+                    <DefaultRow>
+                        <NumericInput
+                            uint={t('uint_temperature')}
+                            label={t('profile_powder_temperature')}
+                            value={values.cZeroTemperature.toString()}
+                            onChangeText={handleChange('cZeroTemperature')}
+                            error={errors.cZeroTemperature}
+                            touched={touched.cZeroTemperature}
+                            onBlur={handleBlur('cZeroTemperature')}
+                            background={labelBg}
                         />
-                    </ButtonContainer>
+                    </DefaultRow>
+
+                    <DefaultRow>
+                        <NumericInput
+                            uint={t('uint_percent_dash_temperature')}
+                            label={t('profile_ratio')}
+                            value={values.cTCoeff.toString()}
+                            onChangeText={handleChange('cTCoeff')}
+                            error={errors.cTCoeff}
+                            touched={touched.cTCoeff}
+                            onBlur={handleBlur('cTCoeff')}
+                            background={labelBg}
+                        />
+                    </DefaultRow>
+
+                    {navigation.type === 'V1' && (
+                        <DefaultFormNavigation
+                            goBackAction={navigation.goBack}
+                            goBackButtonColor={colors.primary}
+                            goForwardAction={handleSubmit}
+                            goForwardButtonColor={
+                                isAllTouched(values) && isValid ? colors.activeTab : colors.l1ActiveEl
+                            }
+                        />
+                    )}
+
+                    {navigation.type === 'V2' && (
+                        <SubmitButton onPress={() => isValid && handleSubmit()}>
+                            <SubmitButtonText>{t('default_apply_button')}</SubmitButtonText>
+                        </SubmitButton>
+                    )}
                 </>
             )}
         </Formik>
+    );
+};
+
+export const NewCartridgeForm: React.FC<IForm> = ({ goBack, goForward }) => {
+    const { cartridge, setCartridge } = useNewProfileStore(state => ({
+        cartridge: state.cartridge,
+        setCartridge: state.setCartridge,
+    }));
+    const { colors } = useTheme();
+
+    return (
+        <CartridgeForm
+            cartridge={{ ...cartridge, fileName: 'crunch' }}
+            onSubmit={({ cZeroTemperature, cMuzzleVelocity, cTCoeff }) => {
+                setCartridge({
+                    cZeroTemperature,
+                    cMuzzleVelocity,
+                    cTCoeff,
+                });
+                goForward();
+            }}
+            labelBg={colors.appBg}
+            navigation={{ type: 'V1', goBack }}
+        />
     );
 };

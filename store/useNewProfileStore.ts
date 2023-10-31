@@ -4,24 +4,39 @@ import {
     BallisticFunctionType,
     BallisticProfileType,
     CoefficientForm,
+    IBallisticProfile,
     IBulletForm,
     ICartridgeForm,
     IDescriptionForm,
     IRiffleForm,
-    MultiProfileType,
     RANGE,
-    SingleProfileType,
 } from '@/interface/newProfile';
 
-interface INewProfile {
+export interface INewProfile {
     description: IDescriptionForm;
     riffle: IRiffleForm;
     cartridge: ICartridgeForm;
     bullet: IBulletForm;
     range: Nullable<RANGE>;
     ballisticFunction: Nullable<BallisticFunctionType>;
-    ballisticProfile: Nullable<SingleProfileType | MultiProfileType>;
+    ballisticProfile: Nullable<IBallisticProfile>;
+    fileName: Nullable<string>;
 }
+
+interface coef {
+    single: number;
+    multi: { bcCd: number; mv: number }[];
+}
+
+export interface jija {
+    name: string;
+    bDiameter: number;
+    bWeight: number;
+    bLength: number;
+    coefG1: coef;
+    coefG7: coef;
+}
+
 interface IUseNewProfileStore extends INewProfile {
     setDescription: (data: IDescriptionForm) => void;
     setRiffle: (data: IRiffleForm) => void;
@@ -33,38 +48,38 @@ interface IUseNewProfileStore extends INewProfile {
     setSingleCoefficient: (data: string) => void;
     setMultiCoefficient: (data: CoefficientForm[]) => void;
     reset: () => void;
-}
+    setFileName: (data: string) => void;
 
-const a: CoefficientForm[] = [
-    { mv: '', bc: '' },
-    { bc: '', mv: '' },
-];
+    selectBulletFromList: (data: jija) => void;
+    selectCaliberFromList: (data: { name: string; bDiameter: number }) => void;
+}
 
 export const emptyProfile: INewProfile = {
     description: {
-        name: '',
+        profileName: '',
         bullet: '',
         cartridge: '',
     },
     riffle: {
-        twistRate: '',
-        scopeHeight: '',
-        twistDirection: 'right',
-        calibre: '',
+        rTwist: '',
+        scHeight: '',
+        twistDir: 'RIGHT',
+        caliber: '',
     },
     ballisticFunction: null,
     ballisticProfile: null,
     bullet: {
-        weight: '',
-        diameter: '',
-        length: '',
+        bWeight: '',
+        bDiameter: '',
+        bLength: '',
     },
     cartridge: {
-        powderTemperature: '',
-        muzzleVelocity: '',
-        ratio: '',
+        cZeroTemperature: '',
+        cMuzzleVelocity: '',
+        cTCoeff: '',
     },
     range: null,
+    fileName: null,
 };
 
 export const useNewProfileStore = create<IUseNewProfileStore>()(set => ({
@@ -77,19 +92,27 @@ export const useNewProfileStore = create<IUseNewProfileStore>()(set => ({
     setRange: data => set({ range: data }),
     setBallisticFunctionType: data => set({ ballisticFunction: data }),
     setBallisticProfile: data =>
-        set({
-            ballisticProfile:
-                data === BallisticProfileType.SINGLE
-                    ? {
-                          type: data,
-                          coefficient: '',
-                      }
-                    : {
-                          type: data,
-                          coefficient: a,
-                      },
-        }),
+        set(state => ({
+            ballisticProfile: {
+                type: data,
 
+                G1: state.ballisticProfile?.G1 ?? {
+                    single: '',
+                    multi: [
+                        { mv: '', bcCd: '' },
+                        { bcCd: '', mv: '' },
+                    ],
+                },
+                G7: state.ballisticProfile?.G7 ?? {
+                    single: '',
+                    multi: [
+                        { mv: '', bcCd: '' },
+                        { bcCd: '', mv: '' },
+                    ],
+                },
+            },
+        })),
+    setFileName: data => set({ fileName: data }),
     setMultiCoefficient: data =>
         set(state => {
             if (state.ballisticProfile === null) {
@@ -99,9 +122,23 @@ export const useNewProfileStore = create<IUseNewProfileStore>()(set => ({
             if (state.ballisticProfile.type === BallisticProfileType.SINGLE) {
                 throw new Error('This function for multi coefficient');
             }
-            return { ballisticProfile: { coefficient: data, type: BallisticProfileType.MULTI } };
-        }),
+            const { ballisticFunction } = state;
 
+            if (ballisticFunction === null) {
+                throw new Error('Ballistit function === null');
+            }
+            const G1 =
+                ballisticFunction === BallisticFunctionType.G1
+                    ? { single: state.ballisticProfile.G1.single, multi: data }
+                    : state.ballisticProfile.G1;
+
+            const G7 =
+                ballisticFunction === BallisticFunctionType.G7
+                    ? { single: state.ballisticProfile.G7.single, multi: data }
+                    : state.ballisticProfile.G7;
+
+            return { ballisticProfile: { type: BallisticProfileType.MULTI, G1, G7 } };
+        }),
     setSingleCoefficient: data =>
         set(state => {
             if (state.ballisticProfile === null) {
@@ -111,7 +148,57 @@ export const useNewProfileStore = create<IUseNewProfileStore>()(set => ({
             if (state.ballisticProfile.type === BallisticProfileType.MULTI) {
                 throw new Error('This function for multi coefficient');
             }
-            return { ballisticProfile: { coefficient: data, type: BallisticProfileType.SINGLE } };
+
+            const { ballisticFunction } = state;
+
+            if (ballisticFunction === null) {
+                throw new Error('ballisticFunction === null');
+            }
+            const G1 =
+                ballisticFunction === BallisticFunctionType.G1
+                    ? { single: data, multi: state.ballisticProfile.G1.multi }
+                    : state.ballisticProfile.G1;
+
+            const G7 =
+                ballisticFunction === BallisticFunctionType.G7
+                    ? { single: data, multi: state.ballisticProfile.G7.multi }
+                    : state.ballisticProfile.G7;
+
+            return { ballisticProfile: { type: BallisticProfileType.SINGLE, G1, G7 } };
         }),
     reset: () => set({ ...emptyProfile }),
+
+    selectCaliberFromList: data =>
+        set(state => ({
+            riffle: { ...state.riffle, caliber: data.name },
+            bullet: { ...state.bullet, bDiameter: data.bDiameter.toString() },
+        })),
+    selectBulletFromList: data =>
+        set(state => {
+            const { description, ballisticProfile } = state;
+
+            return {
+                bullet: {
+                    bWeight: data.bWeight.toString(),
+                    bLength: data.bLength.toString(),
+                    bDiameter: data.bDiameter.toString(),
+                },
+                description: {
+                    ...description,
+                    bullet: data.name,
+                },
+                ballisticProfile: {
+                    type: ballisticProfile?.type ?? BallisticProfileType.MULTI,
+                    G1: {
+                        single: data.coefG1.single.toString(),
+                        multi: data.coefG1.multi.map(el => ({ bcCd: el.bcCd.toString(), mv: el.mv.toString() })),
+                    },
+
+                    G7: {
+                        single: data.coefG7.single.toString(),
+                        multi: data.coefG7.multi.map(el => ({ bcCd: el.bcCd.toString(), mv: el.mv.toString() })),
+                    },
+                },
+            };
+        }),
 }));

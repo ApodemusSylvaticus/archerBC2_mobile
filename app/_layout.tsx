@@ -5,26 +5,27 @@ import { Slot, SplashScreen } from 'expo-router';
 import { ThemeProvider } from 'styled-components/native';
 import { ClickOutsideProvider } from 'react-native-click-outside';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Alert, I18nManager } from 'react-native';
+import { Alert, I18nManager, Platform, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { TabBar } from '@/components/tabBar';
-import { ModalControllerWrapper } from '@/components/modals/modalControllerWrapper';
 import { useProfileStore } from '@/store/useProfileStore';
 import { Header } from '@/components/header';
 import '@/i18n/index';
 import { useSettingStore } from '@/store/useSettingStore';
 import { languageArray } from '@/i18n';
-
-export {
-    // Catch any errors thrown by the Layout component.
-    ErrorBoundary,
-} from 'expo-router';
+import { ProfileWorker } from '@/core/profileWorker';
+import { ErrorBoundary } from '@/components/errorBoundary';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+    useEffect(() => {
+        const profileWorker = new ProfileWorker();
+        profileWorker.loadProto();
+    }, []);
+
     const { getDataFromStorage, theme, size, language } = useSettingStore(state => ({
         getDataFromStorage: state.getDataFromStorage,
         theme: state.theme,
@@ -79,19 +80,36 @@ export default function RootLayout() {
         return null;
     }
 
-    return (
-        <GestureHandlerRootView style={{ flex: 1, backgroundColor: theme.colors.appBg, width: '100%', height: '100%' }}>
-            <SafeAreaProvider>
-                <ClickOutsideProvider>
-                    <ThemeProvider theme={{ rem: size, ...theme }}>
-                        <ModalControllerWrapper>
+    if (Platform.OS === 'web') {
+        return (
+            <View style={{ flex: 1, backgroundColor: theme.colors.appBg, width: '100%', height: '100%' }}>
+                <SafeAreaProvider>
+                    <ClickOutsideProvider>
+                        <ThemeProvider theme={{ rem: size, ...theme }}>
                             <Header />
                             <Slot />
                             <TabBar />
-                        </ModalControllerWrapper>
-                    </ThemeProvider>
-                </ClickOutsideProvider>
-            </SafeAreaProvider>
-        </GestureHandlerRootView>
+                        </ThemeProvider>
+                    </ClickOutsideProvider>
+                </SafeAreaProvider>
+            </View>
+        );
+    }
+
+    return (
+        <ErrorBoundary>
+            <GestureHandlerRootView
+                style={{ flex: 1, backgroundColor: theme.colors.appBg, width: '100%', height: '100%' }}>
+                <SafeAreaProvider>
+                    <ClickOutsideProvider>
+                        <ThemeProvider theme={{ rem: size, ...theme }}>
+                            <Header />
+                            <Slot />
+                            <TabBar />
+                        </ThemeProvider>
+                    </ClickOutsideProvider>
+                </SafeAreaProvider>
+            </GestureHandlerRootView>
+        </ErrorBoundary>
     );
 }

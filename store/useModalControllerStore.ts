@@ -1,18 +1,38 @@
 import { create } from 'zustand';
+import { Nullable } from '@/interface/helper';
+
+export interface IDraggableListItem {
+    title: string;
+    isZeroDistance: boolean;
+    id: string;
+}
+
+type distanceHandler = (data: IDraggableListItem[]) => void;
 
 interface IModalsController {
     isNewProfileOpen: boolean;
     openNewProfileModal: () => void;
     closeNewProfileModal: () => void;
     isProfileViewModalOpen: boolean;
-    profileViewModalId: string;
-    openProfileViewModal: (data: string) => void;
+    profileViewModalFileName: Nullable<string>;
+    setProfileViewModalFileName: (fileName: string) => void;
+    openProfileViewModal: (fileName: string) => void;
     closeProfileViewModal: () => void;
 
     isDistanceListOpen: boolean;
-    distanceListData: { distances: number[]; cZeroDistanceIdx: number };
-    openDistanceList: (data: { distances: number[]; cZeroDistanceIdx: number }) => void;
+    distanceList: number[];
+    zeroDistanceIdx: number;
+    distanceListHandler: distanceHandler;
+    openDistanceList: (distances: number[], zeroDistanceIdx: number, handler: distanceHandler) => void;
     closeDistanceList: () => void;
+
+    isChooseActiveProfileOpen: boolean;
+    openChooseActiveProfileModal: () => void;
+    closeChooseActiveProfileModal: () => void;
+
+    reticlesFolderName: string;
+    openReticlesListModal: (folderName: string) => void;
+    closeReticlesListModal: () => void;
 }
 
 export const useModalControllerStore = create<IModalsController>()(set => ({
@@ -20,13 +40,24 @@ export const useModalControllerStore = create<IModalsController>()(set => ({
     openNewProfileModal: () => set(state => ({ ...state, isNewProfileOpen: true })),
     closeNewProfileModal: () => set(state => ({ ...state, isNewProfileOpen: false })),
     isProfileViewModalOpen: false,
-    profileViewModalId: '',
-    openProfileViewModal: data => set({ profileViewModalId: data, isProfileViewModalOpen: true }),
-    closeProfileViewModal: () => set({ profileViewModalId: '', isProfileViewModalOpen: false }),
+    profileViewModalFileName: null,
+    setProfileViewModalFileName: fileName => set({ profileViewModalFileName: fileName }),
+    openProfileViewModal: fileName => set({ profileViewModalFileName: fileName, isProfileViewModalOpen: true }),
+    closeProfileViewModal: () => set({ profileViewModalFileName: null, isProfileViewModalOpen: false }),
+
+    isChooseActiveProfileOpen: false,
+    openChooseActiveProfileModal: () => set({ isChooseActiveProfileOpen: true }),
+    closeChooseActiveProfileModal: () => set({ isChooseActiveProfileOpen: false }),
 
     isDistanceListOpen: false,
-    distanceListData: { distances: [], cZeroDistanceIdx: 0 },
-    openDistanceList: data => set({ distanceListData: data, isDistanceListOpen: true }),
-    closeDistanceList: () =>
-        set({ distanceListData: { distances: [], cZeroDistanceIdx: 0 }, isDistanceListOpen: false }),
+    distanceList: [],
+    zeroDistanceIdx: 0,
+    distanceListHandler: () => undefined,
+    openDistanceList: (distances, zeroDistanceIdx, handler) =>
+        set({ zeroDistanceIdx, distanceListHandler: handler, distanceList: distances, isDistanceListOpen: true }),
+    closeDistanceList: () => set({ distanceListHandler: () => undefined, distanceList: [], isDistanceListOpen: false }),
+
+    reticlesFolderName: '',
+    closeReticlesListModal: () => set({ reticlesFolderName: '' }),
+    openReticlesListModal: folderName => set({ reticlesFolderName: folderName }),
 }));

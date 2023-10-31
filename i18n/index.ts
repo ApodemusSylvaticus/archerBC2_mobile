@@ -15,7 +15,11 @@ interface Language {
 export const languageArray: Language[] = [];
 
 languageSimbolArray.forEach(el => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     resources[el] = { translation: translationData[el].data };
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     languageArray.push({ simbol: el, value: translationData[el].name, isLTR: translationData[el].isLTR });
 });
 

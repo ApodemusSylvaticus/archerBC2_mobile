@@ -1,6 +1,6 @@
 import styled from 'styled-components/native';
 import { rem } from '@/helpers/rem';
-import { Text20 } from '@/components/text/styled';
+import { Text20, TextSemiBold16 } from '@/components/text/styled';
 
 export const Container = styled.View<{ zIndex: number }>`
     width: 100%;
@@ -42,8 +42,16 @@ export const SelectBox = styled.View<SelectBoxProps>`
 
 export const SelectItem = styled.Pressable`
     position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: ${props => rem(props, 1.6)};
     z-index: 10;
     border: 1px solid ${props => props.theme.colors.primary};
     padding: ${props => rem(props, 1.2)} ${props => rem(props, 1.6)};
     background: ${props => props.theme.colors.cardBg};
+`;
+
+export const AlreadyExistLabel = styled(TextSemiBold16)`
+    color: ${props => props.theme.colors.activeTab};
 `;

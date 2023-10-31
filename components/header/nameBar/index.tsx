@@ -15,8 +15,8 @@ export const NameBar: React.FC<PropsWithChildren> = ({ children }) => {
         switch (pathname) {
             case Routing.PROFILES:
                 return t('default_profiles');
-            case Routing.ENVI:
-                return t('default_environment');
+            case Routing.SHOT_CONDITIONS:
+                return t('default_shot_conditions');
             case Routing.SETTING:
                 return t('default_setting');
             case Routing.RETICLES:
