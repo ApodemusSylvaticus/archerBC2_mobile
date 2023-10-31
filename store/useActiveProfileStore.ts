@@ -14,7 +14,7 @@ interface IUseActiveProfileStore {
     setActiveProfile: (fileName: string) => void;
     fileList: string[];
     setFileList: (fileList: string[]) => void;
-    getProfile: (fileName: string, profile: ServerProfile) => void;
+    setProfile: (fileName: string, profile: ServerProfile) => void;
     addNewProfile: (fileName: string, profile: ServerProfile) => void;
     updateProfile: (fileName: string, profile: ServerProfile) => void;
     deleteProfile: (fileName: string) => void;
@@ -33,7 +33,7 @@ export const useActiveProfileStore = create<IUseActiveProfileStore>()(set => ({
             });
             return { fileList, activeProfile: fileList[0], activeProfilesMap };
         }),
-    getProfile: (fileName, profile) =>
+    setProfile: (fileName, profile) =>
         set(state => {
             return {
                 activeProfilesMap: {

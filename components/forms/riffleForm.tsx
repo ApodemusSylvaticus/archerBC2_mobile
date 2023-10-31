@@ -12,7 +12,7 @@ import { DefaultFormNavigation } from '@/components/forms/newProfile/defaultForm
 import { SubmitButton, SubmitButtonText } from '@/components/profile/components/style';
 import { useValidationSchema } from '@/hooks/useValidationSchema';
 import { DefaultRow } from '@/components/container/defaultBox';
-import { SelectRiffleFromListButton } from '@/components/button/selectRiffleFromListButton';
+import { SelectCaliberFromListButton } from '@/components/button/selectCaliberFromListButton';
 
 export const RiffleForm: React.FC<RiffleProfileFormProps> = ({ riffle, onSubmit, navigation, labelBg, withList }) => {
     const { t } = useTranslation();
@@ -51,7 +51,7 @@ export const RiffleForm: React.FC<RiffleProfileFormProps> = ({ riffle, onSubmit,
                             onBlur={handleBlur('caliber')}
                             background={labelBg}
                         />
-                        {withList && <SelectRiffleFromListButton />}
+                        {withList && <SelectCaliberFromListButton />}
                     </DefaultRow>
 
                     <DefaultRow>
@@ -90,7 +90,7 @@ export const RiffleForm: React.FC<RiffleProfileFormProps> = ({ riffle, onSubmit,
                     {navigation.type === 'V1' && (
                         <DefaultFormNavigation
                             goBackAction={navigation.goBack}
-                            goBackButtonColor={colors.primary}
+                            goBackButtonColor={colors.transparent}
                             goForwardAction={handleSubmit}
                             goForwardButtonColor={
                                 isAllTouched(values) && isValid ? colors.activeTab : colors.l1ActiveEl
@@ -100,7 +100,6 @@ export const RiffleForm: React.FC<RiffleProfileFormProps> = ({ riffle, onSubmit,
                     {navigation.type === 'V2' && (
                         <SubmitButton
                             onPress={() => {
-                                console.log(errors);
                                 if (isValid) {
                                     handleSubmit();
                                 }

@@ -1,6 +1,7 @@
 import styled from 'styled-components/native';
 import { rem } from '@/helpers/rem';
 import { TextBold16 } from '@/components/text/styled';
+import { IsActive } from '@/interface/components/defaultStyleProps';
 
 export const Container = styled.View`
     display: flex;
@@ -25,8 +26,7 @@ export const InputWrapper = styled.View<IsDisabled>`
     flex-wrap: wrap;
 `;
 
-interface IInputLabelProps extends IsDisabled {
-    isActive: boolean;
+interface IInputLabelProps extends IsDisabled, IsActive {
     background: string;
 }
 

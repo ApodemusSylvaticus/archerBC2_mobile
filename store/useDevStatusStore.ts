@@ -1,7 +1,6 @@
 import { create } from 'zustand/esm';
 import { ZOOM } from '@/interface/core/coreProtobuf';
 import { Nullable } from '@/interface/helper';
-import { ServerProfile } from '@/interface/profile';
 
 interface devStatus {
     charge: number;
@@ -20,33 +19,29 @@ interface devStatus {
 interface IUseDevStatusStore {
     devStatus: Nullable<devStatus>;
     setDevStatus: (data: devStatus) => void;
-
+    activeProfile: Nullable<string>;
+    setActiveProfile: (data: string) => void;
     setWindParam: (data: { windDir: number; pitch: number }) => void;
     setEnvironmentParam: (data: { airPress: number; airHum: number; airTemp: number; powderTemp: number }) => void;
-
-    // Temp
-    actualProfile: Nullable<ServerProfile>;
-    getActualProfile: (data: ServerProfile) => void;
 }
 
 export const useDevStatusStore = create<IUseDevStatusStore>()(set => ({
     devStatus: null,
+    activeProfile: null,
+    setActiveProfile: data => set({ activeProfile: data }),
     setDevStatus: data => set({ devStatus: data }),
     setEnvironmentParam: data =>
         set(state => {
             if (state.devStatus === null) {
-                throw new Error('TODO ERROR');
+                throw new Error('Call method setEnvironmentParam before initialization');
             }
             return { devStatus: { ...state.devStatus, ...data } };
         }),
     setWindParam: data =>
         set(state => {
             if (state.devStatus === null) {
-                throw new Error('TODO ERROR');
+                throw new Error('Call method setWindParam before initialization');
             }
             return { devStatus: { ...state.devStatus, ...data } };
         }),
-
-    actualProfile: null,
-    getActualProfile: data => set({ actualProfile: data }),
 }));

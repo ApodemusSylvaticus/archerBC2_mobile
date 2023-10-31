@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { DefaultModal } from '@/components/modals/DefaultModal';
 import { IDraggableListItem, useModalControllerStore } from '@/store/useModalControllerStore';
 import { Profile } from '@/components/profile';
@@ -6,6 +7,8 @@ import { useProfileStore } from '@/store/useProfileStore';
 import { WithFileName } from '@/interface/helper';
 import { IDescription } from '@/interface/profile';
 import { DraggableDistanceListModalMemo } from '@/components/modals/draggebleDistanceList';
+import { ShareButton } from '@/components/button/shareButton';
+import { DeleteButtonWithConfirm } from '@/components/button/deleteButtonWithConfirm';
 
 export const ProfileViewModal: React.FC = () => {
     const { profileViewModalFileName, isProfileViewModalOpen, closeProfileViewModal, setProfileViewModalFileName } =
@@ -15,6 +18,8 @@ export const ProfileViewModal: React.FC = () => {
             closeProfileViewModal: state.closeProfileViewModal,
             setProfileViewModalFileName: state.setProfileViewModalFileName,
         }));
+    const { t } = useTranslation();
+    const deleteProfile = useProfileStore(state => state.deleteProfile);
 
     const profiles = useProfileStore(state => state.profiles);
 
@@ -29,9 +34,7 @@ export const ProfileViewModal: React.FC = () => {
         }));
 
     if (profileViewModalFileName === null) {
-        // TODO
-        // eslint-disable-next-line react/jsx-no-useless-fragment
-        return <></>;
+        return;
     }
 
     const handleSetDescription = (data: WithFileName<IDescription & { prevFileName: string }>) => {
@@ -42,12 +45,18 @@ export const ProfileViewModal: React.FC = () => {
     const profile = profiles.find(el => el.fileName === profileViewModalFileName);
 
     if (!profile) {
-        throw new Error('TODO ERRRO');
+        throw new Error('Profile not found');
     }
+
+    const deleteConfirm = () => {
+        deleteProfile(profile!.fileName);
+        closeProfileViewModal();
+    };
 
     const handleSetDistances = (data: IDraggableListItem[]) => {
         setDistances({ fileName: profile.fileName, data });
     };
+    // eslint-disable-next-line consistent-return
     return (
         <DefaultModal backButtonHandler={closeProfileViewModal} isVisible={isProfileViewModalOpen}>
             <Profile
@@ -61,6 +70,12 @@ export const ProfileViewModal: React.FC = () => {
                 setDistances={handleSetDistances}
             />
             <DraggableDistanceListModalMemo />
+            <ShareButton {...profile} />
+            <DeleteButtonWithConfirm
+                buttonText={t('profile_delete_profile')}
+                confirmHandler={deleteConfirm}
+                confirmMsg={t('profile_are_you_sure_delete')}
+            />
         </DefaultModal>
     );
 };

@@ -10,6 +10,7 @@ import { isAllTouched } from '@/helpers/isAllTached';
 import { NumericInput } from '@/components/Inputs/numericInput';
 import { useValidationSchema } from '@/hooks/useValidationSchema';
 import { DefaultRow } from '@/components/container/defaultBox';
+import { SelectBulletFromListButton } from '@/components/button/selectBulletFromListButton';
 
 export const BulletForm: React.FC<IForm> = ({ goForward, goBack }) => {
     const { rem, colors } = useTheme();
@@ -24,6 +25,7 @@ export const BulletForm: React.FC<IForm> = ({ goForward, goBack }) => {
     return (
         <Formik
             initialValues={bullet}
+            enableReinitialize
             onSubmit={data => {
                 setBullet(data);
                 goForward();
@@ -42,6 +44,7 @@ export const BulletForm: React.FC<IForm> = ({ goForward, goBack }) => {
                             onBlur={handleBlur('bDiameter')}
                             background={colors.appBg}
                         />
+                        <SelectBulletFromListButton bDiameter={values.bDiameter} />
                     </DefaultRow>
 
                     <DefaultRow>

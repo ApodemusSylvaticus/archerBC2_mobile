@@ -1,4 +1,5 @@
 import styled from 'styled-components/native';
+import { Platform } from 'react-native';
 import { rem } from '@/helpers/rem';
 import { DefaultButton } from '@/components/button/style';
 import { TextSemiBold20 } from '@/components/text/styled';
@@ -18,11 +19,14 @@ export const ContentContainer = styled.View`
     flex-direction: column;
 `;
 
-export const GoBackButton = styled(DefaultButton)`
+interface GoBackButtonProps {
+    topM: number;
+}
+export const GoBackButton = styled(DefaultButton)<GoBackButtonProps>`
     background: ${props => props.theme.colors.l1ActiveEl};
     width: max-content;
     align-self: baseline;
-    margin-top: ${props => rem(props, 1.6)};
+    margin-top: ${props => (Platform.OS === 'web' ? props.topM + props.theme.rem * 1.6 : props.topM)}px;
     margin-left: ${props => rem(props, 0.8)};
 `;
 

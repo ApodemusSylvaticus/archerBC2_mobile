@@ -29,6 +29,10 @@ interface IModalsController {
     isChooseActiveProfileOpen: boolean;
     openChooseActiveProfileModal: () => void;
     closeChooseActiveProfileModal: () => void;
+
+    reticlesFolderName: string;
+    openReticlesListModal: (folderName: string) => void;
+    closeReticlesListModal: () => void;
 }
 
 export const useModalControllerStore = create<IModalsController>()(set => ({
@@ -52,4 +56,8 @@ export const useModalControllerStore = create<IModalsController>()(set => ({
     openDistanceList: (distances, zeroDistanceIdx, handler) =>
         set({ zeroDistanceIdx, distanceListHandler: handler, distanceList: distances, isDistanceListOpen: true }),
     closeDistanceList: () => set({ distanceListHandler: () => undefined, distanceList: [], isDistanceListOpen: false }),
+
+    reticlesFolderName: '',
+    closeReticlesListModal: () => set({ reticlesFolderName: '' }),
+    openReticlesListModal: folderName => set({ reticlesFolderName: folderName }),
 }));

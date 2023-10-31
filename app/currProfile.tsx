@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTheme } from 'styled-components/native';
-import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { AppContainer } from '@/components/container/appContainer';
 import { DefaultColumnContainer } from '@/components/container/defaultBox';
@@ -10,53 +9,26 @@ import { Text20 } from '@/components/text/styled';
 import { Profile } from '@/components/profile';
 import { WithFileName } from '@/interface/helper';
 import { IBullet, ICartridge, IDescription, IRiffle, IZeroing } from '@/interface/profile';
-import { DefaultInput } from '@/components/Inputs/defaultInput';
-import { DefaultButton, DeleteButton } from '@/components/button/style';
-import { AreYouSureModal } from '../components/modals/specificModal/alertModal/areYouSure';
+import { DefaultButton } from '@/components/button/style';
 import { Loader } from '@/components/loader';
 import { NotificationEnum, useNotificationStore } from '@/store/useNotificationStore';
 import { useProfileStore } from '@/store/useProfileStore';
 import { IDraggableListItem } from '@/store/useModalControllerStore';
 import { DraggableDistanceListModalMemo } from '@/components/modals/draggebleDistanceList';
-
-// TODO Ref
-const SetHttp: React.FC = () => {
-    const setFileList = useActiveProfileStore(state => state.setFileList);
-    const { colors } = useTheme();
-    const [http, setHttp] = useState('http://localhost:8080/');
-    const handlePress = () => {
-        const profileWorker = new ProfileWorker();
-        profileWorker.setHrefBase(http);
-        profileWorker.getFileList().then(res => setFileList(res));
-    };
-
-    return (
-        <View style={{ display: 'flex', flexDirection: 'row', gap: 16, marginBottom: 16, alignItems: 'center' }}>
-            <DefaultInput
-                label="Set http"
-                value={http}
-                onChangeText={setHttp}
-                error=""
-                touched={false}
-                onBlur={() => undefined}
-                background={colors.appBg}
-            />
-            <DefaultButton onPress={handlePress}>
-                <Text20>Submit</Text20>
-            </DefaultButton>
-        </View>
-    );
-};
+import { useA } from '@/hooks/useGetVelocityParam';
+import { DeleteButtonWithConfirm } from '@/components/button/deleteButtonWithConfirm';
+import { RetryWithErrorMsg } from '@/components/retry';
 
 const Content: React.FC = () => {
-    const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
     const sendNotification = useNotificationStore(state => state.sendNotification);
     const importProfile = useProfileStore(state => state.importProfile);
-
+    const [isLoading, setIsLoading] = useState(true);
+    const [errorMsg, setErrorMsg] = useState('');
+    const [shouldRetry, setShouldRetry] = useState(false);
     const { activeProfilesMap, activeProfile, setProfile, deleteProfile } = useActiveProfileStore(state => ({
         activeProfilesMap: state.activeProfilesMap,
         activeProfile: state.activeProfile,
-        setProfile: state.getProfile,
+        setProfile: state.setProfile,
         deleteProfile: state.deleteProfile,
     }));
 
@@ -68,12 +40,38 @@ const Content: React.FC = () => {
 
     const val = activeProfilesMap[activeProfile];
 
+    const retryHandler = () => {
+        setShouldRetry(true);
+    };
+
     useEffect(() => {
         if (activeProfile === '' || activeProfilesMap[activeProfile] !== null) {
+            setIsLoading(false);
             return;
         }
-        profileWorker.getProfile(activeProfile).then(value => setProfile(activeProfile, value));
+
+        setIsLoading(true);
+        setErrorMsg('');
+        profileWorker
+            .getProfile(activeProfile)
+            .then(value => setProfile(activeProfile, value))
+            .catch(() => setErrorMsg(t('error_failed_to_get_profile_data')))
+            .finally(() => setIsLoading(false));
     }, [activeProfilesMap, activeProfile, profileWorker, setProfile]);
+
+    useEffect(() => {
+        if (!shouldRetry) {
+            return;
+        }
+        setShouldRetry(false);
+        setIsLoading(true);
+        setErrorMsg('');
+        profileWorker
+            .getProfile(activeProfile)
+            .then(value => setProfile(activeProfile, value))
+            .catch(() => setErrorMsg(t('error_failed_to_get_profile_data')))
+            .finally(() => setIsLoading(false));
+    }, [activeProfilesMap, activeProfile, profileWorker, setProfile, shouldRetry, t]);
 
     const handleChange = (
         data:
@@ -153,55 +151,46 @@ const Content: React.FC = () => {
             .then(res => {
                 if (res.ok) {
                     profileWorker.getProfile(activeProfile).then(value => {
-                        sendNotification({ type: NotificationEnum.SUCCESS, msg: 'profile updated' });
+                        sendNotification({ type: NotificationEnum.SUCCESS, msg: t('default_profile_updated') });
                         setProfile(activeProfile, value);
                     });
                 } else {
                     console.log(res);
-                    sendNotification({ type: NotificationEnum.SUCCESS, msg: 'Smth go wrong' });
+                    sendNotification({ type: NotificationEnum.SUCCESS, msg: t('error_failed_to_update_profile_data') });
                 }
             });
-    };
-
-    const closeModalHandler = () => {
-        setIsAlertModalOpen(false);
     };
 
     const exportProfileHandler = () => {
         if (val) {
             importProfile(val);
-            sendNotification({ msg: 'Profile added', type: NotificationEnum.SUCCESS });
+            sendNotification({ msg: t('default_profile_added'), type: NotificationEnum.SUCCESS });
         }
     };
 
     const handleAccept = () => {
-        setIsAlertModalOpen(false);
         profileWorker
             .deleteFileButton(activeProfile)
             .then(() => {
-                sendNotification({ msg: 'Profile deleted', type: NotificationEnum.SUCCESS });
+                sendNotification({ msg: t('default_profile_deleted'), type: NotificationEnum.SUCCESS });
                 deleteProfile(activeProfile);
             })
             .catch(e => {
                 console.log(e);
-                sendNotification({ msg: 'Failed to delete profile', type: NotificationEnum.ERROR });
+                sendNotification({ msg: t('default_failed_to_delete_profile'), type: NotificationEnum.ERROR });
             });
-    };
-
-    const openModalHandler = () => {
-        setIsAlertModalOpen(true);
     };
 
     const handleRefreshList = () => {
         profileWorker
             .serveRefreshList()
             .then(() => {
-                sendNotification({ msg: 'List refreshed', type: NotificationEnum.SUCCESS });
+                sendNotification({ msg: t('default_list_refreshed'), type: NotificationEnum.SUCCESS });
                 deleteProfile(activeProfile);
             })
             .catch(e => {
                 console.log(e);
-                sendNotification({ msg: 'Failed to refresh list', type: NotificationEnum.ERROR });
+                sendNotification({ msg: t('error_failed_ref_list'), type: NotificationEnum.ERROR });
             });
     };
 
@@ -283,18 +272,27 @@ const Content: React.FC = () => {
             .then(res => {
                 if (res.ok) {
                     profileWorker.getProfile(activeProfile).then(value => {
-                        sendNotification({ type: NotificationEnum.SUCCESS, msg: 'profile updated' });
+                        sendNotification({ type: NotificationEnum.SUCCESS, msg: t('default_profile_updated') });
                         setProfile(activeProfile, value);
                     });
                 } else {
                     console.log(res);
-                    sendNotification({ type: NotificationEnum.SUCCESS, msg: 'Smth go wrong' });
+                    sendNotification({ type: NotificationEnum.SUCCESS, msg: t('error_failed_to_update_profile_data') });
                 }
             });
     };
 
-    if (activeProfile === '' || activeProfilesMap[activeProfile] === null) {
+    if (isLoading) {
         return <Loader size={rem * 3.2} />;
+    }
+
+    if (errorMsg) {
+        return <RetryWithErrorMsg retryHandler={retryHandler} msg={errorMsg} />;
+    }
+
+    if (val === null) {
+        // eslint-disable-next-line consistent-return
+        return;
     }
 
     return (
@@ -310,33 +308,35 @@ const Content: React.FC = () => {
                 setDistances={handleChangeDistances}
             />
 
-            <DefaultButton onPress={exportProfileHandler} style={{ marginTop: 16 }}>
+            <DefaultButton onPress={exportProfileHandler}>
                 <Text20>{t('profile_export_this_to_all')}</Text20>
             </DefaultButton>
 
-            <DefaultButton onPress={handleRefreshList} style={{ marginTop: 16 }}>
+            <DefaultButton onPress={handleRefreshList}>
                 <Text20>Server: refresh list</Text20>
             </DefaultButton>
 
-            <DeleteButton onPress={openModalHandler} style={{ marginTop: 16 }}>
-                <Text20>{t('profile_delete_profile')}</Text20>
-            </DeleteButton>
-            <AreYouSureModal
-                question={t('profile_are_you_sure_delete')}
-                isOpen={isAlertModalOpen}
-                closeHandler={closeModalHandler}
-                acceptHandler={handleAccept}
+            <DeleteButtonWithConfirm
+                confirmMsg={t('profile_are_you_sure_delete')}
+                buttonText={t('profile_delete_profile')}
+                confirmHandler={handleAccept}
             />
+
+            <DraggableDistanceListModalMemo />
         </DefaultColumnContainer>
     );
 };
 
 export const CurrProfile: React.FC = () => {
+    const { rem } = useTheme();
+
+    const { isLoading, errorMsg, retryHandler } = useA();
+
     return (
         <AppContainer>
-            <SetHttp />
-            <Content />
-            <DraggableDistanceListModalMemo />
+            {isLoading && <Loader size={rem * 3.2} />}
+            {!isLoading && errorMsg !== '' && <RetryWithErrorMsg retryHandler={retryHandler} msg={errorMsg} />}
+            {!isLoading && errorMsg === '' && <Content />}
         </AppContainer>
     );
 };

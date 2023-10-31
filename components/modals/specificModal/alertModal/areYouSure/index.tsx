@@ -1,8 +1,15 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertModalContainer } from '../index';
-import { Text20, TextSemiBold20 } from '@/components/text/styled';
-import { Button, CardContainer, Container, Row } from '@/components/modals/specificModal/alertModal/areYouSure/style';
+import { TextSemiBold20 } from '@/components/text/styled';
+import {
+    Button,
+    CardContainer,
+    Container,
+    DefaultAcceptButton,
+    Header,
+    Row,
+} from '@/components/modals/specificModal/alertModal/areYouSure/style';
 
 interface AreYouSureModalProps {
     isOpen: boolean;
@@ -16,14 +23,14 @@ export const AreYouSureModal: React.FC<AreYouSureModalProps> = ({ closeHandler, 
         <AlertModalContainer isOpen={isOpen} closeHandler={closeHandler}>
             <Container>
                 <CardContainer>
-                    <Text20>{question}</Text20>
+                    <Header>{question}</Header>
                     <Row>
-                        <Button onPress={acceptHandler}>
-                            <TextSemiBold20>{t('default_accept')}</TextSemiBold20>
-                        </Button>
                         <Button onPress={closeHandler}>
                             <TextSemiBold20>{t('default_go_back')}</TextSemiBold20>
                         </Button>
+                        <DefaultAcceptButton onPress={acceptHandler}>
+                            <TextSemiBold20>{t('default_accept')}</TextSemiBold20>
+                        </DefaultAcceptButton>
                     </Row>
                 </CardContainer>
             </Container>

@@ -1,37 +1,60 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useTheme } from 'styled-components/native';
+import { useTranslation } from 'react-i18next';
 import { AppContainer } from '@/components/container/appContainer';
-import { EnvironmentParam, StableParam, WindParamColumn } from '@/components/envParamCard';
+import { EnvironmentParam, WindParamColumn } from '@/components/envParamCard';
 import { DefaultColumnContainer } from '@/components/container/defaultBox';
 import { CoreProtobuf } from '@/core/coreProtobuf';
 import { useDevStatusStore } from '@/store/useDevStatusStore';
+import { useSettingStore } from '@/store/useSettingStore';
+import { Loader } from '@/components/loader';
+import { RetryWithErrorMsg } from '@/components/retry';
 
 const ShotConditions: React.FC = () => {
-    const coreProtobuf = useMemo(() => new CoreProtobuf(), []);
-    const { devStatus, actualProfile } = useDevStatusStore(state => ({
+    const { setDevStatus, setActiveProfile, devStatus } = useDevStatusStore(state => ({
+        setDevStatus: state.setDevStatus,
+        setActiveProfile: state.setActiveProfile,
         devStatus: state.devStatus,
-        actualProfile: state.actualProfile,
     }));
-    useEffect(() => {
-        coreProtobuf.getHostDevStatus();
+    const { t } = useTranslation();
+    const { rem } = useTheme();
+    const [shouldRetry, setShouldRetry] = useState(false);
+
+    const [isLoading, setIsLoading] = useState(!devStatus);
+    const [errorMsg, setErrorMsg] = useState('');
+
+    const serverApi = useSettingStore(state => state.serverHost);
+
+    const coreProtobuf = useMemo(() => {
+        const protobuf = new CoreProtobuf();
+        protobuf.setSetterParam({ setDevStatus, setActiveProfile, setIsLoading, setErrorMsg, t });
+        return protobuf;
     }, []);
 
-    if (devStatus === null) {
-        // eslint-disable-next-line react/jsx-no-useless-fragment
-        return <></>;
-    }
+    useEffect(() => {
+        coreProtobuf.connect(serverApi);
+    }, [serverApi]);
 
-    if (actualProfile === null) {
-        // eslint-disable-next-line react/jsx-no-useless-fragment
-        return <></>;
-    }
+    useEffect(() => {
+        if (shouldRetry) {
+            coreProtobuf.connect(serverApi);
+            setShouldRetry(false);
+        }
+    }, [serverApi, shouldRetry]);
 
     return (
         <AppContainer>
-            <DefaultColumnContainer>
-                <WindParamColumn />
-                <EnvironmentParam />
-                <StableParam />
-            </DefaultColumnContainer>
+            {isLoading && <Loader size={rem * 3.2} />}
+            {!isLoading && errorMsg !== '' && (
+                <RetryWithErrorMsg retryHandler={() => setShouldRetry(true)} msg={errorMsg} />
+            )}
+
+            {!isLoading && errorMsg === '' && (
+                <DefaultColumnContainer>
+                    <WindParamColumn />
+                    <EnvironmentParam />
+                </DefaultColumnContainer>
+            )}
         </AppContainer>
     );
 };

@@ -26,6 +26,14 @@ export const useValidationSchema = () => {
                     .min(0.01, `${t('default_minimum_value')} - 0.01`)
                     .max(200, `${t('default_maximum_value')} - 200`),
             }),
+            fileNameFormSchema: string()
+                .required(t('default_input_required'))
+                .matches(/^(?![_ -])[A-Za-z0-9_ -]+$/, t('profile_file_name_should_contain'))
+                .max(30, `${t('default_maximum_str_length')} - 30`)
+                .test('is-not-in-dynamic-list', t('profile_file_already_exist'), value => {
+                    return !profileFileNameList.includes(`${value}.a7p`);
+                }),
+
             cartridgeSchema: object().shape({
                 cMuzzleVelocity: number()
                     .required(t('default_input_required'))
@@ -88,13 +96,6 @@ export const useValidationSchema = () => {
                     .max(100, `${t('default_maximum_value')} - 100`),
             }),
             descriptionSchema: object().shape({
-                fileName: string()
-                    .required(t('default_input_required'))
-                    .matches(/^(?![_ -])[A-Za-z0-9_ -]+$/, t('profile_file_name_should_contain'))
-                    .max(30, `${t('default_maximum_str_length')} - 30`)
-                    .test('is-not-in-dynamic-list', t('profile_file_already_exist'), value => {
-                        return !profileFileNameList.includes(`${value}.a7p`);
-                    }),
                 profileName: string()
                     .required(t('default_input_required'))
                     .max(50, `${t('default_maximum_str_length')} - 50`),
@@ -137,10 +138,7 @@ export const useValidationSchema = () => {
                     .min(0, `${t('default_minimum_value')} - 0`)
                     .max(200, `${t('default_maximum_value')} - 200`),
 
-                windDir: number()
-                    .required(t('default_input_required'))
-                    .min(-0, `${t('default_minimum_value')} - 0`)
-                    .max(359, `${t('default_maximum_value')} - 359`),
+                windDir: number().required(t('default_input_required')),
             }),
             fullDescriptionSchema: (prevFileName: string) =>
                 object().shape({

@@ -5,6 +5,7 @@ import { Button, Container } from '@/components/modals/chooseActiveProfileModal/
 import { Text20 } from '@/components/text/styled';
 import { DefaultModal } from '@/components/modals/DefaultModal';
 import { useModalControllerStore } from '@/store/useModalControllerStore';
+import { DefaultRowFlex1 } from '@/components/container/defaultBox';
 
 export const ChooseActiveProfileModal: React.FC = () => {
     const { t } = useTranslation();
@@ -27,7 +28,9 @@ export const ChooseActiveProfileModal: React.FC = () => {
         <DefaultModal backButtonHandler={closeChooseActiveProfileModal} isVisible={isChooseActiveProfileOpen}>
             {fileList.map(el => (
                 <Container isDisabled={activeProfile === el} key={el}>
-                    <Text20>{el}</Text20>
+                    <DefaultRowFlex1>
+                        <Text20>{el}</Text20>
+                    </DefaultRowFlex1>
 
                     <Button
                         isDisabled={activeProfile === el}

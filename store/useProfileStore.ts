@@ -22,6 +22,8 @@ interface IUseProfileStore {
     setDistance: (data: WithFileName<{ data: IDraggableListItem[] }>) => void;
     //
 
+    deleteProfile: (fileName: string) => void;
+
     selectProfile: (data: string) => void;
     deselectProfile: (data: string) => void;
     sendSelected: () => void;
@@ -80,6 +82,12 @@ export const useProfileStore = create<IUseProfileStore>()(set => ({
         },
     ],
     selectedProfiles: [],
+    deleteProfile: fileName =>
+        set(state => {
+            const newState = state.profiles.filter(el => el.fileName !== fileName);
+            AsyncStorage.setItem(AsyncStore.profiles, JSON.stringify(newState)).catch(console.log);
+            return { profiles: newState };
+        }),
     getProfileFromStore: async () => {
         try {
             const profiles = await AsyncStorage.getItem(AsyncStore.profiles);

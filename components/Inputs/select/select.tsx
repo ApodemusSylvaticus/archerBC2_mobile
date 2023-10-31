@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
 import { useClickOutside } from 'react-native-click-outside';
 import { useTheme } from 'styled-components/native';
-import { Container, PressableTextContainer, SelectBox, SelectItem, Text } from '@/components/Inputs/select/style';
+import { useTranslation } from 'react-i18next';
+import {
+    AlreadyExistLabel,
+    Container,
+    PressableTextContainer,
+    SelectBox,
+    SelectItem,
+    Text,
+} from '@/components/Inputs/select/style';
 import { Nullable } from '@/interface/helper';
 import { InputLabel } from '@/components/Inputs/style';
 import { PureArrow } from '@/components/svg/pureArrow';
@@ -13,15 +21,26 @@ interface SelectInputProps {
     label: string;
     background: string;
     zIndex?: number;
+    alreadyExistArr?: number[];
+    baseValue?: number;
 }
 
 // TODO: add req
-export const SelectInput: React.FC<SelectInputProps> = ({ list, setElem, chosenEl, background, label, zIndex = 3 }) => {
+export const SelectInput: React.FC<SelectInputProps> = ({
+    list,
+    setElem,
+    chosenEl,
+    background,
+    label,
+    zIndex = 3,
+    alreadyExistArr = [],
+    baseValue,
+}) => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const ref = useClickOutside(() => setIsOpen(false));
     const { rem, colors } = useTheme();
     const [elemHeight, setElemHeight] = useState<number>(0);
-
+    const { t } = useTranslation();
     const handlePress = (index: number) => {
         setIsOpen(false);
         setElem(index);
@@ -60,6 +79,15 @@ export const SelectInput: React.FC<SelectInputProps> = ({ list, setElem, chosenE
                             return (
                                 <SelectItem key={el} style={{ borderTopWidth: 0 }} onPress={() => handlePress(index)}>
                                     <Text isActive>{el}</Text>
+
+                                    {baseValue === index && (
+                                        <AlreadyExistLabel>{t('default_current')}</AlreadyExistLabel>
+                                    )}
+                                    {baseValue !== index &&
+                                        alreadyExistArr.includes(index) &&
+                                        !(!!baseValue && baseValue === index) && (
+                                            <AlreadyExistLabel>{t('default_already_exist')}</AlreadyExistLabel>
+                                        )}
                                 </SelectItem>
                             );
                         }
@@ -69,6 +97,12 @@ export const SelectInput: React.FC<SelectInputProps> = ({ list, setElem, chosenE
                                 style={{ borderBottomLeftRadius: 16, borderBottomRightRadius: 16, borderTopWidth: 0 }}
                                 onPress={() => handlePress(index)}>
                                 <Text isActive>{el}</Text>
+                                {baseValue === index && <AlreadyExistLabel>{t('default_current')}</AlreadyExistLabel>}
+                                {baseValue !== index &&
+                                    alreadyExistArr.includes(index) &&
+                                    !(!!baseValue && baseValue === index) && (
+                                        <AlreadyExistLabel>{t('default_already_exist')}</AlreadyExistLabel>
+                                    )}
                             </SelectItem>
                         );
                     })}

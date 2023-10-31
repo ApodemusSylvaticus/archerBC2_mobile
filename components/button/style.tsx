@@ -7,12 +7,17 @@ export const DefaultButton = styled.Pressable`
     background: ${props => props.theme.colors.l1ActiveEl};
     align-items: center;
     justify-content: center;
+    border: 2px solid ${props => props.theme.colors.l1ActiveEl};
 `;
 
 export const DeleteButton = styled(DefaultButton)`
     display: flex;
     align-items: center;
     justify-content: center;
-    background: ${props => props.theme.colors.appBg};
-    border: 2px solid ${props => props.theme.colors.error};
+    background: transparent;
+    border-color: ${props => props.theme.colors.error};
+`;
+
+export const AcceptButton = styled(DeleteButton)`
+    border-color: ${props => props.theme.colors.activeTab};
 `;

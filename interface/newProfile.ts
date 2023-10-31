@@ -1,7 +1,6 @@
 import { TwistDirection } from '@/interface/profile';
 
 export interface IDescriptionForm {
-    fileName: string;
     profileName: string;
     cartridge: string;
     bullet: string;

@@ -46,8 +46,8 @@ const switches: SwitchPosition[] = [
 
 export const useConvertProfile = () => {
     const { t } = useTranslation();
-    const { ballisticFunction, ballisticProfile, description, riffle, range, bullet, cartridge } = useNewProfileStore(
-        state => ({
+    const { ballisticFunction, ballisticProfile, description, fileName, riffle, range, bullet, cartridge } =
+        useNewProfileStore(state => ({
             ballisticProfile: state.ballisticProfile,
             description: state.description,
             riffle: state.riffle,
@@ -55,8 +55,8 @@ export const useConvertProfile = () => {
             cartridge: state.cartridge,
             bullet: state.bullet,
             ballisticFunction: state.ballisticFunction,
-        }),
-    );
+            fileName: state.fileName,
+        }));
 
     const addNewProfile = useProfileStore(addNewProfileState => addNewProfileState.addNewProfile);
     const getCoefficient = (): Coefficient[] => {
@@ -74,7 +74,7 @@ export const useConvertProfile = () => {
 
     const convert = (): Profile => {
         return {
-            fileName: `${description.fileName}.a7p`,
+            fileName: `${fileName}.a7p`,
             profileName: description.profileName,
             cartridgeName: description.cartridge,
             bulletName: description.bullet,

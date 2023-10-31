@@ -1,8 +1,8 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Description } from '@/components/profile/components/description';
 import { Rifle } from '@/components/profile/components/rifle';
 import { Bullet } from '@/components/profile/components/bullet';
-import { Reticles } from '@/components/profile/components/reticles';
 import { DefaultColumnContainer } from '@/components/container/defaultBox';
 import { Zeroing } from '@/components/profile/components/zeroing';
 import { Cartridge } from '@/components/profile/components/cartridge';
@@ -51,6 +51,7 @@ export const Profile: React.FC<IProfileProps> = ({
     setDistances,
 }) => {
     const openDistanceList = useModalControllerStore(state => state.openDistanceList);
+    const { t } = useTranslation();
     return (
         <DefaultColumnContainer>
             <Rifle
@@ -92,7 +93,6 @@ export const Profile: React.FC<IProfileProps> = ({
                 cZeroWPitch={cZeroWPitch}
                 distances={distances}
             />
-            <Reticles />
             <Description
                 isFileNameChangeable={isFileNameChangeable}
                 handleChange={setDescription}
@@ -106,7 +106,7 @@ export const Profile: React.FC<IProfileProps> = ({
             />
 
             <DefaultButton onPress={() => openDistanceList(distances, cZeroDistanceIdx, setDistances)}>
-                <TextSemiBold20>Open distant list</TextSemiBold20>
+                <TextSemiBold20>{t('profile_open_dist_list')}</TextSemiBold20>
             </DefaultButton>
         </DefaultColumnContainer>
     );

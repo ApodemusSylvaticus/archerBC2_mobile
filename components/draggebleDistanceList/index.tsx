@@ -2,6 +2,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTheme } from 'styled-components/native';
+import { useTranslation } from 'react-i18next';
 import { DistanceContainer } from '@/components/draggebleDistanceList/style';
 import { Text20 } from '@/components/text/styled';
 import { IDraggableListItem, useModalControllerStore } from '@/store/useModalControllerStore';
@@ -9,7 +10,7 @@ import { ContentContainer } from '@/components/modals/style';
 import { InputWrapper } from '@/components/modals/draggebleDistanceList/style';
 import { NumericInput } from '@/components/Inputs/numericInput';
 import { TrashSVG } from '@/components/svg/trash';
-import { DefaultButton } from '@/components/button/style';
+import { AcceptButton, DefaultButton } from '@/components/button/style';
 
 interface RenderItemProps {
     item: IDraggableListItem;
@@ -43,6 +44,7 @@ export const DraggableDistanceList: React.FC = () => {
         closeModal: state.closeDistanceList,
     }));
 
+    const { t } = useTranslation();
     const id = useRef<number>(0);
 
     const [newDistantValue, setNewDistantValue] = useState('');
@@ -84,9 +86,6 @@ export const DraggableDistanceList: React.FC = () => {
         setState(prevState => prevState.filter(el => el.id !== item.id));
     }, []);
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-
     return (
         <ContentContainer style={{ flex: 1, height: '100%' }}>
             <InputWrapper>
@@ -100,7 +99,7 @@ export const DraggableDistanceList: React.FC = () => {
                 />
 
                 <DefaultButton onPress={addNewDistant}>
-                    <Text20>Add</Text20>
+                    <Text20>{t('default_add')}</Text20>
                 </DefaultButton>
             </InputWrapper>
 
@@ -113,9 +112,9 @@ export const DraggableDistanceList: React.FC = () => {
                 />
             </GestureHandlerRootView>
 
-            <DefaultButton onPress={saveChangesButton}>
-                <Text20>Save changes</Text20>
-            </DefaultButton>
+            <AcceptButton onPress={saveChangesButton}>
+                <Text20>{t('default_save_changes')}</Text20>
+            </AcceptButton>
         </ContentContainer>
     );
 };

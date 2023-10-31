@@ -14,13 +14,15 @@ import { useModalControllerStore } from '@/store/useModalControllerStore';
 import { NameBar } from '@/components/header/nameBar';
 import { CurrentProfileSelector } from '@/components/header/currentProfileSelector';
 import { useSendSelected } from '@/hooks/useSendSelected';
+import { useDocumentPicker } from '@/hooks/useDocumentPicker';
 
+// eslint-disable-next-line consistent-return
 export const Header: React.FC = () => {
     const pathname = usePathname();
     const { t } = useTranslation();
     const openNewProfileModal = useModalControllerStore(state => state.openNewProfileModal);
     const { sendSelected } = useSendSelected();
-
+    const pickDocument = useDocumentPicker();
     switch (pathname) {
         case Routing.PROFILES:
             return (
@@ -38,7 +40,7 @@ export const Header: React.FC = () => {
 
                         <Line />
 
-                        <ThirdButton>
+                        <ThirdButton onPress={pickDocument}>
                             <ButtonText>{t('default_import')}</ButtonText>
                         </ThirdButton>
                     </TripleButtonContainer>
@@ -58,7 +60,5 @@ export const Header: React.FC = () => {
             );
 
         default:
-            // eslint-disable-next-line react/jsx-no-useless-fragment
-            return <></>;
     }
 };

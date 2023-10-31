@@ -16,6 +16,14 @@ export class CoreProtobuf implements ICoreProtobuf {
 
     private ws!: WebSocket;
 
+    setIsLoading!: (bool: boolean) => void;
+
+    setErrorMsg!: (msg: string) => void;
+
+    t!: (data: string) => string;
+
+    actualServerApi: string = '';
+
     private commandMappings:
         | {
               (): {
@@ -67,26 +75,71 @@ export class CoreProtobuf implements ICoreProtobuf {
         GetHostProfile: null,
     };
 
-    constructor(setMsg?: (data: any) => void, getActualProfile?: (data: any) => void) {
+    setDevStatus: ((data: any) => void) | undefined;
+
+    setActiveProfile: ((data: any) => void) | undefined;
+
+    constructor() {
         if (typeof CoreProtobuf.instance === 'object') {
             // eslint-disable-next-line no-constructor-return
             return CoreProtobuf.instance;
         }
         CoreProtobuf.instance = this;
-        if (setMsg) {
-            this.ws = new WebSocket('ws://localhost:8085');
-            this.ws.binaryType = 'arraybuffer';
-            this.ws.onopen = event => {
-                console.log('WebSocket connection opened:', event);
-                this.loadProto();
-            };
-            this.ws.onerror = event => console.error('WebSocket error:', event);
-            this.ws.onclose = event => console.log('WebSocket connection closed:', event);
-            this.ws.onmessage = event => this.handleServerMessage(event.data, setMsg, getActualProfile);
-            // eslint-disable-next-line no-constructor-return
-            return this;
+        // eslint-disable-next-line no-constructor-return
+        return this;
+    }
+
+    setSetterParam({
+        setIsLoading,
+        setErrorMsg,
+        setDevStatus,
+        setActiveProfile,
+        t,
+    }: {
+        setDevStatus: (data: any) => void;
+        setActiveProfile: (data: any) => void;
+        setIsLoading: (bool: boolean) => void;
+        setErrorMsg: (msg: string) => void;
+        t: (data: string) => string;
+    }) {
+        this.setIsLoading = setIsLoading;
+        this.setActiveProfile = setActiveProfile;
+        this.setErrorMsg = setErrorMsg;
+        this.setDevStatus = setDevStatus;
+        this.t = t;
+    }
+
+    connect(serverApi: string) {
+        if (serverApi === this.actualServerApi) {
+            this.setIsLoading(false);
+            return;
         }
-        throw new Error('setMsg === undefined');
+
+        if (this.ws) {
+            this.ws.close();
+        }
+        this.setIsLoading(true);
+        this.setErrorMsg('');
+        this.ws = new WebSocket(`ws://${serverApi}:8085`);
+        this.ws.binaryType = 'arraybuffer';
+        this.ws.onopen = event => {
+            this.actualServerApi = serverApi;
+            console.log('WebSocket connection opened:', event);
+            this.loadProto().then(() => this.getHostDevStatus());
+        };
+        this.ws.onerror = event => {
+            console.log('WebSocket error:', event);
+            this.actualServerApi = '';
+            this.setErrorMsg(this.t('error_sc_connection_failed'));
+            this.setIsLoading(false);
+        };
+        this.ws.onclose = event => {
+            this.setIsLoading(false);
+            this.setErrorMsg(this.t('error_sc_connection_failed'));
+            this.actualServerApi = '';
+            console.log('WebSocket connection closed:', event);
+        };
+        this.ws.onmessage = event => this.handleServerMessage(event.data);
     }
 
     loadProto = async () => {
@@ -94,6 +147,7 @@ export class CoreProtobuf implements ICoreProtobuf {
         const protoText = await protoResponse.text(); */
 
         const protobufRoot = protobuf.parse(`syntax = "proto3";
+
 package demo_protocol;
 
 message HostPayload {
@@ -103,63 +157,61 @@ message HostPayload {
 }
 
 message ClientPayload {
-    ClientProfile profile = 1;
     ClientDevStatus devStatus = 2;
     Command command = 3;
     CommandResponse response = 4;
 }
 
 message CommandResponse {
-    oneof oneofCommandResponse {
-        StatusOk statusOk = 1;
-        StatusError statusErr = 2;
-    }
+\toneof oneofCommandResponse {
+\t\tStatusOk statusOk = 1;
+\t\tStatusError statusErr = 2;
+\t}
 }
 
 message Command
 {
-    oneof oneofCommand {
-        SetZoomLevel setZoom = 1;
-        SetColorScheme setPallette = 2;
-        SetAgcMode setAgc = 3;
-        SetDistance setDst = 4;
-        SetHoldoff setHoldoff = 5;
-        SetZeroing setZeroing = 6;
-        SetCompassOffset setMagOffset = 7;
-        SetAirTemp setAirTC = 8;
-        SetAirHumidity setAirHum = 9;
-        SetAirPressure setAirPress = 10;
-        SetPowderTemp setPowderTemp = 11;
-        SetWind setWind = 12;
-        ButtonPress buttonPress = 13;
-        TriggerCmd cmdTrigger = 14;
-        GetHostDevStatus getHostDevStatus = 15;
-        GetHostProfile getHostProfile = 16;
-    }
+\toneof oneofCommand {
+\t\tSetZoomLevel setZoom = 1;
+\t\tSetColorScheme setPallette = 2;
+\t\tSetAgcMode setAgc = 3;
+\t\tSetDistance setDst = 4;
+\t\tSetHoldoff setHoldoff = 5;
+\t\tSetZeroing setZeroing = 6;
+\t\tSetCompassOffset setMagOffset = 7;
+\t\tSetAirTemp setAirTC = 8;
+\t\tSetAirHumidity setAirHum = 9;
+\t\tSetAirPressure setAirPress = 10;
+\t\tSetPowderTemp setPowderTemp = 11;
+\t\tSetWind setWind = 12;
+\t\tButtonPress buttonPress = 13;
+\t\tTriggerCmd cmdTrigger = 14;
+\t\tGetHostDevStatus getHostDevStatus = 15;
+\t\tGetHostProfile getHostProfile = 16;
+\t}
 }
 
 message StatusOk
 {
-    OkStatusCode code = 1;
+\tOkStatusCode code = 1;
 }
 
 message StatusError
 {
-    ErrorStatusCode code = 1;
-    string text = 2;
+\tErrorStatusCode code = 1;
+\tstring text = 2;
 }
 
 enum OkStatusCode {
-    UNKNOWN_OK_STATUS = 0;
+\tUNKNOWN_OK_STATUS = 0;
     SUCCESS = 1;
 }
 
 enum ErrorStatusCode {
-    UNKNOWN_ERROR_STATUS = 0;
+\tUNKNOWN_ERROR_STATUS = 0;
     FAILURE = 1;
-    INVALID_DATA = 2;
+\tINVALID_DATA = 2;
 }
-
 
 message SetZoomLevel {
     Zoom zoomLevel = 1;
@@ -172,7 +224,7 @@ message GetHostDevStatus {
 message GetHostProfile {
 }
 message SetAirTemp {
-    int32 temperature = 1; //[-100..100] C°
+\tint32 temperature = 1; //[-100..100] C°
 }
 message SetPowderTemp {
     int32 temperature = 1; //[-100..100] C°
@@ -181,187 +233,128 @@ message SetAirHumidity {
     int32 humidity = 1; //[0..100]%
 }
 message SetAirPressure {
-    int32 pressure = 1; //[3000..12000] decaPascal
+\tint32 pressure = 1; //[3000..12000] decaPascal
 }
 message SetWind {
-    int32 direction = 1; //[0..359] °
-    int32 speed = 2; //[0..200] deciMeter per second
+\tint32 direction = 1; //[0..359] °
+\tint32 speed = 2; //[0..200] deciMeter per second
 }
 message SetDistance {
-    int32 distance = 1; //deciMeter
+\tint32 distance = 1; //deciMeter
 }
 message SetAgcMode {
-    AGCMode mode = 1;
+\tAGCMode mode = 1;
 }
 message SetCompassOffset {
-    int32 offset = 1;  //[-360..360] °
+\tint32 offset = 1;  //[-360..360] °
 }
 message SetHoldoff{
-    int32 x = 1; //x1000 125 increments [-600000..600000] 20500 = 20.5 1x; 41 2x; 61.5 3x etc.
-    int32 y = 2; //x1000 125 increments [-600000..600000]
+\tint32 x = 1; //x1000 125 increments [-600000..600000] 20500 = 20.5 1x; 41 2x; 61.5 3x etc.
+\tint32 y = 2; //x1000 125 increments [-600000..600000]
 }
 message ButtonPress{
-    ButtonEnum buttonPressed = 1;
+\tButtonEnum buttonPressed = 1;
 }
 message TriggerCmd{
-    CMDDirect cmd = 1;
+\tCMDDirect cmd = 1;
 }
 message SetZeroing{
-    int32 x = 1; //x1000 125 increments [-600000..600000]
-    int32 y = 2; //x1000 125 increments [-600000..600000]
+\tint32 x = 1; //x1000 125 increments [-600000..600000]
+\tint32 y = 2; //x1000 125 increments [-600000..600000]
 }
 
 message HostDevStatus {
     int32 charge = 1; // Represented as percentage
-    Zoom zoom = 2; // zoom multiplier
-    int32 airTemp = 3; //-100..100 C°
-    int32 airHum = 4;\t//0..100%
-    int32 airPress = 5; //3000..12000 decaPascal
-    int32 powderTemp = 6; //-100..100 C°
-    int32 windDir = 7; //0..359 °
-    int32 windSpeed = 8; //0..200 deciMeter per second
-    int32 pitch = 9; //-90..90 °
-    int32 cant = 10; //-90..90 °
-    int32 distance = 11; //deciMeter
-    int32 currentProfile = 12; //profile index
+\tZoom zoom = 2; // zoom multiplier
+\tint32 airTemp = 3; //-100..100 C°
+\tint32 airHum = 4;\t//0..100%
+\tint32 airPress = 5; //3000..12000 decaPascal
+\tint32 powderTemp = 6; //-100..100 C°
+\tint32 windDir = 7; //0..359 °
+\tint32 windSpeed = 8; //0..200 deciMeter per second
+\tint32 pitch = 9; //-90..90 °
+\tint32 cant = 10; //-90..90 °
+\tint32 distance = 11; //deciMeter
+\tint32 currentProfile = 12; //profile index
 }
 
 message ClientDevStatus {
 }
 
 enum ColorScheme {
-    UNKNOWN_COLOR_SHEME = 0;
+\tUNKNOWN_COLOR_SHEME = 0;
     SEPIA = 1;
     BLACK_HOT = 2;
     WHITE_HOT = 3;
 }
 
 enum AGCMode {
-    UNKNOWN_AGC_MODE = 0;
-    AUTO_1 = 1;
-    AUTO_2 = 2;
+\tUNKNOWN_AGC_MODE = 0;
+\tAUTO_1 = 1;
+\tAUTO_2 = 2;
 }
 
 enum Zoom {
-    UNKNOWN_ZOOM_LEVEL = 0;
-    ZOOM_X1 = 1;
-    ZOOM_X2 = 2;
-    ZOOM_X3 = 3;
-    ZOOM_X4 = 4;
-    ZOOM_X6 = 5;
+\tUNKNOWN_ZOOM_LEVEL = 0;
+\tZOOM_X1 = 1;
+\tZOOM_X2 = 2;
+\tZOOM_X3 = 3;
+\tZOOM_X4 = 4;
+\tZOOM_X6 = 5;
 }
 
 enum ButtonEnum {
-    UNKNOWN_BUTTON = 0;
-    MENU_SHORT = 1;
-    MENU_LONG = 2;
-    UP_SHORT = 3;
-    UP_LONG = 4;
-    DOWN_SHORT = 5;
-    DOWN_LONG = 6;
-    LRF_SHORT = 7;
-    LRF_LONG = 8;
-    REC_SHORT = 9;
-    REC_LONG = 10;
+\tUNKNOWN_BUTTON = 0;
+\tMENU_SHORT = 1;
+\tMENU_LONG = 2;
+\tUP_SHORT = 3;
+\tUP_LONG = 4;
+\tDOWN_SHORT = 5;
+\tDOWN_LONG = 6;
+\tLRF_SHORT = 7;
+\tLRF_LONG = 8;
+\tREC_SHORT = 9;
+\tREC_LONG = 10;
 }
 
 enum CMDDirect {
-    UNKNOWN_CMD_DIRECTION = 0;
-    CALIBRATE_ACCEL_GYRO = 1;
-    LRF_MEASUREMENT = 2;
-    RESET_CM_CLICKS = 3;
+\tUNKNOWN_CMD_DIRECTION = 0;
+\tCALIBRATE_ACCEL_GYRO = 1;
+\tLRF_MEASUREMENT = 2;
+\tRESET_CM_CLICKS = 3;
 }
 
 message CoefRow {
-    int32 bc_cd = 1;
-    int32 mv = 2;
+\tint32 bc_cd = 1;
+\tint32 mv = 2;
 }
 
 enum DType {
-    VALUE = 0;
-    INDEX = 1;
+\tVALUE = 0;
+\tINDEX = 1;
 }
 
 message SwPos {
-    int32 c_idx = 1;
-    int32 reticle_idx = 2;
-    int32 zoom = 3;
-    int32 distance = 4;
-    DType distance_from = 5;
+\tint32 c_idx = 1;
+\tint32 reticle_idx = 2;
+\tint32 zoom = 3;
+\tint32 distance = 4;
+\tDType distance_from = 5;
 }
 
 enum GType {
-    G1 = 0;
-    G7 = 1;
-    CUSTOM = 2;
+\tG1 = 0;
+\tG7 = 1;
+\tCUSTOM = 2;
 }
 
 enum TwistDir {
-    RIGHT = 0;
-    LEFT = 1;
+\tRIGHT = 0;
+\tLEFT = 1;
 }
 
 message HostProfile {
-    string profile_name = 1;
-    string cartridge_name = 2;
-    string bullet_name = 3;
-    string short_name_top = 4;
-    string short_name_bot = 5;
-    string user_note = 6;
-    int32 zero_x = 7;
-    int32 zero_y = 8;
-    int32 sc_height = 9;
-    int32 r_twist = 10;
-    int32 c_muzzle_velocity = 11;
-    int32 c_zero_temperature = 12;
-    int32 c_t_coeff = 13;
-    int32 c_zero_distance_idx = 14;
-    int32 c_zero_air_temperature = 15;
-    int32 c_zero_air_pressure = 16;
-    int32 c_zero_air_humidity = 17;
-    int32 c_zero_w_pitch = 18;
-    int32 c_zero_p_temperature = 19;
-    int32 b_diameter = 20;
-    int32 b_weight = 21;
-    int32 b_length = 22;
-    TwistDir twist_dir = 23;
-    GType bc_type = 24;
-    repeated SwPos switches = 25;
-    repeated int32 distances = 26;
-    repeated CoefRow coef_rows = 27;
-    string caliber = 28;
-    string device_uuid = 29;
-}
-
-message ClientProfile {
-    reserved 1, 2, 3;
-    reserved "profile_name", "cartridge_name", "bullet_name";
-    string short_name_top = 4;
-    string short_name_bot = 5;
-    string user_note = 6;
-    int32 zero_x = 7;
-    int32 zero_y = 8;
-    int32 sc_height = 9;
-    int32 r_twist = 10;
-    int32 c_muzzle_velocity = 11;
-    int32 c_zero_temperature = 12;
-    int32 c_t_coeff = 13;
-    int32 c_zero_distance_idx = 14;
-    int32 c_zero_air_temperature = 15;
-    int32 c_zero_air_pressure = 16;
-    int32 c_zero_air_humidity = 17;
-    int32 c_zero_w_pitch = 18;
-    int32 c_zero_p_temperature = 19;
-    int32 b_diameter = 20;
-    int32 b_weight = 21;
-    int32 b_length = 22;
-    TwistDir twist_dir = 23;
-    GType bc_type = 24;
-    repeated SwPos switches = 25;
-    repeated int32 distances = 26;
-    repeated CoefRow coef_rows = 27;
-    string caliber = 28;
-    string device_uuid = 29;
+\tstring profile_file_name = 1;
 }`).root;
 
         // eslint-disable-next-line guard-for-in,no-restricted-syntax
@@ -508,23 +501,32 @@ message ClientProfile {
                 getHostProfile: this.protobufMessageTypes.GetHostProfile!.create({}),
             }),
         };
-        this.getHostProfile();
     };
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    handleServerMessage = (data, setMsg, getActualProfile) => {
+    handleServerMessage = data => {
         const hostPayload = this.protobufMessageTypes.HostPayload!.decode(new Uint8Array(data));
         const hostPayloadObject = this.protobufMessageTypes.HostPayload!.toObject(hostPayload, {
             enums: String,
             defaults: true,
         });
 
-        if (hostPayloadObject.profile) {
-            getActualProfile(hostPayloadObject.profile);
+        console.log('hostPayloadObject', hostPayloadObject);
+
+        if (hostPayloadObject?.profile?.profileFileName) {
+            if (!this.setActiveProfile) {
+                throw new Error('Forgot to add method');
+            }
+            this.setActiveProfile(hostPayloadObject.profile.profileFileName);
         }
         if (hostPayloadObject.devStatus) {
-            setMsg(hostPayloadObject.devStatus);
+            if (!this.setDevStatus) {
+                throw new Error('Forgot to add method');
+            }
+            this.setIsLoading(false);
+
+            this.setDevStatus(hostPayloadObject.devStatus);
         }
     };
 
@@ -574,7 +576,6 @@ message ClientProfile {
     }
 
     sendWindToServer(windDirection: number, windSpeed: number) {
-        // windDirection (0 - 718); windSpeed (0 - 400)
         const commandData = {
             commandType: 'setWind',
             direction: windDirection,
@@ -584,7 +585,6 @@ message ClientProfile {
     }
 
     setPowderTemperatureToServer(value: number) {
-        // value (-100 - 200)
         const commandData = {
             commandType: 'setPowderTemp',
             temperature: value,
@@ -593,8 +593,6 @@ message ClientProfile {
     }
 
     setHoldOffToServer(stateX: number, stateY: number) {
-        // stateX (-600000 - 600000), stateY (-600000 - 600000)
-
         const commandData = {
             commandType: 'setHoldoff',
             x: stateX,
@@ -612,7 +610,6 @@ message ClientProfile {
     }
 
     setCompassOffToServer(value: number) {
-        // value (-360 - 720)
         const commandData = {
             commandType: 'setMagOffset',
             offset: value,
@@ -621,7 +618,6 @@ message ClientProfile {
     }
 
     setAirPressureToServer(value: number) {
-        // value (3000 - 12000)
         const commandData = {
             commandType: 'setAirPress',
             pressure: value,
@@ -630,7 +626,6 @@ message ClientProfile {
     }
 
     setAirHumidityToServer(value: number) {
-        // value (0 - 150)
         const commandData = {
             commandType: 'setAirHum',
             humidity: value,
@@ -663,7 +658,6 @@ message ClientProfile {
     }
 
     setAirTempToServer(value: number) {
-        // value (-100 - 150)
         const commandData = {
             commandType: 'setAirTemp',
             temperature: value,
@@ -680,16 +674,19 @@ message ClientProfile {
         this.sendCommandToServer(commandData);
     }
 
-    getHostProfile() {
+    getHostDevStatus() {
+        console.log('getHostDevStatus');
         const commandData = {
-            commandType: 'getHostProfile',
+            commandType: 'getHostDevStatus',
         };
         this.sendCommandToServer(commandData);
     }
 
-    getHostDevStatus() {
+    getHostProfile() {
+        console.log('getHostProfile');
+
         const commandData = {
-            commandType: 'getHostDevStatus',
+            commandType: 'getHostProfile',
         };
         this.sendCommandToServer(commandData);
     }

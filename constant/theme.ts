@@ -1,6 +1,7 @@
 export interface ITheme {
     name: string;
     colors: {
+        transparent: 'transparent';
         appBg: string;
         cardBg: string;
         primary: string;
@@ -15,6 +16,7 @@ export interface ITheme {
 export const darkTheme: ITheme = {
     name: 'darkTheme',
     colors: {
+        transparent: 'transparent',
         appBg: '#212121',
         cardBg: '#616161',
         primary: '#E0E0E0',
@@ -29,6 +31,7 @@ export const darkTheme: ITheme = {
 export const lightTheme: ITheme = {
     name: 'lightTheme',
     colors: {
+        transparent: 'transparent',
         appBg: '#FAFAFA',
         cardBg: '#c1e3ff',
         primary: '#153f65',
@@ -43,6 +46,7 @@ export const lightTheme: ITheme = {
 export const lightDark: ITheme = {
     name: 'lightThemeDark',
     colors: {
+        transparent: 'transparent',
         appBg: '#F5F5F5',
         cardBg: '#DBDCDE',
         primary: '#4D5359',

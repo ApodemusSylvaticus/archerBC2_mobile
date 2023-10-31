@@ -5,10 +5,14 @@ import { Decimals } from '@/constant/decimals';
 export class ProfileWorker {
     private static instance: ProfileWorker;
 
-    private hrefBase: string = 'http://localhost:8080/';
+    private hrefBase: string = '';
+
+    getHrefBase = () => {
+        return this.hrefBase;
+    };
 
     setHrefBase = (data: string) => {
-        this.hrefBase = data;
+        this.hrefBase = `http://${data}:8080/`;
     };
 
     constructor() {
@@ -109,19 +113,17 @@ export class ProfileWorker {
 
     getFileList = async (): Promise<string[]> => {
         const response = await fetch(`${this.hrefBase}filelist`);
-
         return response.json();
     };
 
     getProfile = async (fileName: string): Promise<ServerProfile> => {
         if (this.payload === undefined) {
-            throw new Error('TODO ERROR');
+            throw new Error('Payload func isn`t load');
         }
         const response = await fetch(`${this.hrefBase}files?filename=${fileName}`);
         const buffer = await response.arrayBuffer();
 
         const message = this.payload.decode(new Uint8Array(buffer));
-        console.log('getProfile message', message);
 
         return this.payload.toObject(message, { enums: String, defaults: true }).profile;
     };
@@ -166,7 +168,7 @@ export class ProfileWorker {
         }: ServerProfile,
     ) => {
         if (this.payload === undefined) {
-            throw new Error('TODO error');
+            throw new Error('Payload function === undefined');
         }
         const message = this.payload.create({
             profile: {
@@ -218,7 +220,7 @@ export class ProfileWorker {
 
     sendNewProfiles(arr: ServerProfile[]) {
         if (this.payload === undefined) {
-            throw new Error('TODO error');
+            throw new Error('Payload func === undefined');
         }
 
         const promises = arr.map(val => {

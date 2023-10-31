@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useState } from 'react';
+import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { NumericInputProps } from '@/interface/components/input';
 import { Container, Input, InputError, InputLabel, InputUnit, InputWrapper, UintText } from './style';
 import { regexNumeric } from '@/constant/regex';
@@ -23,6 +23,10 @@ export const NumericInput: React.FC<PropsWithChildren<NumericInputProps>> = ({
         setIsActive(true);
         setHandleError('');
     };
+
+    useEffect(() => {
+        setIsActive(!!value);
+    }, [value]);
 
     const handleBlur = async (str: string) => {
         onBlur(str);

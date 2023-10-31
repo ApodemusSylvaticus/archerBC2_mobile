@@ -1,10 +1,8 @@
 import styled from 'styled-components/native';
 import { rem } from '@/helpers/rem';
 import { DefaultButton } from '@/components/button/style';
+import { IsDisabled } from '@/interface/components/defaultStyleProps';
 
-interface IsDisabled {
-    isDisabled: boolean;
-}
 export const Container = styled.View<IsDisabled>`
     display: flex;
     padding: ${props => rem(props, 0.8)} ${props => rem(props, 1.6)};

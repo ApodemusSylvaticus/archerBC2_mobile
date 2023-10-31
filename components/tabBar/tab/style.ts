@@ -3,9 +3,9 @@ import { Pressable } from 'react-native';
 import { Link } from 'expo-router';
 import { rem } from '@/helpers/rem';
 import { getWindowWidth } from '@/helpers/getWindowParam';
+import { IsActive } from '@/interface/components/defaultStyleProps';
 
-interface IContainerProps {
-    isActive: boolean;
+interface IContainerProps extends IsActive {
     additionalSpace: number;
 }
 
@@ -20,10 +20,4 @@ export const Container = styled(Pressable)<IContainerProps>`
     flex-direction: row;
     justify-content: center;
     background: ${props => (props.isActive ? props.theme.colors.l1ActiveEl : props.theme.colors.cardBg)};
-`;
-
-export const MockImg = styled.View`
-    width: ${props => rem(props, 2.5)};
-    height: ${props => rem(props, 2.5)};
-    background: blueviolet;
 `;

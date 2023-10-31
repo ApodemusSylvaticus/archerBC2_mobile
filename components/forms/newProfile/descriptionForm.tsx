@@ -65,24 +65,12 @@ export const DescriptionForm: React.FC<IForm> = ({ goForward }) => {
                         />
                     </DefaultRow>
 
-                    <DefaultRow>
-                        <DefaultInput
-                            label={t('profile_file_name')}
-                            value={values.fileName}
-                            onChangeText={handleChange('fileName')}
-                            error={errors.fileName}
-                            touched={touched.fileName}
-                            onBlur={handleBlur('fileName')}
-                            background={colors.appBg}
-                        />
-                    </DefaultRow>
-
                     <ButtonContainer>
                         <ArrowSVG
                             orientation="left"
                             width={rem * 5.5}
                             height={rem * 5.5}
-                            fillColor="transparent"
+                            fillColor={colors.primary}
                             onPress={() => undefined}
                         />
                         <ArrowSVG

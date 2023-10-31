@@ -27,13 +27,14 @@ export const useSendSelected = () => {
         const res = await profileWorker.sendNewProfiles(readyToSend);
         const filter = res.filter(r => !r.ok).map(r => r.url.split('?filename=')[1]);
         if (filter.length) {
+            // TODO: fix
             const brokenResProfiles = filter.join(', ');
             sendNotification({
                 msg: `Profiles: ${brokenResProfiles} not be added`,
                 type: NotificationEnum.ERROR,
             });
         } else {
-            sendNotification({ msg: 'Profiles added', type: NotificationEnum.SUCCESS });
+            sendNotification({ msg: t('default_profile_added'), type: NotificationEnum.SUCCESS });
         }
         setIsLoading(false);
         sendSelected();

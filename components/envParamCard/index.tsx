@@ -5,7 +5,7 @@ import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withTi
 import Svg, { Path } from 'react-native-svg';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Button, ButtonText, Container, Row } from '@/components/envParamCard/style';
+import { Button, Container, Row } from '@/components/envParamCard/style';
 import { TemperatureSVG } from '@/components/svg/temperature';
 import { NumericInput } from '@/components/Inputs/numericInput';
 import { HumiditySVG } from '@/components/svg/humidity';
@@ -18,7 +18,11 @@ import { CompassSVG } from '@/components/svg/compass';
 import { WindSVG } from '@/components/svg/wind';
 import { WindDirectionStarSVG } from '@/components/svg/windDirectionStar';
 import { ChainBrokenChainSVG, ChainSVG } from '@/components/svg/chain';
-import { MultiCoefficientWrapper } from '@/components/forms/style';
+import { useGetVelocityParam } from '@/hooks/useGetVelocityParam';
+import { Text20 } from '@/components/text/styled';
+import { velocityFormula } from '@/helpers/velocityFormula';
+import { Loader } from '@/components/loader';
+import { degreesFromNumber } from '@/helpers/fromNumberToDeg';
 
 export const WindParamColumn: React.FC = () => {
     const { setWindParam, devStatus } = useDevStatusStore(state => ({
@@ -26,7 +30,7 @@ export const WindParamColumn: React.FC = () => {
         setWindParam: state.setWindParam,
     }));
     if (devStatus === null) {
-        throw new Error('TODO error');
+        throw new Error('Missing devStatus');
     }
 
     const { colors, rem } = useTheme();
@@ -54,14 +58,14 @@ export const WindParamColumn: React.FC = () => {
     };
 
     const animatedStyle = useAnimatedStyle(() => ({
-        transform: [{ rotate: `${interpolate(rotationParam.value, [0, 360], [0, 360])}deg` }],
+        transform: [{ rotate: `${interpolate(degreesFromNumber(rotationParam.value), [0, 360], [0, 360])}deg` }],
         position: 'absolute',
         top: 0,
         left: 0,
     }));
 
     const rotateBlock = (value: number) => {
-        rotationParam.value = withTiming(value, {
+        rotationParam.value = withTiming(degreesFromNumber(value), {
             duration: 200,
             easing: Easing.linear,
         });
@@ -75,9 +79,9 @@ export const WindParamColumn: React.FC = () => {
                 if (!isChanged(value)) {
                     return;
                 }
-
-                coreProtobuf.sendWindToServer(+value.windDir, +value.windSpeed);
-                setWindParam({ windDir: +value.windDir, pitch: +value.windSpeed });
+                const windDir = degreesFromNumber(+value.windDir);
+                coreProtobuf.sendWindToServer(windDir, +value.windSpeed);
+                setWindParam({ windDir, pitch: +value.windSpeed });
             }}>
             {({ isValid, handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                 <Container>
@@ -139,9 +143,11 @@ export const WindParamColumn: React.FC = () => {
                         />
                     </Row>
 
-                    <Button onPress={() => isValid && handleSubmit()}>
-                        <ButtonText isActive={isValid && isChanged(values)}>{t('default_apply_button')}</ButtonText>
-                    </Button>
+                    {isValid && isChanged(values) && (
+                        <Button onPress={() => isValid && handleSubmit()}>
+                            <Text20>{t('default_apply_button')}</Text20>
+                        </Button>
+                    )}
                 </Container>
             )}
         </Formik>
@@ -155,8 +161,10 @@ export const EnvironmentParam: React.FC = () => {
     }));
 
     if (devStatus === null) {
-        throw new Error('TODO error');
+        throw new Error('Missing devStatus');
     }
+
+    const { velocityParam, isLoading, errorMsg } = useGetVelocityParam();
     const { airPress, airHum, airTemp, powderTemp } = devStatus;
     const { colors, rem } = useTheme();
     const { t } = useTranslation();
@@ -303,109 +311,36 @@ export const EnvironmentParam: React.FC = () => {
                         </NumericInput>
                     </Row>
 
-                    <Button onPress={() => isValid && handleSubmit()}>
-                        <ButtonText isActive={isValid && isChanged(values)}>{t('default_apply_button')}</ButtonText>
-                    </Button>
+                    {isLoading && <Loader size={rem * 2.4} />}
+                    {!!errorMsg && (
+                        <Row>
+                            <Text20>{t('error_failed_calc_mv')}</Text20>
+
+                            <Text20>{errorMsg}</Text20>
+                        </Row>
+                    )}
+                    {!!velocityParam && (
+                        <Row>
+                            <Text20>{t('profile_muzzle_velocity')}</Text20>
+                            <Text20>
+                                {velocityFormula({
+                                    cMuzzleVelocity: velocityParam.cMuzzleVelocity,
+                                    powderTemperature: +values.powderTemperature,
+                                    cZeroTemperature: velocityParam.cZeroTemperature,
+                                    cTCoeff: velocityParam.cTCoeff,
+                                })}
+                            </Text20>
+                            <Text20>{t('uint_m_dash_s')}</Text20>
+                        </Row>
+                    )}
+
+                    {isValid && isChanged(values) && (
+                        <Button onPress={() => isValid && handleSubmit()}>
+                            <Text20>{t('default_apply_button')}</Text20>
+                        </Button>
+                    )}
                 </Container>
             )}
         </Formik>
-    );
-};
-
-export const StableParam: React.FC = () => {
-    const actualProfile = useDevStatusStore(state => state.actualProfile);
-    if (actualProfile === null) {
-        throw new Error('TODO error');
-    }
-
-    const { coefRows, bcType } = actualProfile;
-
-    const initialCoef = coefRows;
-    const [coefficients, setCoefficients] = useState(initialCoef);
-
-    const handleChangeMV = (val: string, index: number) => {
-        setCoefficients(prevState => prevState.map((el, arrIndex) => (index === arrIndex ? { ...el, mv: +val } : el)));
-    };
-
-    const handleChangeBC = (val: string, index: number) => {
-        setCoefficients(prevState =>
-            prevState.map((el, arrIndex) => (index === arrIndex ? { ...el, bcCd: +val } : el)),
-        );
-    };
-
-    const { colors } = useTheme();
-    const { t } = useTranslation();
-    const { mvSchema, bcSchema } = useValidationSchema();
-
-    const isValid = useMemo(() => {
-        // eslint-disable-next-line no-restricted-syntax
-        for (const item of coefficients) {
-            if (!bcSchema.isValidSync(item.bcCd.toString()) || !mvSchema.isValidSync(item.mv.toString())) {
-                return false;
-            }
-        }
-        return true;
-    }, [bcSchema, coefficients, mvSchema]);
-
-    const isChanged = useMemo(() => {
-        for (let i = 0; i < initialCoef.length; i += 1) {
-            const prev = initialCoef[i];
-            const curr = coefficients[i];
-
-            if (prev.bcCd !== curr.bcCd || prev.mv !== curr.mv) {
-                return true;
-            }
-        }
-
-        return false;
-    }, [initialCoef, coefficients]);
-
-    const onButtonPress = () => {
-        if (isValid && isChanged) {
-            /* empty */
-        }
-    };
-
-    return (
-        <Container>
-            <Row>
-                <NumericInput
-                    value={bcType}
-                    label={t('profile_ballistic_function')}
-                    disabled
-                    background={colors.cardBg}
-                    onChangeText={() => undefined}
-                    error=""
-                    touched={false}
-                    onBlur={() => undefined}
-                />
-            </Row>
-            {coefficients.map((el, index) => (
-                // eslint-disable-next-line react/no-array-index-key
-                <MultiCoefficientWrapper key={index}>
-                    <NumericInput
-                        uint={t('uint_m_dash_s')}
-                        label={t('profile_mv')}
-                        value={el.mv.toString()}
-                        schema={mvSchema}
-                        onChangeText={(val: string) => handleChangeMV(val, index)}
-                        onBlur={() => undefined}
-                        background={colors.cardBg}
-                    />
-                    <NumericInput
-                        uint={t('uint_lb_dash_square_in')}
-                        label={t('profile_bc')}
-                        value={el.bcCd.toString()}
-                        schema={bcSchema}
-                        onChangeText={(val: string) => handleChangeBC(val, index)}
-                        onBlur={() => undefined}
-                        background={colors.cardBg}
-                    />
-                </MultiCoefficientWrapper>
-            ))}
-            <Button onPress={onButtonPress}>
-                <ButtonText isActive={isValid && isChanged}>{t('default_apply_button')}</ButtonText>
-            </Button>
-        </Container>
     );
 };

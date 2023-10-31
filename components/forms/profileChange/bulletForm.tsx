@@ -119,7 +119,7 @@ export const BulletForm: React.FC<BulletProfileFormProps> = ({ bullet, onSubmit,
                 );
                 break;
             default:
-                throw new Error('TODO ERROR');
+                throw new Error('actualBF is not found');
         }
     }, [actualBallisticFunction, coefCustom, coefG1, coefG7]);
 

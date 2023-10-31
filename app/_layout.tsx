@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
 import { Slot, SplashScreen } from 'expo-router';
@@ -14,8 +14,6 @@ import { Header } from '@/components/header';
 import '@/i18n/index';
 import { useSettingStore } from '@/store/useSettingStore';
 import { languageArray } from '@/i18n';
-import { CoreProtobuf } from '@/core/coreProtobuf';
-import { useDevStatusStore } from '@/store/useDevStatusStore';
 import { ProfileWorker } from '@/core/profileWorker';
 import { ErrorBoundary } from '@/components/errorBoundary';
 
@@ -23,31 +21,10 @@ import { ErrorBoundary } from '@/components/errorBoundary';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-    const [wsMsg, setWsMsg] = useState(null);
-    const { setDevStatus, getActualProfile } = useDevStatusStore(
-        (state: { setDevStatus: any; getActualProfile: any }) => ({
-            setDevStatus: state.setDevStatus,
-            getActualProfile: state.getActualProfile,
-        }),
-    );
-
-    useEffect(() => {
-        const coreProtobuf = new CoreProtobuf(setWsMsg, getActualProfile);
-        console.log(coreProtobuf);
-    }, []);
-
     useEffect(() => {
         const profileWorker = new ProfileWorker();
         profileWorker.loadProto();
     }, []);
-
-    useEffect(() => {
-        if (wsMsg) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            setDevStatus(wsMsg);
-        }
-    }, [setDevStatus, wsMsg]);
 
     const { getDataFromStorage, theme, size, language } = useSettingStore(state => ({
         getDataFromStorage: state.getDataFromStorage,

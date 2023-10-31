@@ -6,6 +6,7 @@ declare module 'styled-components' {
         rem: number;
         name: string;
         colors: {
+            transparent: string;
             appBg: string;
             cardBg: string;
             primary: string;

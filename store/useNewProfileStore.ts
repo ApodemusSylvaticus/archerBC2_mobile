@@ -20,6 +20,7 @@ export interface INewProfile {
     range: Nullable<RANGE>;
     ballisticFunction: Nullable<BallisticFunctionType>;
     ballisticProfile: Nullable<IBallisticProfile>;
+    fileName: Nullable<string>;
 }
 
 interface coef {
@@ -47,13 +48,14 @@ interface IUseNewProfileStore extends INewProfile {
     setSingleCoefficient: (data: string) => void;
     setMultiCoefficient: (data: CoefficientForm[]) => void;
     reset: () => void;
+    setFileName: (data: string) => void;
 
-    selectRiffleFromList: (data: jija) => void;
+    selectBulletFromList: (data: jija) => void;
+    selectCaliberFromList: (data: { name: string; bDiameter: number }) => void;
 }
 
 export const emptyProfile: INewProfile = {
     description: {
-        fileName: '',
         profileName: '',
         bullet: '',
         cartridge: '',
@@ -77,6 +79,7 @@ export const emptyProfile: INewProfile = {
         cTCoeff: '',
     },
     range: null,
+    fileName: null,
 };
 
 export const useNewProfileStore = create<IUseNewProfileStore>()(set => ({
@@ -109,7 +112,7 @@ export const useNewProfileStore = create<IUseNewProfileStore>()(set => ({
                 },
             },
         })),
-
+    setFileName: data => set({ fileName: data }),
     setMultiCoefficient: data =>
         set(state => {
             if (state.ballisticProfile === null) {
@@ -122,7 +125,7 @@ export const useNewProfileStore = create<IUseNewProfileStore>()(set => ({
             const { ballisticFunction } = state;
 
             if (ballisticFunction === null) {
-                throw new Error('TODO ERROR');
+                throw new Error('Ballistit function === null');
             }
             const G1 =
                 ballisticFunction === BallisticFunctionType.G1
@@ -136,7 +139,6 @@ export const useNewProfileStore = create<IUseNewProfileStore>()(set => ({
 
             return { ballisticProfile: { type: BallisticProfileType.MULTI, G1, G7 } };
         }),
-
     setSingleCoefficient: data =>
         set(state => {
             if (state.ballisticProfile === null) {
@@ -150,7 +152,7 @@ export const useNewProfileStore = create<IUseNewProfileStore>()(set => ({
             const { ballisticFunction } = state;
 
             if (ballisticFunction === null) {
-                throw new Error('TODO ERROR');
+                throw new Error('ballisticFunction === null');
             }
             const G1 =
                 ballisticFunction === BallisticFunctionType.G1
@@ -166,9 +168,14 @@ export const useNewProfileStore = create<IUseNewProfileStore>()(set => ({
         }),
     reset: () => set({ ...emptyProfile }),
 
-    selectRiffleFromList: data =>
+    selectCaliberFromList: data =>
+        set(state => ({
+            riffle: { ...state.riffle, caliber: data.name },
+            bullet: { ...state.bullet, bDiameter: data.bDiameter.toString() },
+        })),
+    selectBulletFromList: data =>
         set(state => {
-            const { riffle, ballisticProfile } = state;
+            const { description, ballisticProfile } = state;
 
             return {
                 bullet: {
@@ -176,9 +183,9 @@ export const useNewProfileStore = create<IUseNewProfileStore>()(set => ({
                     bLength: data.bLength.toString(),
                     bDiameter: data.bDiameter.toString(),
                 },
-                riffle: {
-                    ...riffle,
-                    caliber: data.name,
+                description: {
+                    ...description,
+                    bullet: data.name,
                 },
                 ballisticProfile: {
                     type: ballisticProfile?.type ?? BallisticProfileType.MULTI,

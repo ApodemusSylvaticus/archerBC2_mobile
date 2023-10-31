@@ -9,6 +9,7 @@ import { CoefficientForm } from '@/components/forms/newProfile/coefficientForm';
 import { useConvertProfile } from '@/hooks/useConvertProfile';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
 import { DefaultModal } from '@/components/modals/DefaultModal';
+import { FileNameForm } from '@/components/forms/newProfile/fileNameForm';
 
 export const CreateNewProfileModal: React.FC = () => {
     const [page, setPage] = useState<number>(0);
@@ -24,7 +25,7 @@ export const CreateNewProfileModal: React.FC = () => {
 
     const goBack = () => setPage(prevState => (prevState !== 0 ? prevState - 1 : prevState));
     const goForward = async () => {
-        if (page === 5) {
+        if (page === 6) {
             setIsFinished(true);
             return;
         }
@@ -50,12 +51,14 @@ export const CreateNewProfileModal: React.FC = () => {
 
     return (
         <DefaultModal backButtonHandler={() => setShouldClose(true)} isVisible={isNewProfileOpen}>
-            {page === 0 && <DescriptionForm goBack={goBack} goForward={goForward} />}
-            {page === 1 && <NewRiffleForm goBack={goBack} goForward={goForward} />}
-            {page === 2 && <NewCartridgeForm goBack={goBack} goForward={goForward} />}
-            {page === 3 && <BulletForm goBack={goBack} goForward={goForward} />}
-            {page === 4 && <BallisticProfileForm goBack={goBack} goForward={goForward} />}
-            {page === 5 && <CoefficientForm goBack={goBack} goForward={goForward} />}
+            {page === 0 && <NewRiffleForm goBack={goBack} goForward={goForward} />}
+            {page === 1 && <NewCartridgeForm goBack={goBack} goForward={goForward} />}
+            {page === 2 && <BulletForm goBack={goBack} goForward={goForward} />}
+            {page === 3 && <BallisticProfileForm goBack={goBack} goForward={goForward} />}
+            {page === 4 && <CoefficientForm goBack={goBack} goForward={goForward} />}
+            {page === 5 && <DescriptionForm goBack={goBack} goForward={goForward} />}
+
+            {page === 6 && <FileNameForm goBack={goBack} goForward={goForward} />}
         </DefaultModal>
     );
 };
