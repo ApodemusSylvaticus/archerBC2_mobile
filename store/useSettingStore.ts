@@ -19,7 +19,7 @@ interface IUseSettingStore {
 
 export const useSettingStore = create<IUseSettingStore>()(set => ({
     language: languageSimbolArray[0],
-    serverHost: `localhost`,
+    serverHost: `192.168.1.128`,
     setLanguage: language =>
         set(() => {
             AsyncStorage.setItem(AsyncStore.language, JSON.stringify(language)).catch(console.log);

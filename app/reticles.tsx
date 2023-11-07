@@ -101,7 +101,7 @@ export const ReticlesFromServer: React.FC = () => {
                 });
                 setDbData({ folderList: reticlesList, folders });
             } catch (e) {
-                setErrorMsg('error_get_reticles_data');
+                setErrorMsg(t('error_get_reticles_data'));
             } finally {
                 setIsLoading(false);
             }
