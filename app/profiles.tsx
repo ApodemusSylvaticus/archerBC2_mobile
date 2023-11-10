@@ -6,7 +6,6 @@ import { DefaultColumnContainer } from '@/components/container/defaultBox';
 
 const Profiles: React.FC = () => {
     const profiles = useProfileStore(state => state.profiles);
-
     return (
         <AppContainer>
             <DefaultColumnContainer>

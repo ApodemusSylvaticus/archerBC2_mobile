@@ -25,12 +25,14 @@ const Content: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [errorMsg, setErrorMsg] = useState('');
     const [shouldRetry, setShouldRetry] = useState(false);
-    const { activeProfilesMap, activeProfile, setProfile, deleteProfile } = useActiveProfileStore(state => ({
-        activeProfilesMap: state.activeProfilesMap,
-        activeProfile: state.activeProfile,
-        setProfile: state.setProfile,
-        deleteProfile: state.deleteProfile,
-    }));
+    const { activeProfilesMap, activeProfile, setProfile, deleteProfile, profileListServerData } =
+        useActiveProfileStore(state => ({
+            activeProfilesMap: state.activeProfilesMap,
+            activeProfile: state.activeProfile,
+            setProfile: state.setProfile,
+            deleteProfile: state.deleteProfile,
+            profileListServerData: state.profileListServerData,
+        }));
 
     const { t } = useTranslation();
 
@@ -153,6 +155,14 @@ const Content: React.FC = () => {
                     profileWorker.getProfile(activeProfile).then(value => {
                         sendNotification({ type: NotificationEnum.SUCCESS, msg: t('default_profile_updated') });
                         setProfile(activeProfile, value);
+                        if (profileListServerData) {
+                            profileWorker.sendProfilesListData(profileListServerData).catch(() =>
+                                sendNotification({
+                                    msg: t('error_failed_to_update_profile_list'),
+                                    type: NotificationEnum.ERROR,
+                                }),
+                            );
+                        }
                     });
                 } else {
                     console.log(res);
@@ -168,17 +178,23 @@ const Content: React.FC = () => {
         }
     };
 
-    const handleAccept = () => {
-        profileWorker
-            .deleteFileButton(activeProfile)
-            .then(() => {
-                sendNotification({ msg: t('default_profile_deleted'), type: NotificationEnum.SUCCESS });
-                deleteProfile(activeProfile);
-            })
-            .catch(e => {
-                console.log(e);
-                sendNotification({ msg: t('default_failed_to_delete_profile'), type: NotificationEnum.ERROR });
-            });
+    const handleAccept = async () => {
+        try {
+            await profileWorker.deleteFileButton(activeProfile);
+            sendNotification({ msg: t('default_profile_deleted'), type: NotificationEnum.SUCCESS });
+            deleteProfile(activeProfile);
+            if (profileListServerData) {
+                profileWorker.sendProfilesListData(profileListServerData).catch(() =>
+                    sendNotification({
+                        msg: t('error_failed_to_update_profile_list'),
+                        type: NotificationEnum.ERROR,
+                    }),
+                );
+            }
+        } catch (e) {
+            console.log(e);
+            sendNotification({ msg: t('default_failed_to_delete_profile'), type: NotificationEnum.ERROR });
+        }
     };
 
     const handleRefreshList = () => {
@@ -290,7 +306,7 @@ const Content: React.FC = () => {
         return <RetryWithErrorMsg retryHandler={retryHandler} msg={errorMsg} />;
     }
 
-    if (val === null) {
+    if (!val) {
         // eslint-disable-next-line consistent-return
         return;
     }
@@ -333,7 +349,7 @@ export const CurrProfile: React.FC = () => {
     const { isLoading, errorMsg, retryHandler } = useA();
 
     return (
-        <AppContainer>
+        <AppContainer refreshFunc={retryHandler}>
             {isLoading && <Loader size={rem * 3.2} />}
             {!isLoading && errorMsg !== '' && <RetryWithErrorMsg retryHandler={retryHandler} msg={errorMsg} />}
             {!isLoading && errorMsg === '' && <Content />}
