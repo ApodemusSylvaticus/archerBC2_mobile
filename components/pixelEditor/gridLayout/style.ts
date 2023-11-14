@@ -1,5 +1,4 @@
 import styled from 'styled-components/native';
-import { getWindowWidth } from '@/helpers/getWindowParam';
 
 export const Container = styled.View`
     width: 100%;
@@ -15,9 +14,10 @@ export const Container = styled.View`
 
 interface CeilProps {
     size: number;
+    totalWidth: number;
 }
 export const Cell = styled.View<CeilProps>`
-    width: ${props => getWindowWidth() / props.size}px;
+    width: ${props => props.totalWidth / props.size}px;
     aspect-ratio: 1 / 1;
     border-color: ${props => props.theme.colors.l1ActiveEl};
 `;

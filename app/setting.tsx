@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'styled-components/native';
+import { Button, Modal } from 'react-native';
 import { AppContainer } from '@/components/container/appContainer';
-import { DefaultColumnContainer } from '@/components/container/defaultBox';
-import { SelectInput } from '@/components/Inputs/select/select';
 import { languageArray } from '@/i18n';
 import { useSettingStore } from '@/store/useSettingStore';
-import { Resize } from '@/components/resize';
 import { darkTheme, lightDark, lightTheme } from '@/constant/theme';
+import { Resize } from '@/components/resize';
+import { DefaultColumnContainer } from '@/components/container/defaultBox';
+import { SelectInput } from '@/components/Inputs/select/select';
+import { PreloadPixelEditor } from '@/components/pixelEditor';
+
+const Modalss: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
+    return (
+        <Modal animationType="slide" visible={isOpen} supportedOrientations={['landscape']}>
+            {isOpen && <PreloadPixelEditor />}
+        </Modal>
+    );
+};
 
 const Setting: React.FC = () => {
     const { t } = useTranslation();
@@ -19,7 +29,7 @@ const Setting: React.FC = () => {
     }));
     const [activeLanguage, setActiveLanguage] = useState(languageArray.findIndex(el => el.simbol === language));
     const { colors } = useTheme();
-
+    const [isOpen, setIsOpen] = useState(false);
     const handleChangeLanguage = (value: number) => {
         setActiveLanguage(value);
         setLanguage(languageArray[value].simbol);
@@ -55,6 +65,9 @@ const Setting: React.FC = () => {
                     zIndex={4}
                 />
             </DefaultColumnContainer>
+
+            <Button title="test" onPress={() => setIsOpen(true)} />
+            <Modalss isOpen={isOpen} />
         </AppContainer>
     );
 };
