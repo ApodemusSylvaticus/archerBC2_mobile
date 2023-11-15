@@ -32,6 +32,7 @@ export default function RootLayout() {
         size: state.size,
         language: state.language,
     }));
+
     const { i18n } = useTranslation();
     const getProfileFromStore = useProfileStore(state => state.getProfileFromStore);
     const [loaded, error] = useFonts({

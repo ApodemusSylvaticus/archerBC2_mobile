@@ -25,7 +25,6 @@ interface SelectInputProps {
     baseValue?: number;
 }
 
-// TODO: add req
 export const SelectInput: React.FC<SelectInputProps> = ({
     list,
     setElem,

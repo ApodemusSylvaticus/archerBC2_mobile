@@ -1,6 +1,7 @@
 import protobuf from 'protobufjs';
 import { ServerProfile } from '@/interface/profile';
 import { Decimals } from '@/constant/decimals';
+import { IProfileListServerData } from '@/interface/core/profileProtobuf';
 
 export class ProfileWorker {
     private static instance: ProfileWorker;
@@ -27,8 +28,10 @@ export class ProfileWorker {
 
     payload: protobuf.Type | undefined;
 
+    profileListPayload: protobuf.Type | undefined;
+
     loadProto = async () => {
-        const protobufRoot = protobuf.parse(
+        const profileProtobufRoot = protobuf.parse(
             'syntax = "proto3";\n' +
                 '\n' +
                 'package profedit;\n' +
@@ -108,8 +111,74 @@ export class ProfileWorker {
                 '    string device_uuid = 29;\n' +
                 '}',
         ).root;
-        this.payload = protobufRoot.lookupType('profedit.Payload');
+        this.payload = profileProtobufRoot.lookupType('profedit.Payload');
+
+        const profileListProtobufRoot = protobuf.parse(
+            'syntax = "proto3";\n' +
+                '\n' +
+                '\n' +
+                'package proftabl;\n' +
+                '\n' +
+                '\n' +
+                'message Payload {\n' +
+                '  Profile profile = 1;\n' +
+                '}\n' +
+                '\n' +
+                '\n' +
+                'message Profile {\n' +
+                '  string profile_name = 1;\n' +
+                '  string cartridge_name = 2;\n' +
+                '  string short_name_top = 4;\n' +
+                '  string short_name_bot = 5;\n' +
+                '}\n' +
+                '\n' +
+                '\n' +
+                'message ProfileList {\n' +
+                '  repeated ProfileListEntry profile_desc = 1;\n' +
+                '  int32 activeprofile = 2;\n' +
+                '}\n' +
+                '\n' +
+                'message ProfileListEntry {\n' +
+                '  string profile_name = 1;\n' +
+                '  string cartridge_name = 2;\n' +
+                '  string short_name_top = 3;\n' +
+                '  string short_name_bot = 4;\n' +
+                '  string file_path = 5;\n' +
+                '}',
+        ).root;
+
+        this.profileListPayload = profileListProtobufRoot.lookupType('proftabl.ProfileList');
     };
+
+    getProfilesList = async (): Promise<IProfileListServerData> => {
+        if (this.profileListPayload === undefined) {
+            throw new Error('ProfileListPayload func isn`t load');
+        }
+        const response = await fetch(`${this.hrefBase}files?filename=profiletabl`);
+        const buffer = await response.arrayBuffer();
+
+        const message = this.profileListPayload.decode(new Uint8Array(buffer));
+
+        return this.profileListPayload.toObject(message) as IProfileListServerData;
+    };
+
+    async sendProfilesListData(data: IProfileListServerData) {
+        if (this.profileListPayload === undefined) {
+            throw new Error('Payload function === undefined');
+        }
+
+        const message = this.profileListPayload.create(data);
+
+        const buffer = this.profileListPayload.encode(message).finish();
+        const response = await fetch(`${this.hrefBase}files?filename=profiletabl`, {
+            method: 'PUT',
+            body: buffer,
+        });
+
+        if (response.status !== 200) {
+            throw new Error('sendProfilesListData problem');
+        }
+    }
 
     getFileList = async (): Promise<string[]> => {
         const response = await fetch(`${this.hrefBase}filelist`);
@@ -129,8 +198,7 @@ export class ProfileWorker {
     };
 
     deleteFileButton = async (fileName: string) => {
-        const response = await fetch(`${this.hrefBase}files?filename=${fileName}`, { method: 'DELETE' });
-        console.log('delete response', response);
+        await fetch(`${this.hrefBase}files?filename=${fileName}`, { method: 'DELETE' });
     };
 
     saveChanges = async (

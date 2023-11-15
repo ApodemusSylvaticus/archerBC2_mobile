@@ -24,6 +24,14 @@ export const TextSemiBold20 = styled.Text`
     word-break: break-word;
 `;
 
+export const TextSemiBold18 = styled.Text`
+    font-size: ${props => rem(props, 1.8)};
+    font-family: Lato-Semibold;
+    font-weight: 600;
+    color: ${props => props.theme.colors.primary};
+    word-break: break-word;
+`;
+
 export const ButtonTextBold18 = styled.Text`
     font-size: ${props => rem(props, 1.8)};
     font-family: Lato-Bold;

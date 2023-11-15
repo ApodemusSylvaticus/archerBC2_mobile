@@ -7,7 +7,7 @@ import { BallisticFunctionType, BallisticProfileType } from '@/interface/newProf
 import { AddNewCoeffButton, ButtonContainer, ErrorText, MultiCoefficientWrapper } from '@/components/forms/style';
 import { ArrowSVG } from '@/components/svg/arrow';
 import { IForm } from '@/interface/form';
-import { Text20, TextSemiBold20 } from '@/components/text/styled';
+import { TextSemiBold20 } from '@/components/text/styled';
 import { NumericInput } from '@/components/Inputs/numericInput';
 import { Coefficient } from '@/interface/profile';
 import { useValidationSchema } from '@/hooks/useValidationSchema';
@@ -217,9 +217,7 @@ export const CoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => {
     }));
 
     if (ballisticProfile === null) {
-        // TODO ErroBoundary v1
-
-        return <Text20>ErrorBaundary</Text20>;
+        throw new Error('ballisticProfile === null');
     }
 
     switch (ballisticProfile.type) {
@@ -230,6 +228,6 @@ export const CoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => {
 
         // TODO ErroBoundary v1
         default:
-            return <Text20>ErrorBaundary</Text20>;
+            throw new Error('Unknown ballisticProfile');
     }
 };
