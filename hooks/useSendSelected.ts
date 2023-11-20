@@ -1,17 +1,15 @@
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import cloneDeep from 'lodash.clonedeep';
 import { useProfileStore } from '@/store/useProfileStore';
 import { ProfileWorker } from '@/core/profileWorker';
 import { convertToServerProfile } from '@/helpers/convertProfile';
-import { useActiveProfileStore } from '@/store/useActiveProfileStore';
 import { NotificationEnum, useNotificationStore } from '@/store/useNotificationStore';
 
 export const useSendSelected = () => {
+    const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const sendNotification = useNotificationStore(state => state.sendNotification);
-    const { setFileList, fileList } = useActiveProfileStore(state => ({
-        fileList: state.fileList,
-        setFileList: state.setFileList,
-    }));
     const { sendSelected, selectedProfiles, profiles } = useProfileStore(state => ({
         sendSelected: state.sendSelected,
         selectedProfiles: state.selectedProfiles,
@@ -36,14 +34,56 @@ export const useSendSelected = () => {
         } else {
             sendNotification({ msg: t('default_profile_added'), type: NotificationEnum.SUCCESS });
         }
+
+        const list = await profileWorker.getProfilesList();
+        const newProfileDesc = cloneDeep(list.profileDesc);
+        const sendedProfiles = filteredProfiles.filter(el => !filter.includes(el.fileName));
+        newProfileDesc.map(el => {
+            const profile = sendedProfiles.find(val => val.fileName === el.filePath);
+            if (profile) {
+                return {
+                    profileName: profile.profileName,
+                    cartridgeName: profile.cartridgeName,
+                    shortNameTop: profile.shortNameTop,
+                    shortNameBot: profile.shortNameBot,
+                    filePath: profile.fileName,
+                };
+            }
+            return el;
+        });
+        sendedProfiles.forEach(el => {
+            const index = newProfileDesc.findIndex(val => val.filePath === el.fileName);
+            if (index === -1) {
+                newProfileDesc.push({
+                    profileName: el.profileName,
+                    cartridgeName: el.cartridgeName,
+                    shortNameTop: el.shortNameTop,
+                    shortNameBot: el.shortNameBot,
+                    filePath: el.fileName,
+                });
+                return;
+            }
+
+            newProfileDesc[index] = {
+                profileName: el.profileName,
+                cartridgeName: el.cartridgeName,
+                shortNameTop: el.shortNameTop,
+                shortNameBot: el.shortNameBot,
+                filePath: el.fileName,
+            };
+        });
+
+        profileWorker
+            .sendProfilesListData({ profileDesc: newProfileDesc, activeprofile: list.activeprofile })
+            .catch(() =>
+                sendNotification({
+                    msg: t('error_failed_to_update_profile_list'),
+                    type: NotificationEnum.ERROR,
+                }),
+            );
         setIsLoading(false);
         sendSelected();
-        const newList = new Set([
-            ...filteredProfiles.map(el => el.fileName),
-            ...fileList.filter(el => !filter.includes(el)),
-        ]);
-        setFileList([...newList]);
-    }, [fileList, profileWorker, profiles, selectedProfiles, sendNotification, sendSelected, setFileList]);
+    }, [profileWorker, profiles, selectedProfiles, sendNotification, sendSelected, t]);
 
     return {
         isLoading,

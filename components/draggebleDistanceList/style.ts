@@ -13,5 +13,5 @@ export const DistanceContainer = styled.TouchableOpacity<DistanceContainerProps>
     align-items: center;
     padding: ${props => rem(props, 0.8)} ${props => rem(props, 1.6)};
     background: ${props => props.theme.colors.cardBg};
-    margin-bottom: ${props => rem(props, 1)};
+    margin-bottom: ${props => rem(props, 0.8)};
 `;

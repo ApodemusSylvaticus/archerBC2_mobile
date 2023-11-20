@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDevStatusStore } from '@/store/useDevStatusStore';
 import { useActiveProfileStore } from '@/store/useActiveProfileStore';
@@ -8,30 +8,40 @@ import { ProfileWorker } from '@/core/profileWorker';
 
 export const useA = () => {
     const serverApi = useSettingStore(state => state.serverHost);
-    const setFileList = useActiveProfileStore(state => state.setFileList);
+    const { setAllFileListData, hardResetAllFileList } = useActiveProfileStore(state => ({
+        setAllFileListData: state.setAllFileListData,
+        hardResetAllFileList: state.hardResetAllFileList,
+    }));
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const { t } = useTranslation();
     const [shouldRetry, setShouldRetry] = useState(false);
 
-    useEffect(() => {
-        const profileWorker = new ProfileWorker();
-        if (serverApi !== profileWorker.getHrefBase() || shouldRetry) {
+    const profileWorker = useMemo(() => new ProfileWorker(), []);
+
+    const helper = useCallback(async (dataServerApi: string, hardReset: boolean) => {
+        setIsLoading(true);
+        setErrorMsg('');
+        profileWorker.setHrefBase(dataServerApi);
+        try {
+            const fileList = await profileWorker.getFileList();
+            const profileList = await profileWorker.getProfilesList();
+            if (hardReset) {
+                hardResetAllFileList(fileList, profileList);
+                return;
+            }
+            setAllFileListData(fileList, profileList);
+        } catch {
+            setErrorMsg(t('error_failed_to_get_profile_data'));
+        } finally {
+            setIsLoading(false);
             setShouldRetry(false);
-            setIsLoading(true);
-            setErrorMsg('');
-            profileWorker.setHrefBase(serverApi);
-            profileWorker
-                .getFileList()
-                .then(res => {
-                    setFileList(res);
-                })
-                .catch(() => {
-                    setErrorMsg(t('error_failed_to_get_profile_data'));
-                })
-                .finally(() => setIsLoading(false));
         }
-    }, [serverApi, setFileList, shouldRetry]);
+    }, []);
+
+    useEffect(() => {
+        helper(serverApi, shouldRetry);
+    }, [serverApi, shouldRetry]);
 
     return { isLoading, errorMsg, retryHandler: () => setShouldRetry(true) };
 };

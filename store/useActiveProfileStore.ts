@@ -1,7 +1,9 @@
 import { create } from 'zustand/esm';
+import cloneDeep from 'lodash.clonedeep';
 import { Profile, ServerProfile } from '@/interface/profile';
 import { Nullable } from '@/interface/helper';
 import { Decimals } from '@/constant/decimals';
+import { IProfileListServerData } from '@/interface/core/profileProtobuf';
 
 interface ActiveProfileMap {
     [key: string]: Nullable<Profile>;
@@ -13,7 +15,11 @@ interface IUseActiveProfileStore {
 
     setActiveProfile: (fileName: string) => void;
     fileList: string[];
-    setFileList: (fileList: string[]) => void;
+    profileListServerData: Nullable<IProfileListServerData>;
+    setAllFileListData: (fileList: string[], profileListServerData: IProfileListServerData) => void;
+    hardResetAllFileList: (fileList: string[], profileListServerData: IProfileListServerData) => void;
+
+    setProfileListServerData: (data: IProfileListServerData) => void;
     setProfile: (fileName: string, profile: ServerProfile) => void;
     addNewProfile: (fileName: string, profile: ServerProfile) => void;
     updateProfile: (fileName: string, profile: ServerProfile) => void;
@@ -23,15 +29,39 @@ export const useActiveProfileStore = create<IUseActiveProfileStore>()(set => ({
     activeProfilesMap: {},
     activeProfile: '',
     fileList: [],
+    profileListServerData: null,
     updateCartridge: {},
+    setProfileListServerData: data => set({ profileListServerData: data }),
     setActiveProfile: fileName => set({ activeProfile: fileName }),
-    setFileList: fileList =>
+    setAllFileListData: (fileList, profileListServerData) =>
+        set(state => {
+            const newActiveProfiles = cloneDeep(state.activeProfilesMap);
+            fileList.forEach(e => {
+                newActiveProfiles[e] = newActiveProfiles[e] ?? null;
+            });
+
+            return {
+                fileList,
+                activeProfilesMap: newActiveProfiles,
+                profileListServerData,
+                activeProfile:
+                    state.activeProfile === ''
+                        ? profileListServerData.profileDesc[profileListServerData.activeprofile].filePath
+                        : state.activeProfile,
+            };
+        }),
+    hardResetAllFileList: (fileList, profileListServerData) =>
         set(() => {
             const activeProfilesMap: ActiveProfileMap = {};
             fileList.forEach(el => {
                 activeProfilesMap[el] = null;
             });
-            return { fileList, activeProfile: fileList[0], activeProfilesMap };
+            return {
+                fileList,
+                activeProfile: profileListServerData.profileDesc[profileListServerData.activeprofile].filePath,
+                activeProfilesMap,
+                profileListServerData,
+            };
         }),
     setProfile: (fileName, profile) =>
         set(state => {
@@ -92,6 +122,19 @@ export const useActiveProfileStore = create<IUseActiveProfileStore>()(set => ({
     addNewProfile: (fileName, profile) =>
         set(state => {
             return {
+                profileListServerData: {
+                    profileDesc: [
+                        ...state.profileListServerData!.profileDesc,
+                        {
+                            cartridgeName: profile.cartridgeName,
+                            profileName: profile.profileName,
+                            filePath: profile.fileName,
+                            shortNameBot: profile.shortNameBot,
+                            shortNameTop: profile.shortNameTop,
+                        },
+                    ],
+                    activeprofile: state.profileListServerData!.activeprofile,
+                },
                 activeProfilesMap: {
                     ...state.activeProfilesMap,
                     [fileName]: {
@@ -147,6 +190,20 @@ export const useActiveProfileStore = create<IUseActiveProfileStore>()(set => ({
         }),
     updateProfile: (fileName, profile) =>
         set(state => ({
+            profileListServerData: {
+                profileDesc: state.profileListServerData!.profileDesc.map(el =>
+                    el.filePath === profile.fileName
+                        ? {
+                              cartridgeName: profile.cartridgeName,
+                              profileName: profile.profileName,
+                              filePath: profile.fileName,
+                              shortNameBot: profile.shortNameBot,
+                              shortNameTop: profile.shortNameTop,
+                          }
+                        : el,
+                ),
+                activeprofile: state.profileListServerData!.activeprofile,
+            },
             activeProfilesMap: {
                 ...state.activeProfilesMap,
                 [fileName]: {
@@ -209,6 +266,10 @@ export const useActiveProfileStore = create<IUseActiveProfileStore>()(set => ({
                 activeProfilesMap: updatedActiveProfilesMap,
                 fileList: newFileList,
                 activeProfile: newFileList[0],
+                profileListServerData: {
+                    profileDesc: state.profileListServerData!.profileDesc.filter(el => el.filePath !== fileName),
+                    activeprofile: state.profileListServerData!.activeprofile,
+                },
             };
         });
     },
