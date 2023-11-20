@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { DeleteButton } from '@/components/button/style';
 import { TextSemiBold20 } from '@/components/text/styled';
 import { AreYouSureModal } from '@/components/modals/specificModal/alertModal/areYouSure';
@@ -6,7 +6,7 @@ import { AreYouSureModal } from '@/components/modals/specificModal/alertModal/ar
 interface DeleteButtonWithConfProps {
     buttonText: string;
     confirmMsg: string;
-    confirmHandler: () => void;
+    confirmHandler: () => Promise<void>;
 }
 
 export const DeleteButtonWithConfirm: React.FC<DeleteButtonWithConfProps> = ({
@@ -16,6 +16,9 @@ export const DeleteButtonWithConfirm: React.FC<DeleteButtonWithConfProps> = ({
 }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const handleConfirm = useCallback(() => {
+        confirmHandler().finally(() => setIsModalOpen(false));
+    }, [confirmHandler]);
     return (
         <>
             <DeleteButton onPress={() => setIsModalOpen(true)}>
@@ -24,7 +27,7 @@ export const DeleteButtonWithConfirm: React.FC<DeleteButtonWithConfProps> = ({
             <AreYouSureModal
                 question={confirmMsg}
                 closeHandler={() => setIsModalOpen(false)}
-                acceptHandler={confirmHandler}
+                acceptHandler={handleConfirm}
                 isOpen={isModalOpen}
             />
         </>

@@ -23,6 +23,7 @@ export const useA = () => {
         setIsLoading(true);
         setErrorMsg('');
         profileWorker.setHrefBase(dataServerApi);
+
         try {
             const fileList = await profileWorker.getFileList();
             const profileList = await profileWorker.getProfilesList();
@@ -40,7 +41,14 @@ export const useA = () => {
     }, []);
 
     useEffect(() => {
-        helper(serverApi, shouldRetry);
+        if (shouldRetry) {
+            helper(serverApi, shouldRetry);
+            return;
+        }
+
+        if (profileWorker.getServerApi() !== serverApi) {
+            helper(serverApi, false);
+        }
     }, [serverApi, shouldRetry]);
 
     return { isLoading, errorMsg, retryHandler: () => setShouldRetry(true) };

@@ -21,16 +21,16 @@ interface IUseActiveProfileStore {
 
     setProfileListServerData: (data: IProfileListServerData) => void;
     setProfile: (fileName: string, profile: ServerProfile) => void;
-    addNewProfile: (fileName: string, profile: ServerProfile) => void;
+    addNewProfiles: (newProfiles: Profile[], list: string[], newProfileListServerData: IProfileListServerData) => void;
+
     updateProfile: (fileName: string, profile: ServerProfile) => void;
-    deleteProfile: (fileName: string) => void;
+    deleteProfile: (fileName: string, newProfileListServerData: IProfileListServerData) => void;
 }
 export const useActiveProfileStore = create<IUseActiveProfileStore>()(set => ({
     activeProfilesMap: {},
     activeProfile: '',
     fileList: [],
     profileListServerData: null,
-    updateCartridge: {},
     setProfileListServerData: data => set({ profileListServerData: data }),
     setActiveProfile: fileName => set({ activeProfile: fileName }),
     setAllFileListData: (fileList, profileListServerData) =>
@@ -119,20 +119,46 @@ export const useActiveProfileStore = create<IUseActiveProfileStore>()(set => ({
             };
         }),
 
-    addNewProfile: (fileName, profile) =>
+    addNewProfiles: (newProfiles, list, newProfileListServerData) =>
         set(state => {
+            const listObj: ActiveProfileMap = {};
+            // eslint-disable-next-line no-return-assign
+            list.forEach(el => (listObj[el] = null));
+            const obj: ActiveProfileMap = {};
+            newProfiles.forEach(el => {
+                obj[el.fileName] = el;
+            });
+
+            const newActiveProfilesMap = {
+                ...listObj,
+                ...state.activeProfilesMap,
+                ...obj,
+            };
+
+            return {
+                activeProfile: newProfileListServerData.profileDesc[newProfileListServerData.activeprofile].filePath,
+                profileListServerData: newProfileListServerData,
+                activeProfilesMap: newActiveProfilesMap,
+                fileList: list,
+            };
+        }),
+    updateProfile: (fileName, profile) =>
+        set(state => {
+            const newProfileDesc = state.profileListServerData!.profileDesc.map(el =>
+                el.filePath === fileName
+                    ? {
+                          cartridgeName: profile.cartridgeName,
+                          profileName: profile.profileName,
+                          filePath: fileName,
+                          shortNameBot: profile.shortNameBot,
+                          shortNameTop: profile.shortNameTop,
+                      }
+                    : el,
+            );
+
             return {
                 profileListServerData: {
-                    profileDesc: [
-                        ...state.profileListServerData!.profileDesc,
-                        {
-                            cartridgeName: profile.cartridgeName,
-                            profileName: profile.profileName,
-                            filePath: profile.fileName,
-                            shortNameBot: profile.shortNameBot,
-                            shortNameTop: profile.shortNameTop,
-                        },
-                    ],
+                    profileDesc: newProfileDesc,
                     activeprofile: state.profileListServerData!.activeprofile,
                 },
                 activeProfilesMap: {
@@ -140,122 +166,54 @@ export const useActiveProfileStore = create<IUseActiveProfileStore>()(set => ({
                     [fileName]: {
                         fileName,
                         caliber: profile.caliber,
-                        rTwist: profile.rTwist / Decimals.rTwist,
+                        rTwist: profile.rTwist,
                         profileName: profile.profileName,
                         bcType: profile.bcType,
-                        cZeroAirPressure: profile.cZeroAirPressure / Decimals.cZeroAirPressure,
+                        cZeroAirPressure: profile.cZeroAirPressure,
                         cZeroAirHumidity: profile.cZeroAirHumidity,
-                        cTCoeff: profile.cTCoeff / Decimals.cTCoeff,
+                        cTCoeff: profile.cTCoeff,
                         cZeroDistanceIdx: profile.cZeroDistanceIdx,
-                        cZeroWPitch: profile.cZeroWPitch / Decimals.cZeroPitch,
+                        cZeroWPitch: profile.cZeroWPitch,
                         cZeroAirTemperature: profile.cZeroAirTemperature,
                         cZeroTemperature: profile.cZeroAirTemperature,
-                        cMuzzleVelocity: profile.cMuzzleVelocity / Decimals.cMuzzleVelocity,
+                        cMuzzleVelocity: profile.cMuzzleVelocity,
                         cZeroPTemperature: profile.cZeroPTemperature,
                         cartridgeName: profile.cartridgeName,
                         scHeight: profile.scHeight,
                         shortNameTop: profile.shortNameTop,
-                        switches: profile.switches.map(el => ({ ...el, distance: el.distance / Decimals.distances })),
+                        switches: profile.switches,
                         shortNameBot: profile.shortNameBot,
-                        distances: profile.distances.map(el => el / Decimals.distances),
+                        distances: profile.distances,
                         userNote: profile.userNote,
                         twistDir: profile.twistDir,
-                        bWeight: profile.bWeight / Decimals.bWeight,
-                        bLength: profile.bLength / Decimals.bLength,
-                        bDiameter: profile.bDiameter / Decimals.bDiameter,
+                        bWeight: profile.bWeight,
+                        bLength: profile.bLength,
+                        bDiameter: profile.bDiameter,
                         bulletName: profile.bulletName,
-                        zeroY: profile.zeroY / Decimals.zeroY,
-                        zeroX: profile.zeroX / Decimals.zeroX,
+                        zeroY: profile.zeroY,
+                        zeroX: profile.zeroX,
                         deviceUuid: profile.deviceUuid,
                         id: `${profile.profileName}_${profile.bulletName}_${profile.cartridgeName}`,
                         coefG1:
                             profile.bcType === 'G1'
                                 ? profile.coefRows.map(({ bcCd, mv }) => ({
-                                      bcCd: bcCd / Decimals.bcCd,
-                                      mv: mv / Decimals.mv,
+                                      bcCd,
+                                      mv,
                                   }))
-                                : [],
+                                : state.activeProfilesMap[fileName]!.coefG1,
                         coefG7:
                             profile.bcType === 'G7'
                                 ? profile.coefRows.map(({ bcCd, mv }) => ({
-                                      bcCd: bcCd / Decimals.bcCd,
-                                      mv: mv / Decimals.mv,
+                                      bcCd,
+                                      mv,
                                   }))
-                                : [],
+                                : state.activeProfilesMap[fileName]!.coefG7,
                         coefCustom: [],
                     },
                 },
-                fileList: [...state.fileList, fileName],
             };
         }),
-    updateProfile: (fileName, profile) =>
-        set(state => ({
-            profileListServerData: {
-                profileDesc: state.profileListServerData!.profileDesc.map(el =>
-                    el.filePath === profile.fileName
-                        ? {
-                              cartridgeName: profile.cartridgeName,
-                              profileName: profile.profileName,
-                              filePath: profile.fileName,
-                              shortNameBot: profile.shortNameBot,
-                              shortNameTop: profile.shortNameTop,
-                          }
-                        : el,
-                ),
-                activeprofile: state.profileListServerData!.activeprofile,
-            },
-            activeProfilesMap: {
-                ...state.activeProfilesMap,
-                [fileName]: {
-                    fileName,
-                    caliber: profile.caliber,
-                    rTwist: profile.rTwist / Decimals.rTwist,
-                    profileName: profile.profileName,
-                    bcType: profile.bcType,
-                    cZeroAirPressure: profile.cZeroAirPressure / Decimals.cZeroAirPressure,
-                    cZeroAirHumidity: profile.cZeroAirHumidity,
-                    cTCoeff: profile.cTCoeff / Decimals.cTCoeff,
-                    cZeroDistanceIdx: profile.cZeroDistanceIdx,
-                    cZeroWPitch: profile.cZeroWPitch / Decimals.cZeroPitch,
-                    cZeroAirTemperature: profile.cZeroAirTemperature,
-                    cZeroTemperature: profile.cZeroAirTemperature,
-                    cMuzzleVelocity: profile.cMuzzleVelocity / Decimals.cMuzzleVelocity,
-                    cZeroPTemperature: profile.cZeroPTemperature,
-                    cartridgeName: profile.cartridgeName,
-                    scHeight: profile.scHeight,
-                    shortNameTop: profile.shortNameTop,
-                    switches: profile.switches.map(el => ({ ...el, distance: el.distance / Decimals.distances })),
-                    shortNameBot: profile.shortNameBot,
-                    distances: profile.distances.map(el => el / Decimals.distances),
-                    userNote: profile.userNote,
-                    twistDir: profile.twistDir,
-                    bWeight: profile.bWeight / Decimals.bWeight,
-                    bLength: profile.bLength / Decimals.bLength,
-                    bDiameter: profile.bDiameter / Decimals.bDiameter,
-                    bulletName: profile.bulletName,
-                    zeroY: profile.zeroY / Decimals.zeroY,
-                    zeroX: profile.zeroX / Decimals.zeroX,
-                    deviceUuid: profile.deviceUuid,
-                    id: `${profile.profileName}_${profile.bulletName}_${profile.cartridgeName}`,
-                    coefG1:
-                        profile.bcType === 'G1'
-                            ? profile.coefRows.map(({ bcCd, mv }) => ({
-                                  bcCd: bcCd / Decimals.bcCd,
-                                  mv: mv / Decimals.mv,
-                              }))
-                            : state.activeProfilesMap[fileName]!.coefG1,
-                    coefG7:
-                        profile.bcType === 'G7'
-                            ? profile.coefRows.map(({ bcCd, mv }) => ({
-                                  bcCd: bcCd / Decimals.bcCd,
-                                  mv: mv / Decimals.mv,
-                              }))
-                            : state.activeProfilesMap[fileName]!.coefG7,
-                    coefCustom: [],
-                },
-            },
-        })),
-    deleteProfile: fileName => {
+    deleteProfile: (fileName, newProfileListServerData) => {
         set(state => {
             const updatedActiveProfilesMap = { ...state.activeProfilesMap };
 
@@ -266,10 +224,7 @@ export const useActiveProfileStore = create<IUseActiveProfileStore>()(set => ({
                 activeProfilesMap: updatedActiveProfilesMap,
                 fileList: newFileList,
                 activeProfile: newFileList[0],
-                profileListServerData: {
-                    profileDesc: state.profileListServerData!.profileDesc.filter(el => el.filePath !== fileName),
-                    activeprofile: state.profileListServerData!.activeprofile,
-                },
+                profileListServerData: newProfileListServerData,
             };
         });
     },

@@ -8,7 +8,7 @@ import { BallisticProfileForm } from '@/components/forms/newProfile/ballisticPro
 import { CoefficientForm } from '@/components/forms/newProfile/coefficientForm';
 import { useConvertProfile } from '@/hooks/useConvertProfile';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
-import { DefaultModal } from '@/components/modals/DefaultModal';
+import { DefaultModalWithBackBtn } from '@/components/modals/DefaultModal';
 import { FileNameForm } from '@/components/forms/newProfile/fileNameForm';
 
 export const CreateNewProfileModal: React.FC = () => {
@@ -50,7 +50,7 @@ export const CreateNewProfileModal: React.FC = () => {
     }, [reset, closeNewProfileModal, shouldClose]);
 
     return (
-        <DefaultModal backButtonHandler={() => setShouldClose(true)} isVisible={isNewProfileOpen}>
+        <DefaultModalWithBackBtn backButtonHandler={() => setShouldClose(true)} isVisible={isNewProfileOpen}>
             {page === 0 && <NewRiffleForm goBack={goBack} goForward={goForward} />}
             {page === 1 && <NewCartridgeForm goBack={goBack} goForward={goForward} />}
             {page === 2 && <BulletForm goBack={goBack} goForward={goForward} />}
@@ -59,6 +59,6 @@ export const CreateNewProfileModal: React.FC = () => {
             {page === 5 && <DescriptionForm goBack={goBack} goForward={goForward} />}
 
             {page === 6 && <FileNameForm goBack={goBack} goForward={goForward} />}
-        </DefaultModal>
+        </DefaultModalWithBackBtn>
     );
 };

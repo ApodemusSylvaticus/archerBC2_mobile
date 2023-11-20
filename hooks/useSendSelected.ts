@@ -5,11 +5,16 @@ import { useProfileStore } from '@/store/useProfileStore';
 import { ProfileWorker } from '@/core/profileWorker';
 import { convertToServerProfile } from '@/helpers/convertProfile';
 import { NotificationEnum, useNotificationStore } from '@/store/useNotificationStore';
+import { useActiveProfileStore } from '@/store/useActiveProfileStore';
+import { useSettingStore } from '@/store/useSettingStore';
 
 export const useSendSelected = () => {
     const { t } = useTranslation();
+    const serverApi = useSettingStore(state => state.serverHost);
+
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const sendNotification = useNotificationStore(state => state.sendNotification);
+    const addNewProfiles = useActiveProfileStore(state => state.addNewProfiles);
     const { sendSelected, selectedProfiles, profiles } = useProfileStore(state => ({
         sendSelected: state.sendSelected,
         selectedProfiles: state.selectedProfiles,
@@ -18,72 +23,94 @@ export const useSendSelected = () => {
 
     const profileWorker = useMemo(() => new ProfileWorker(), []);
 
-    const handler = useCallback(async () => {
-        const filteredProfiles = profiles.filter(el => selectedProfiles.includes(el.fileName));
-        const readyToSend = convertToServerProfile(filteredProfiles);
-        setIsLoading(true);
-        const res = await profileWorker.sendNewProfiles(readyToSend);
-        const filter = res.filter(r => !r.ok).map(r => r.url.split('?filename=')[1]);
-        if (filter.length) {
-            // TODO: fix
-            const brokenResProfiles = filter.join(', ');
-            sendNotification({
-                msg: `Profiles: ${brokenResProfiles} not be added`,
-                type: NotificationEnum.ERROR,
+    const handleRefreshList = useCallback(() => {
+        return profileWorker
+            .serveRefreshList()
+            .then(() => {
+                sendNotification({ msg: t('default_list_refreshed'), type: NotificationEnum.SUCCESS });
+            })
+            .catch(e => {
+                console.log(e);
+                sendNotification({ msg: t('error_failed_ref_list'), type: NotificationEnum.ERROR });
             });
-        } else {
-            sendNotification({ msg: t('default_profile_added'), type: NotificationEnum.SUCCESS });
-        }
+    }, []);
 
-        const list = await profileWorker.getProfilesList();
-        const newProfileDesc = cloneDeep(list.profileDesc);
-        const sendedProfiles = filteredProfiles.filter(el => !filter.includes(el.fileName));
-        newProfileDesc.map(el => {
-            const profile = sendedProfiles.find(val => val.fileName === el.filePath);
-            if (profile) {
-                return {
-                    profileName: profile.profileName,
-                    cartridgeName: profile.cartridgeName,
-                    shortNameTop: profile.shortNameTop,
-                    shortNameBot: profile.shortNameBot,
-                    filePath: profile.fileName,
-                };
-            }
-            return el;
-        });
-        sendedProfiles.forEach(el => {
-            const index = newProfileDesc.findIndex(val => val.filePath === el.fileName);
-            if (index === -1) {
-                newProfileDesc.push({
-                    profileName: el.profileName,
-                    cartridgeName: el.cartridgeName,
-                    shortNameTop: el.shortNameTop,
-                    shortNameBot: el.shortNameBot,
-                    filePath: el.fileName,
-                });
-                return;
-            }
+    const handler = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            profileWorker.setHrefBase(serverApi);
+            const filteredProfiles = profiles.filter(el => selectedProfiles.includes(el.fileName));
+            const readyToSend = convertToServerProfile(filteredProfiles);
+            const res = await profileWorker.sendNewProfiles(readyToSend);
 
-            newProfileDesc[index] = {
-                profileName: el.profileName,
-                cartridgeName: el.cartridgeName,
-                shortNameTop: el.shortNameTop,
-                shortNameBot: el.shortNameBot,
-                filePath: el.fileName,
-            };
-        });
+            const filter = res.filter(r => !r.ok).map(r => r.url.split('?filename=')[1]);
 
-        profileWorker
-            .sendProfilesListData({ profileDesc: newProfileDesc, activeprofile: list.activeprofile })
-            .catch(() =>
+            if (filter.length) {
+                // TODO: fix
+                const brokenResProfiles = filter.join(', ');
                 sendNotification({
-                    msg: t('error_failed_to_update_profile_list'),
+                    msg: `Profiles: ${brokenResProfiles} not be added`,
                     type: NotificationEnum.ERROR,
-                }),
-            );
-        setIsLoading(false);
-        sendSelected();
-    }, [profileWorker, profiles, selectedProfiles, sendNotification, sendSelected, t]);
+                });
+            } else {
+                sendNotification({ msg: t('default_profile_added'), type: NotificationEnum.SUCCESS });
+            }
+
+            try {
+                await handleRefreshList();
+
+                const fileList = await profileWorker.getFileList();
+                const profileList = await profileWorker.getProfilesList();
+
+                const newFiltered = filteredProfiles.filter(el => !filter.includes(el.fileName));
+
+                const newProfileList = cloneDeep(profileList);
+
+                newFiltered.forEach(el => {
+                    const index = newProfileList.profileDesc.findIndex(val => val.filePath === el.fileName);
+                    if (index === -1) {
+                        newProfileList.profileDesc.push({
+                            shortNameBot: el.shortNameBot,
+                            profileName: el.profileName,
+                            filePath: el.fileName,
+                            shortNameTop: el.shortNameTop,
+                            cartridgeName: el.cartridgeName,
+                        });
+                        return;
+                    }
+
+                    newProfileList.profileDesc[index] = {
+                        shortNameBot: el.shortNameBot,
+                        profileName: el.profileName,
+                        filePath: el.fileName,
+                        shortNameTop: el.shortNameTop,
+                        cartridgeName: el.cartridgeName,
+                    };
+                });
+
+                await profileWorker.sendProfilesListData(newProfileList);
+
+                addNewProfiles(newFiltered, fileList, newProfileList);
+            } catch {
+                sendNotification({ msg: t('error_failed_to_update_state'), type: NotificationEnum.ERROR });
+            }
+        } catch {
+            sendNotification({ msg: t('error_failed_to_add_new_profile'), type: NotificationEnum.ERROR });
+        } finally {
+            sendSelected();
+            setIsLoading(false);
+        }
+    }, [
+        addNewProfiles,
+        handleRefreshList,
+        profileWorker,
+        profiles,
+        selectedProfiles,
+        sendNotification,
+        sendSelected,
+        serverApi,
+        t,
+    ]);
 
     return {
         isLoading,

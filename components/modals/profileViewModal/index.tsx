@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { DefaultModal } from '@/components/modals/DefaultModal';
+import { DefaultModalWithBackBtn } from '@/components/modals/DefaultModal';
 import { IDraggableListItem, useModalControllerStore } from '@/store/useModalControllerStore';
 import { Profile } from '@/components/profile';
 import { useProfileStore } from '@/store/useProfileStore';
@@ -58,7 +58,7 @@ export const ProfileViewModal: React.FC = () => {
     };
     // eslint-disable-next-line consistent-return
     return (
-        <DefaultModal backButtonHandler={closeProfileViewModal} isVisible={isProfileViewModalOpen}>
+        <DefaultModalWithBackBtn backButtonHandler={closeProfileViewModal} isVisible={isProfileViewModalOpen}>
             <Profile
                 {...profile}
                 isFileNameChangeable
@@ -76,6 +76,6 @@ export const ProfileViewModal: React.FC = () => {
                 confirmHandler={deleteConfirm}
                 confirmMsg={t('profile_are_you_sure_delete')}
             />
-        </DefaultModal>
+        </DefaultModalWithBackBtn>
     );
 };

@@ -8,11 +8,18 @@ export class ProfileWorker {
 
     private hrefBase: string = '';
 
+    private serverApi: string = '';
+
     getHrefBase = () => {
         return this.hrefBase;
     };
 
+    getServerApi = () => {
+        return this.serverApi;
+    };
+
     setHrefBase = (data: string) => {
+        this.serverApi = data;
         this.hrefBase = `http://${data}:8080/`;
     };
 
@@ -193,9 +200,22 @@ export class ProfileWorker {
         const buffer = await response.arrayBuffer();
 
         const message = this.payload.decode(new Uint8Array(buffer));
+        const data = this.payload.toObject(message, { enums: String, defaults: true }).profile;
 
-        return this.payload.toObject(message, { enums: String, defaults: true }).profile;
+        return { ...data, fileName };
     };
+
+    async getAllProfiles(fileNames: string[]): Promise<ServerProfile[]> {
+        const profilePromises: Promise<ServerProfile>[] = fileNames.map(fileName => this.getProfile(fileName));
+
+        try {
+            const profiles = await Promise.all(profilePromises);
+            return profiles;
+        } catch (error) {
+            console.error('Error fetching profiles:', error);
+            throw error;
+        }
+    }
 
     deleteFileButton = async (fileName: string) => {
         await fetch(`${this.hrefBase}files?filename=${fileName}`, { method: 'DELETE' });

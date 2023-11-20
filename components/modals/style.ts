@@ -12,24 +12,32 @@ export const Container = styled.View`
 `;
 
 export const ContentContainer = styled.View`
-    margin-top: ${props => rem(props, 1.6)};
+    width: 100%;
+    height: 100%;
     padding: ${props => rem(props, 1.6)} ${props => rem(props, 0.8)};
     gap: ${props => rem(props, 1.6)};
     display: flex;
     flex-direction: column;
 `;
 
-interface GoBackButtonProps {
-    topM: number;
-}
-export const GoBackButton = styled(DefaultButton)<GoBackButtonProps>`
+export const GoBackButton = styled(DefaultButton)`
     background: ${props => props.theme.colors.l1ActiveEl};
-    width: max-content;
-    align-self: baseline;
-    margin-top: ${props => (Platform.OS === 'web' ? props.topM + props.theme.rem * 1.6 : props.topM)}px;
-    margin-left: ${props => rem(props, 0.8)};
 `;
 
 export const GoBackButtonText = styled(TextSemiBold20)`
     color: ${props => props.theme.colors.primary};
+`;
+
+interface HeaderProps {
+    topM: number;
+}
+export const HeaderModalBase = styled.View<HeaderProps>`
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-top: ${props => (Platform.OS === 'web' ? props.topM + props.theme.rem * 1.6 : props.topM)}px;
+    padding-left: ${props => rem(props, 0.8)};
+    padding-right: ${props => rem(props, 0.8)};
+    padding-bottom: ${props => rem(props, 1.6)};
 `;
