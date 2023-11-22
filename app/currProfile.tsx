@@ -27,15 +27,23 @@ const Content: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [errorMsg, setErrorMsg] = useState('');
     const [shouldRetry, setShouldRetry] = useState(false);
-    const { activeProfilesMap, activeProfile, updateProfile, setProfile, deleteProfile, profileListServerData } =
-        useActiveProfileStore(state => ({
-            activeProfilesMap: state.activeProfilesMap,
-            activeProfile: state.activeProfile,
-            setProfile: state.setProfile,
-            deleteProfile: state.deleteProfile,
-            profileListServerData: state.profileListServerData,
-            updateProfile: state.updateProfile,
-        }));
+    const {
+        chooseProfileListActiveProfile,
+        activeProfilesMap,
+        activeProfile,
+        updateProfile,
+        setProfile,
+        deleteProfile,
+        profileListServerData,
+    } = useActiveProfileStore(state => ({
+        activeProfilesMap: state.activeProfilesMap,
+        activeProfile: state.activeProfile,
+        setProfile: state.setProfile,
+        deleteProfile: state.deleteProfile,
+        profileListServerData: state.profileListServerData,
+        updateProfile: state.updateProfile,
+        chooseProfileListActiveProfile: state.chooseProfileListActiveProfile,
+    }));
 
     const { t } = useTranslation();
 
@@ -44,6 +52,27 @@ const Content: React.FC = () => {
     const { rem } = useTheme();
 
     const val = activeProfilesMap[activeProfile];
+
+    const chooseThisProfile = () => {
+        profileWorker
+            .sendProfilesListData({
+                profileDesc: profileListServerData!.profileDesc,
+                activeprofile: profileListServerData!.profileDesc.findIndex(el => el.filePath === activeProfile),
+            })
+            .then(() => {
+                chooseProfileListActiveProfile(activeProfile);
+                sendNotification({
+                    msg: t('profile_device_active_profile_changed'),
+                    type: NotificationEnum.SUCCESS,
+                });
+            })
+            .catch(() =>
+                sendNotification({
+                    msg: t('error_failed_to_update_profile_list'),
+                    type: NotificationEnum.ERROR,
+                }),
+            );
+    };
 
     const retryHandler = () => {
         setShouldRetry(true);
@@ -353,6 +382,12 @@ const Content: React.FC = () => {
             <DefaultButton onPress={exportProfileHandler}>
                 <Text20>{t('profile_export_this_to_all')}</Text20>
             </DefaultButton>
+
+            {profileListServerData!.profileDesc[profileListServerData!.activeprofile].filePath !== activeProfile && (
+                <DefaultButton onPress={chooseThisProfile}>
+                    <Text20>{t('profile_set_this_profile_as_active_on_device')}</Text20>
+                </DefaultButton>
+            )}
 
             <DeleteButtonWithConfirm
                 confirmMsg={t('profile_are_you_sure_delete')}

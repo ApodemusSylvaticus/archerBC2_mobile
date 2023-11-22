@@ -1,8 +1,9 @@
 import { create } from 'zustand/esm';
 import { ZOOM } from '@/interface/core/coreProtobuf';
 import { Nullable } from '@/interface/helper';
+import { testShotConditional } from '@/constant/testValue';
 
-interface devStatus {
+export interface DevStatus {
     charge: number;
     zoom: ZOOM;
     airTemp: number;
@@ -17,8 +18,8 @@ interface devStatus {
 }
 
 interface IUseDevStatusStore {
-    devStatus: Nullable<devStatus>;
-    setDevStatus: (data: devStatus) => void;
+    devStatus: Nullable<DevStatus>;
+    setDevStatus: (data: DevStatus) => void;
     activeProfile: Nullable<string>;
     setActiveProfile: (data: string) => void;
     setWindParam: (data: { windDir: number; pitch: number }) => void;
@@ -26,8 +27,8 @@ interface IUseDevStatusStore {
 }
 
 export const useDevStatusStore = create<IUseDevStatusStore>()(set => ({
-    devStatus: null,
-    activeProfile: null,
+    devStatus: testShotConditional.isTesting ? testShotConditional.devStatus : null,
+    activeProfile: testShotConditional.isTesting ? testShotConditional.activeProfile : null,
     setActiveProfile: data => set({ activeProfile: data }),
     setDevStatus: data => set({ devStatus: data }),
     setEnvironmentParam: data =>

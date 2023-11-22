@@ -4,8 +4,9 @@ import { Profile, ServerProfile } from '@/interface/profile';
 import { Nullable } from '@/interface/helper';
 import { Decimals } from '@/constant/decimals';
 import { IProfileListServerData } from '@/interface/core/profileProtobuf';
+import { testActiveProfile } from '@/constant/testValue';
 
-interface ActiveProfileMap {
+export interface ActiveProfileMap {
     [key: string]: Nullable<Profile>;
 }
 
@@ -22,17 +23,31 @@ interface IUseActiveProfileStore {
     setProfileListServerData: (data: IProfileListServerData) => void;
     setProfile: (fileName: string, profile: ServerProfile) => void;
     addNewProfiles: (newProfiles: Profile[], list: string[], newProfileListServerData: IProfileListServerData) => void;
-
+    chooseProfileListActiveProfile: (fileName: string) => void;
     updateProfile: (fileName: string, profile: ServerProfile) => void;
     deleteProfile: (fileName: string, newProfileListServerData: IProfileListServerData) => void;
 }
 export const useActiveProfileStore = create<IUseActiveProfileStore>()(set => ({
-    activeProfilesMap: {},
-    activeProfile: '',
-    fileList: [],
-    profileListServerData: null,
+    activeProfilesMap: testActiveProfile.activeProfilesMap,
+    activeProfile: testActiveProfile.activeProfile,
+    fileList: testActiveProfile.fileList,
+    profileListServerData: testActiveProfile.profileListServerData,
     setProfileListServerData: data => set({ profileListServerData: data }),
     setActiveProfile: fileName => set({ activeProfile: fileName }),
+
+    chooseProfileListActiveProfile: fileName =>
+        set(state => {
+            if (state.profileListServerData === null) {
+                throw new Error('profileListServerData is null');
+            }
+
+            return {
+                profileListServerData: {
+                    profileDesc: state.profileListServerData.profileDesc,
+                    activeprofile: state.profileListServerData.profileDesc.findIndex(el => el.filePath === fileName),
+                },
+            };
+        }),
     setAllFileListData: (fileList, profileListServerData) =>
         set(state => {
             const newActiveProfiles = cloneDeep(state.activeProfilesMap);

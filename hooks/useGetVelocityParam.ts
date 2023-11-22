@@ -85,19 +85,19 @@ export const useGetVelocityParam = () => {
             return;
         } */
 
-        if (activeProfilesMap['2.a7p'] !== null) {
+        if (activeProfilesMap['realp_sasd.a7p'] !== null) {
             return;
         }
         setIsProfileLoading(true);
 
         profileWorker
-            .getProfile('2.a7p')
-            .then(value => setProfile('2.a7p', value))
+            .getProfile('realp_sasd.a7p')
+            .then(value => setProfile('realp_sasd.a7p', value))
             .catch(() => setProfileErrorMsg(t('error_failed_to_get_profile_data')))
             .finally(() => setIsProfileLoading(false));
     }, [activeProfilesMap, activeProfile, profileWorker, fileList, setProfile]);
 
-    const profile = activeProfile && activeProfilesMap['2.a7p'] ? activeProfilesMap['2.a7p'] : null;
+    const profile = activeProfile && activeProfilesMap['realp_sasd.a7p'] ? activeProfilesMap['realp_sasd.a7p'] : null;
     return {
         velocityParam: profile
             ? {

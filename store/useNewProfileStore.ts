@@ -23,18 +23,18 @@ export interface INewProfile {
     fileName: Nullable<string>;
 }
 
-interface coef {
+interface Coeff {
     single: number;
     multi: { bcCd: number; mv: number }[];
 }
 
-export interface jija {
+export interface BulletFromDB {
     name: string;
     bDiameter: number;
     bWeight: number;
     bLength: number;
-    coefG1: coef;
-    coefG7: coef;
+    coefG1: Coeff;
+    coefG7: Coeff;
 }
 
 interface IUseNewProfileStore extends INewProfile {
@@ -50,7 +50,7 @@ interface IUseNewProfileStore extends INewProfile {
     reset: () => void;
     setFileName: (data: string) => void;
 
-    selectBulletFromList: (data: jija) => void;
+    selectBulletFromList: (data: BulletFromDB) => void;
     selectCaliberFromList: (data: { name: string; bDiameter: number }) => void;
 }
 

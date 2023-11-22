@@ -62,6 +62,8 @@
       "uint_hpa": "hPa",
       "uint_meter": "m",
       "uint_click": "click",
+      "profile_set_this_profile_as_active_on_device": "Choose on device",
+      "profile_device_active_profile_changed": "Active profile on device changed",
       "profile_export_this_to_all": "Add this profile to all profiles list",
       "profile_delete_profile": "Delete profile",
       "profile_file_name": "File name",
@@ -150,7 +152,9 @@
       "error_sc_connection_failed": "Failed to retrieve shooting parameters",
       "error_get_reticles_data": "Failed to get reticles data",
       "error_notification_not_available": "Notification is not available",
-      "error_failed_to_update_profile_list": "Failed to update profile list"
+      "error_failed_to_update_profile_list": "Failed to update profile list",
+      "error_failed_to_add_new_profile": "Failed to add new profiles",
+      "error_failed_to_update_state": "Failed to update active profile list."
     }
   },
   "ua": {
@@ -165,6 +169,7 @@
       "default_go_back": "Повернутись",
       "default_input_required": "Обов'язково",
       "default_more_info": "Більше інформації",
+      "default_selected": "Обраний",
       "default_select": "Вибрати",
       "default_deselect": "Зняти вибір",
       "default_edit": "Редагувати",
@@ -215,6 +220,8 @@
       "uint_hpa": "hPa",
       "uint_meter": "m",
       "uint_click": "click",
+      "profile_set_this_profile_as_active_on_device": "Вибрати на приборі",
+      "profile_device_active_profile_changed": "Активний профіль на пристрої змінено",
       "profile_export_this_to_all": "Додати профіль до списку всіх профілів",
       "profile_delete_profile": "Видалити профіль",
       "profile_file_name": "Назва файлу",
@@ -303,7 +310,9 @@
       "error_sc_connection_failed": "Не вдалося отримати параметри стрільби",
       "error_get_reticles_data": "Не вдалося отримати дані прицілів",
       "error_notification_not_available": "Сповіщення недоступні",
-      "error_failed_to_update_profile_list": "Не вдалося оновити список профілів"
+      "error_failed_to_update_profile_list": "Не вдалося оновити список профілів",
+      "error_failed_to_add_new_profile": "Не вдалося додати нові профілі",
+      "error_failed_to_update_state": "Не вдалося оновити список активних профілів."
     }
   },
   "ua-RTL": {
@@ -318,6 +327,7 @@
       "default_go_back": "Повернутись",
       "default_input_required": "Обов'язково",
       "default_more_info": "Більше інформації",
+      "default_selected": "Обраний",
       "default_select": "Вибрати",
       "default_deselect": "Зняти вибір",
       "default_edit": "Редагувати",
@@ -368,6 +378,8 @@
       "uint_hpa": "hPa",
       "uint_meter": "m",
       "uint_click": "click",
+      "profile_set_this_profile_as_active_on_device": "Вибрати на приборі",
+      "profile_device_active_profile_changed": "Активний профіль на пристрої змінено",
       "profile_export_this_to_all": "Додати профіль до списку всіх профілів",
       "profile_delete_profile": "Видалити профіль",
       "profile_file_name": "Назва файлу",
@@ -456,7 +468,9 @@
       "error_sc_connection_failed": "Не вдалося отримати параметри стрільби",
       "error_get_reticles_data": "Не вдалося отримати дані прицілів",
       "error_notification_not_available": "Сповіщення недоступні",
-      "error_failed_to_update_profile_list": "Не вдалося оновити список профілів"
+      "error_failed_to_update_profile_list": "Не вдалося оновити список профілів",
+      "error_failed_to_add_new_profile": "Не вдалося додати нові профілі",
+      "error_failed_to_update_state": "Не вдалося оновити список активних профілів."
     }
   },
   "languageSimbolArray": [

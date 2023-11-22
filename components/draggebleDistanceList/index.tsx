@@ -3,10 +3,9 @@ import DraggableFlatList from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTheme } from 'styled-components/native';
 import { useTranslation } from 'react-i18next';
-import { DistanceContainer } from '@/components/draggebleDistanceList/style';
+import { Container, DistanceContainer } from '@/components/draggebleDistanceList/style';
 import { Text20 } from '@/components/text/styled';
 import { IDraggableListItem, useModalControllerStore } from '@/store/useModalControllerStore';
-import { ContentContainer } from '@/components/modals/style';
 import { InputWrapper } from '@/components/modals/draggebleDistanceList/style';
 import { NumericInput } from '@/components/Inputs/numericInput';
 import { TrashSVG } from '@/components/svg/trash';
@@ -87,7 +86,7 @@ export const DraggableDistanceList: React.FC = () => {
     }, []);
 
     return (
-        <ContentContainer style={{ flex: 1, height: '100%' }}>
+        <Container>
             <InputWrapper>
                 <NumericInput
                     value={newDistantValue}
@@ -115,6 +114,6 @@ export const DraggableDistanceList: React.FC = () => {
             <AcceptButton onPress={saveChangesButton}>
                 <Text20>{t('default_save_changes')}</Text20>
             </AcceptButton>
-        </ContentContainer>
+        </Container>
     );
 };

@@ -36,7 +36,11 @@ export const HeaderModalBase = styled.View<HeaderProps>`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding-top: ${props => (Platform.OS === 'web' ? props.topM + props.theme.rem * 1.6 : props.topM)}px;
+
+    // padding-top: ${props => (Platform.OS === 'web' ? props.topM + props.theme.rem * 1.6 : props.topM)}px;
+
+    padding-top: ${props => (Platform.OS === 'android' ? props.topM / 2 : props.topM)}px;
+
     padding-left: ${props => rem(props, 0.8)};
     padding-right: ${props => rem(props, 0.8)};
     padding-bottom: ${props => rem(props, 1.6)};

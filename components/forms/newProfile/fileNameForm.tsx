@@ -12,6 +12,13 @@ import { ArrowSVG } from '@/components/svg/arrow';
 import { isAllTouched } from '@/helpers/isAllTached';
 import { useProfileStore } from '@/store/useProfileStore';
 
+function removeLastUnderscore(str: string) {
+    if (str.endsWith('_')) {
+        // eslint-disable-next-line no-param-reassign
+        str = str.slice(0, -1);
+    }
+    return str;
+}
 export const FileNameForm: React.FC<IForm> = ({ goForward, goBack }) => {
     const { fileNameFormSchema } = useValidationSchema();
     const { fileName, setFileName, description } = useNewProfileStore(state => ({
@@ -29,17 +36,20 @@ export const FileNameForm: React.FC<IForm> = ({ goForward, goBack }) => {
     }, [profiles]);
 
     const initialValue = useMemo(() => {
-        const formatedCartridgeName = description.cartridge
-            .trim()
-            .toLowerCase()
-            .replace(/[^a-z0-9]/g, '_')
-            .slice(0, 8);
-
-        const formatedBulletName = description.bullet
-            .trim()
-            .toLowerCase()
-            .replace(/[^a-z0-9]/g, '_')
-            .slice(0, 8);
+        const formatedCartridgeName = removeLastUnderscore(
+            description.cartridge
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9]/g, '_')
+                .slice(0, 8),
+        );
+        const formatedBulletName = removeLastUnderscore(
+            description.bullet
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9]/g, '_')
+                .slice(0, 8),
+        );
         let str = `${formatedCartridgeName}_${formatedBulletName}`;
         while (profileFileNameList.includes(`${str}.a7p`)) {
             str += '1';
