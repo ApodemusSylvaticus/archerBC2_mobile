@@ -5,6 +5,7 @@ import { useActiveProfileStore } from '@/store/useActiveProfileStore';
 import { CoreProtobuf } from '@/core/coreProtobuf';
 import { useSettingStore } from '@/store/useSettingStore';
 import { ProfileWorker } from '@/core/profileWorker';
+import { useCheckWiFiStatus } from '@/hooks/useCheckWiFiStatus';
 
 export const useA = () => {
     const serverApi = useSettingStore(state => state.serverHost);
@@ -12,6 +13,7 @@ export const useA = () => {
         setAllFileListData: state.setAllFileListData,
         hardResetAllFileList: state.hardResetAllFileList,
     }));
+    const checkWiFi = useCheckWiFiStatus();
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const { t } = useTranslation();
@@ -20,6 +22,11 @@ export const useA = () => {
     const profileWorker = useMemo(() => new ProfileWorker(), []);
 
     const helper = useCallback(async (dataServerApi: string, hardReset: boolean) => {
+        if (!checkWiFi()) {
+            setErrorMsg(t('error_failed_to_get_profile_data'));
+            return;
+        }
+
         setIsLoading(true);
         setErrorMsg('');
         profileWorker.setHrefBase(dataServerApi);
@@ -80,24 +87,20 @@ export const useGetVelocityParam = () => {
         if (activeProfile === null) {
             return;
         }
-        /*    if (!fileList.includes(activeProfile)) {
-            // Here errro
-            return;
-        } */
 
-        if (activeProfilesMap['realp_sasd.a7p'] !== null) {
+        if (activeProfilesMap[activeProfile] !== null) {
             return;
         }
         setIsProfileLoading(true);
 
         profileWorker
-            .getProfile('realp_sasd.a7p')
-            .then(value => setProfile('realp_sasd.a7p', value))
+            .getProfile(activeProfile)
+            .then(value => setProfile(activeProfile, value))
             .catch(() => setProfileErrorMsg(t('error_failed_to_get_profile_data')))
             .finally(() => setIsProfileLoading(false));
     }, [activeProfilesMap, activeProfile, profileWorker, fileList, setProfile]);
 
-    const profile = activeProfile && activeProfilesMap['realp_sasd.a7p'] ? activeProfilesMap['realp_sasd.a7p'] : null;
+    const profile = activeProfile && activeProfilesMap[activeProfile] ? activeProfilesMap[activeProfile] : null;
     return {
         velocityParam: profile
             ? {

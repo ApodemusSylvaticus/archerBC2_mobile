@@ -16,6 +16,9 @@ import { useSettingStore } from '@/store/useSettingStore';
 import { languageArray } from '@/i18n';
 import { ProfileWorker } from '@/core/profileWorker';
 import { ErrorBoundary } from '@/components/errorBoundary';
+// eslint-disable-next-line import/no-extraneous-dependencies,import/order
+import NetInfo from '@react-native-community/netinfo';
+import { ReticlesCore } from '@/core/reticlesCore';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -26,12 +29,22 @@ export default function RootLayout() {
         profileWorker.loadProto();
     }, []);
 
-    const { getDataFromStorage, theme, size, language } = useSettingStore(state => ({
+    const { getDataFromStorage, theme, size, language, setIsWiFiConnected, serverHost } = useSettingStore(state => ({
         getDataFromStorage: state.getDataFromStorage,
         theme: state.theme,
         size: state.size,
         language: state.language,
+        setIsWiFiConnected: state.setIsWiFiConnected,
+        serverHost: state.serverHost,
     }));
+
+    useEffect(() => {
+        // Initialization
+        const reticleCore = new ReticlesCore();
+        reticleCore.setHrefBase(serverHost);
+        const profileWorker = new ProfileWorker();
+        profileWorker.setHrefBase(serverHost);
+    }, []);
 
     const { i18n } = useTranslation();
     const getProfileFromStore = useProfileStore(state => state.getProfileFromStore);
@@ -47,6 +60,13 @@ export default function RootLayout() {
     useEffect(() => {
         getProfileFromStore().catch(console.log);
     }, [getProfileFromStore]);
+
+    useEffect(() => {
+        const unsubscribe = NetInfo.addEventListener(state => {
+            setIsWiFiConnected(state.type === 'wifi');
+        });
+        return unsubscribe;
+    }, []);
 
     // Expo Router uses Error Boundaries to catch errors in the navigation tree.
     useEffect(() => {

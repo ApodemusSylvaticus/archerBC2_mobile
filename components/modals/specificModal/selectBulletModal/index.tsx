@@ -9,6 +9,7 @@ import {
     BackButton,
     Container,
     ItemContainer,
+    NotFoundText,
     RiffleName,
 } from '@/components/modals/specificModal/selectBulletModal/style';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
@@ -112,6 +113,10 @@ export const SelectBulletModal: React.FC<SelectBulletModalProps> = ({ closeHandl
                         onBlur={() => undefined}
                     />
                 </DefaultRow>
+
+                {filteredData.length === 0 && (
+                    <NotFoundText>{t('profile_nothing_founded_bullet', { bDiameter })}</NotFoundText>
+                )}
 
                 <FlatList
                     data={filteredData}

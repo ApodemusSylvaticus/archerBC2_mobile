@@ -15,6 +15,7 @@ import { useReticlesStore } from '@/store/useReticlesStore';
 import { convertFromFileNameToString } from '@/helpers/reticles';
 import { ErrorText } from '@/components/modals/createNewReticleFolder/style';
 import { ReticlesCore } from '@/core/reticlesCore';
+import { useCheckWiFiStatus } from '@/hooks/useCheckWiFiStatus';
 
 export const CreateNewReticleFolderModal: React.FC<DefaultModalWithBackBtnProps> = ({
     backButtonHandler,
@@ -27,6 +28,8 @@ export const CreateNewReticleFolderModal: React.FC<DefaultModalWithBackBtnProps>
         folderName: '',
         list: [],
     });
+
+    const checkWifi = useCheckWiFiStatus();
 
     const reticlesCore = useMemo(() => new ReticlesCore(), []);
 
@@ -81,6 +84,9 @@ export const CreateNewReticleFolderModal: React.FC<DefaultModalWithBackBtnProps>
     };
 
     const sendImageToServer = () => {
+        if (!checkWifi()) {
+            return;
+        }
         reticlesCore
             .sendFolderToServer(state.folderName, state.list)
             .then(() => {

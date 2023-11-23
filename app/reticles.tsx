@@ -12,6 +12,7 @@ import { useSettingStore } from '@/store/useSettingStore';
 import { RetryWithErrorMsg } from '@/components/retry';
 import { Container } from '@/components/reticles/style';
 import { ReticlesCore } from '@/core/reticlesCore';
+import { useCheckWiFiStatus } from '@/hooks/useCheckWiFiStatus';
 
 export const Reticles: React.FC = () => {
     const openReticlesListModal = useModalControllerStore(state => state.openReticlesListModal);
@@ -22,13 +23,17 @@ export const Reticles: React.FC = () => {
     const [shouldRetry, setShouldRetry] = useState(false);
     const [isNewFolderOpen, setIsNewFolderOpen] = useState(false);
     const reticleCore = useMemo(() => new ReticlesCore(), []);
-
+    const checkWifi = useCheckWiFiStatus();
     const { setDbData, reticles } = useReticlesStore(state => ({
         setDbData: state.setDbData,
         reticles: state.reticles,
     }));
 
     const fetchData = useCallback(async () => {
+        if (!checkWifi()) {
+            setErrorMsg(t('error_get_reticles_data'));
+            return;
+        }
         setIsLoading(true);
         setErrorMsg('');
 

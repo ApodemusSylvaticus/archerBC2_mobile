@@ -1,6 +1,6 @@
 import styled from 'styled-components/native';
 import { rem } from '@/helpers/rem';
-import { Text20 } from '@/components/text/styled';
+import { Text20, TextSemiBold20 } from '@/components/text/styled';
 import { DefaultButton } from '@/components/button/style';
 
 export const Container = styled.View`
@@ -27,4 +27,8 @@ export const ItemContainer = styled.View`
     gap: ${props => rem(props, 1.6)};
     border-radius: 16px;
     margin-top: 8px;
+`;
+
+export const NotFoundText = styled(TextSemiBold20)`
+    margin-top: ${props => rem(props, 1.6)};
 `;

@@ -13,6 +13,8 @@ interface IUseSettingStore {
     theme: ITheme;
     serverHost: string;
     setServerHost: (serverHost: string) => void;
+    isWiFiConnected: boolean;
+    setIsWiFiConnected: (data: boolean) => void;
 
     getDataFromStorage: () => Promise<void>;
 }
@@ -20,6 +22,8 @@ interface IUseSettingStore {
 export const useSettingStore = create<IUseSettingStore>()(set => ({
     language: languageSimbolArray[0],
     serverHost: `localhost`,
+    isWiFiConnected: false,
+    setIsWiFiConnected: isWiFiConnected => set({ isWiFiConnected }),
     setLanguage: language =>
         set(() => {
             AsyncStorage.setItem(AsyncStore.language, JSON.stringify(language)).catch(console.log);

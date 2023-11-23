@@ -13,6 +13,7 @@ import { Text20 } from '@/components/text/styled';
 import { CreateNewReticleFileModal } from '@/components/modals/fullSizeImgViewModal/createNewReticleFile';
 import { AreYouSureModal } from '@/components/modals/specificModal/alertModal/areYouSure';
 import { ReticlesCore } from '@/core/reticlesCore';
+import { useCheckWiFiStatus } from '@/hooks/useCheckWiFiStatus';
 
 export const ReticlesListModal: React.FC = () => {
     const { t } = useTranslation();
@@ -20,6 +21,7 @@ export const ReticlesListModal: React.FC = () => {
         close: state.closeReticlesListModal,
         reticlesFolderName: state.reticlesFolderName,
     }));
+    const checkWifi = useCheckWiFiStatus();
     const [isCreateNewFileOpen, setIsCreateNewFileOpen] = useState(false);
     const sendNotification = useNotificationStore(state => state.sendNotification);
     const [areUreUSureDeleteFolder, setAreUSureDeleteFolder] = useState(false);
@@ -49,6 +51,9 @@ export const ReticlesListModal: React.FC = () => {
     };
 
     const saveAction = (data: IReticle) => {
+        if (!checkWifi()) {
+            return;
+        }
         reticlesCore
             .replaceReticleFile(reticlesFolderName, fullSizeState, data)
             .then(() => {
@@ -71,6 +76,9 @@ export const ReticlesListModal: React.FC = () => {
     };
 
     const deleteAction = () => {
+        if (!checkWifi()) {
+            return;
+        }
         reticlesCore
             .deleteReticle(reticlesFolderName, fullSizeState.fileName)
             .then(() => {
@@ -93,6 +101,9 @@ export const ReticlesListModal: React.FC = () => {
     };
 
     const saveActionCNRF = (data: IReticle) => {
+        if (!checkWifi()) {
+            return;
+        }
         reticlesCore
             .sendFolderToServer(reticlesFolderName, [{ fileName: data.fileName, base64Str: data.base64Str }])
             .then(() => {
@@ -111,6 +122,9 @@ export const ReticlesListModal: React.FC = () => {
     };
 
     const deleteFolderHandler = () => {
+        if (!checkWifi()) {
+            return;
+        }
         reticlesCore
             .deleteReticleFolder(reticlesFolderName)
             .then(() => {

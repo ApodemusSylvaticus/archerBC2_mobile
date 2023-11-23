@@ -20,6 +20,7 @@ import { DeleteButtonWithConfirm } from '@/components/button/deleteButtonWithCon
 import { RetryWithErrorMsg } from '@/components/retry';
 import { IProfileListServerData } from '@/interface/core/profileProtobuf';
 import { FixProfileCollision } from '@/components/fixProfileCollision';
+import { useCheckWiFiStatus } from '@/hooks/useCheckWiFiStatus';
 
 const Content: React.FC = () => {
     const sendNotification = useNotificationStore(state => state.sendNotification);
@@ -44,6 +45,7 @@ const Content: React.FC = () => {
         updateProfile: state.updateProfile,
         chooseProfileListActiveProfile: state.chooseProfileListActiveProfile,
     }));
+    const checkWifi = useCheckWiFiStatus();
 
     const { t } = useTranslation();
 
@@ -54,6 +56,9 @@ const Content: React.FC = () => {
     const val = activeProfilesMap[activeProfile];
 
     const chooseThisProfile = () => {
+        if (!checkWifi()) {
+            return;
+        }
         profileWorker
             .sendProfilesListData({
                 profileDesc: profileListServerData!.profileDesc,
@@ -77,6 +82,7 @@ const Content: React.FC = () => {
     const retryHandler = () => {
         setShouldRetry(true);
     };
+
     const handleRefreshList = useCallback(async () => {
         await profileWorker
             .serveRefreshList()
@@ -95,6 +101,11 @@ const Content: React.FC = () => {
             return;
         }
 
+        if (!checkWifi()) {
+            setErrorMsg(t('error_failed_to_get_profile_data'));
+            return;
+        }
+
         setIsLoading(true);
         setErrorMsg('');
         profileWorker
@@ -106,6 +117,11 @@ const Content: React.FC = () => {
 
     useEffect(() => {
         if (!shouldRetry) {
+            return;
+        }
+
+        if (!checkWifi()) {
+            setErrorMsg(t('error_failed_to_get_profile_data'));
             return;
         }
         setShouldRetry(false);
@@ -126,6 +142,10 @@ const Content: React.FC = () => {
             | WithFileName<IRiffle>
             | WithFileName<IDescription>,
     ) => {
+        if (!checkWifi()) {
+            return;
+        }
+
         const {
             switches,
             profileName,
@@ -228,7 +248,7 @@ const Content: React.FC = () => {
                         );
                 }
             } else {
-                sendNotification({ type: NotificationEnum.SUCCESS, msg: t('error_failed_to_update_profile_data') });
+                sendNotification({ type: NotificationEnum.ERROR, msg: t('error_failed_to_update_profile_data') });
             }
         });
     };
@@ -241,6 +261,9 @@ const Content: React.FC = () => {
     };
 
     const handleAcceptDeleting = useCallback(async () => {
+        if (!checkWifi()) {
+            return;
+        }
         try {
             await profileWorker.deleteFileButton(activeProfile);
             await handleRefreshList();
@@ -268,6 +291,10 @@ const Content: React.FC = () => {
     }, [activeProfile, deleteProfile, handleRefreshList, profileListServerData, profileWorker, sendNotification, t]);
 
     const handleChangeDistances = (data: IDraggableListItem[]) => {
+        if (!checkWifi()) {
+            return;
+        }
+
         const list: number[] = [];
         let zeroIdx: number = 0;
         data.forEach((el, index) => {
