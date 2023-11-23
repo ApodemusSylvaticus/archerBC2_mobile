@@ -1,7 +1,7 @@
 import { useTheme } from 'styled-components/native';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DefaultModal, DefaultModalProps } from '@/components/modals/DefaultModal';
+import { DefaultModalWithBackBtn, DefaultModalWithBackBtnProps } from '@/components/modals/DefaultModal';
 import { DefaultInput } from '@/components/Inputs/defaultInput';
 import { DefaultRow } from '@/components/container/defaultBox';
 import { AcceptButton, DefaultButton } from '@/components/button/style';
@@ -12,12 +12,14 @@ import { FILE_NAMES, IReticle } from '@/interface/reticles';
 import { CreateNewReticleFileModal } from '@/components/modals/fullSizeImgViewModal/createNewReticleFile';
 import { NotificationEnum, useNotificationStore } from '@/store/useNotificationStore';
 import { useReticlesStore } from '@/store/useReticlesStore';
-import { convertFromFileNameToString, convertToDB } from '@/helpers/reticles';
+import { convertFromFileNameToString } from '@/helpers/reticles';
 import { ErrorText } from '@/components/modals/createNewReticleFolder/style';
-import { useSettingStore } from '@/store/useSettingStore';
+import { ReticlesCore } from '@/core/reticlesCore';
 
-export const CreateNewReticleFolderModal: React.FC<DefaultModalProps> = ({ backButtonHandler, isVisible }) => {
-    const serverApi = useSettingStore(state => state.serverHost);
+export const CreateNewReticleFolderModal: React.FC<DefaultModalWithBackBtnProps> = ({
+    backButtonHandler,
+    isVisible,
+}) => {
     const { t } = useTranslation();
     const { colors } = useTheme();
     const [isNewFileOpen, setIsNewFileOpen] = useState(false);
@@ -25,6 +27,8 @@ export const CreateNewReticleFolderModal: React.FC<DefaultModalProps> = ({ backB
         folderName: '',
         list: [],
     });
+
+    const reticlesCore = useMemo(() => new ReticlesCore(), []);
 
     const { addNewFolder, existReticles } = useReticlesStore(retStore => ({
         addNewFolder: retStore.addNewFolder,
@@ -77,15 +81,8 @@ export const CreateNewReticleFolderModal: React.FC<DefaultModalProps> = ({ backB
     };
 
     const sendImageToServer = () => {
-        const newReticles = state.list.map(el => ({ fileName: convertToDB(el.fileName), base64Str: el.base64Str }));
-        fetch(`http://${serverApi}:8080/uploadReticleImages?folderName=${state.folderName}`, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newReticles),
-        })
+        reticlesCore
+            .sendFolderToServer(state.folderName, state.list)
             .then(() => {
                 sendNotification({ type: NotificationEnum.SUCCESS, msg: t('reticles_folder_created') });
                 addNewFolder({ newReticles: state.list, folderName: state.folderName });
@@ -145,7 +142,7 @@ export const CreateNewReticleFolderModal: React.FC<DefaultModalProps> = ({ backB
 
     const isDisabled = fileNameError.length !== 0 || state.list.length === 0 || state.folderName === '';
     return (
-        <DefaultModal isVisible={isVisible} backButtonHandler={handleBackButtonHandler}>
+        <DefaultModalWithBackBtn isVisible={isVisible} backButtonHandler={handleBackButtonHandler}>
             <DefaultRow>
                 <DefaultInput
                     value={state.folderName}
@@ -195,6 +192,6 @@ export const CreateNewReticleFolderModal: React.FC<DefaultModalProps> = ({ backB
                 selectedList={state.list.map(el => el.fileName)}
                 backButtonHandler={closeModalNewFile}
             />
-        </DefaultModal>
+        </DefaultModalWithBackBtn>
     );
 };

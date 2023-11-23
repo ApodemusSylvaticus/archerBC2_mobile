@@ -10,7 +10,7 @@ import {
     DisabledText,
 } from '@/components/modals/chooseActiveProfileModal/style';
 import { TextSemiBold18, TextSemiBold20 } from '@/components/text/styled';
-import { DefaultModal } from '@/components/modals/DefaultModal';
+import { DefaultModalWithBackBtn } from '@/components/modals/DefaultModal';
 import { useModalControllerStore } from '@/store/useModalControllerStore';
 import { SeparateRow } from '@/components/container/defaultBox';
 import { IProfileCardData } from '@/interface/core/profileProtobuf';
@@ -81,7 +81,7 @@ export const ChooseActiveProfileModal: React.FC = () => {
     const [localState, setLocalState] = useState(profileListServerData);
 
     useEffect(() => {
-        if (profileListServerData === null || localState !== null) {
+        if (profileListServerData === null) {
             return;
         }
         setLocalState(profileListServerData);
@@ -112,7 +112,9 @@ export const ChooseActiveProfileModal: React.FC = () => {
     );
 
     return (
-        <DefaultModal backButtonHandler={closeChooseActiveProfileModal} isVisible={isChooseActiveProfileOpen}>
+        <DefaultModalWithBackBtn
+            backButtonHandler={closeChooseActiveProfileModal}
+            isVisible={isChooseActiveProfileOpen}>
             {localState !== null && (
                 <GestureHandlerRootView style={{ flex: 2, overflowY: 'scroll' }}>
                     <DraggableFlatList
@@ -130,6 +132,6 @@ export const ChooseActiveProfileModal: React.FC = () => {
                     />
                 </GestureHandlerRootView>
             )}
-        </DefaultModal>
+        </DefaultModalWithBackBtn>
     );
 };

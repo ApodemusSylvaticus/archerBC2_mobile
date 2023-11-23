@@ -1,21 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModalControllerStore } from '@/store/useModalControllerStore';
-import { DefaultModal } from '@/components/modals/DefaultModal';
+import { DefaultModalWithBackBtn } from '@/components/modals/DefaultModal';
 import { ReticleTab } from '../../reticles/reticleTab';
 import { FullSizeImgViewModal } from '../fullSizeImgViewModal';
 import { useReticlesStore } from '@/store/useReticlesStore';
 import { FILE_NAMES, IReticle } from '@/interface/reticles';
-import { convertFromFileNameToString, convertToDB } from '@/helpers/reticles';
+import { convertFromFileNameToString } from '@/helpers/reticles';
 import { NotificationEnum, useNotificationStore } from '@/store/useNotificationStore';
 import { DefaultButton, DeleteButton } from '@/components/button/style';
 import { Text20 } from '@/components/text/styled';
 import { CreateNewReticleFileModal } from '@/components/modals/fullSizeImgViewModal/createNewReticleFile';
 import { AreYouSureModal } from '@/components/modals/specificModal/alertModal/areYouSure';
-import { useSettingStore } from '@/store/useSettingStore';
+import { ReticlesCore } from '@/core/reticlesCore';
 
 export const ReticlesListModal: React.FC = () => {
-    const serverApi = useSettingStore(state => state.serverHost);
     const { t } = useTranslation();
     const { close, reticlesFolderName } = useModalControllerStore(state => ({
         close: state.closeReticlesListModal,
@@ -33,6 +32,8 @@ export const ReticlesListModal: React.FC = () => {
         deleteFolder: state.deleteFolder,
     }));
 
+    const reticlesCore = useMemo(() => new ReticlesCore(), []);
+
     const [fullSizeState, setFullSizeState] = useState({
         isVisible: false,
         base64Str: '',
@@ -48,15 +49,8 @@ export const ReticlesListModal: React.FC = () => {
     };
 
     const saveAction = (data: IReticle) => {
-        fetch(`http://${serverApi}:8080/replaceFile?folderName=${reticlesFolderName}`, {
-            method: 'POST',
-            body: JSON.stringify({
-                originalFileName: convertToDB(fullSizeState.fileName),
-                originalBase64Str: fullSizeState.base64Str,
-                newFileName: convertToDB(data.fileName),
-                newBase64Str: data.base64Str,
-            }),
-        })
+        reticlesCore
+            .replaceReticleFile(reticlesFolderName, fullSizeState, data)
             .then(() => {
                 changeFile({
                     prevState: { fileName: fullSizeState.fileName, base64Str: fullSizeState.base64Str },
@@ -77,10 +71,8 @@ export const ReticlesListModal: React.FC = () => {
     };
 
     const deleteAction = () => {
-        fetch(`http://${serverApi}:8080/deleteReticle?folderName=${reticlesFolderName}`, {
-            method: 'POST',
-            body: JSON.stringify([convertToDB(fullSizeState.fileName)]),
-        })
+        reticlesCore
+            .deleteReticle(reticlesFolderName, fullSizeState.fileName)
             .then(() => {
                 deleteFile({ folderName: reticlesFolderName, fileName: fullSizeState.fileName });
                 sendNotification({ type: NotificationEnum.SUCCESS, msg: t('default_file_deleted') });
@@ -101,15 +93,8 @@ export const ReticlesListModal: React.FC = () => {
     };
 
     const saveActionCNRF = (data: IReticle) => {
-        fetch(`http://${serverApi}:8080/uploadReticleImages?folderName=${reticlesFolderName}`, {
-            method: 'POST',
-            body: JSON.stringify([
-                {
-                    fileName: convertToDB(data.fileName),
-                    base64Str: data.base64Str,
-                },
-            ]),
-        })
+        reticlesCore
+            .sendFolderToServer(reticlesFolderName, [{ fileName: data.fileName, base64Str: data.base64Str }])
             .then(() => {
                 addNewFile({ folderName: reticlesFolderName, reticle: data });
                 sendNotification({ type: NotificationEnum.SUCCESS, msg: t('default_file_added') });
@@ -126,9 +111,8 @@ export const ReticlesListModal: React.FC = () => {
     };
 
     const deleteFolderHandler = () => {
-        fetch(`http://${serverApi}:8080/deleteReticleFolder?folderName=${reticlesFolderName}`, {
-            method: 'DELETE',
-        })
+        reticlesCore
+            .deleteReticleFolder(reticlesFolderName)
             .then(() => {
                 close();
                 deleteFolder(reticlesFolderName);
@@ -155,7 +139,7 @@ export const ReticlesListModal: React.FC = () => {
 
     // eslint-disable-next-line consistent-return
     return (
-        <DefaultModal backButtonHandler={close} isVisible>
+        <DefaultModalWithBackBtn backButtonHandler={close} isVisible>
             {reticles.folders[reticlesFolderName].map(el => (
                 <ReticleTab
                     name={convertFromFileNameToString(el.fileName)}
@@ -197,6 +181,6 @@ export const ReticlesListModal: React.FC = () => {
                 isVisible={fullSizeState.isVisible}
                 backButtonHandler={backButtonHandler}
             />
-        </DefaultModal>
+        </DefaultModalWithBackBtn>
     );
 };

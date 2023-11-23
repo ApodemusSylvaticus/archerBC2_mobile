@@ -5,7 +5,7 @@ import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withTi
 import Svg, { Path } from 'react-native-svg';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Button, Container, Row } from '@/components/envParamCard/style';
+import { Button, Container, Row, VelocityTextWrapper, WrapRow } from '@/components/envParamCard/style';
 import { TemperatureSVG } from '@/components/svg/temperature';
 import { NumericInput } from '@/components/Inputs/numericInput';
 import { HumiditySVG } from '@/components/svg/humidity';
@@ -19,10 +19,12 @@ import { WindSVG } from '@/components/svg/wind';
 import { WindDirectionStarSVG } from '@/components/svg/windDirectionStar';
 import { ChainBrokenChainSVG, ChainSVG } from '@/components/svg/chain';
 import { useGetVelocityParam } from '@/hooks/useGetVelocityParam';
-import { Text20 } from '@/components/text/styled';
+import { Text20, TextSemiBold20 } from '@/components/text/styled';
 import { velocityFormula } from '@/helpers/velocityFormula';
 import { Loader } from '@/components/loader';
 import { degreesFromNumber } from '@/helpers/fromNumberToDeg';
+import { BulletSpeedSVG } from '@/components/svg/bulletSpeed';
+import { UintText } from '@/components/Inputs/style';
 
 export const WindParamColumn: React.FC = () => {
     const { setWindParam, devStatus } = useDevStatusStore(state => ({
@@ -57,15 +59,19 @@ export const WindParamColumn: React.FC = () => {
         return false;
     };
 
-    const animatedStyle = useAnimatedStyle(() => ({
-        transform: [{ rotate: `${interpolate(degreesFromNumber(rotationParam.value), [0, 360], [0, 360])}deg` }],
-        position: 'absolute',
-        top: 0,
-        left: 0,
-    }));
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ rotate: `${interpolate(rotationParam.value, [0, 360], [0, 360])}deg` }],
+            position: 'absolute',
+            top: 0,
+            left: 0,
+        };
+    });
 
     const rotateBlock = (value: number) => {
-        rotationParam.value = withTiming(degreesFromNumber(value), {
+        const realValue = degreesFromNumber(value);
+
+        rotationParam.value = withTiming(realValue, {
             duration: 200,
             easing: Easing.linear,
         });
@@ -313,24 +319,27 @@ export const EnvironmentParam: React.FC = () => {
 
                     {isLoading && <Loader size={rem * 2.4} />}
                     {!!errorMsg && (
-                        <Row>
+                        <WrapRow>
                             <Text20>{t('error_failed_calc_mv')}</Text20>
 
                             <Text20>{errorMsg}</Text20>
-                        </Row>
+                        </WrapRow>
                     )}
                     {!!velocityParam && (
                         <Row>
-                            <Text20>{t('profile_muzzle_velocity')}</Text20>
-                            <Text20>
-                                {velocityFormula({
-                                    cMuzzleVelocity: velocityParam.cMuzzleVelocity,
-                                    powderTemperature: +values.powderTemperature,
-                                    cZeroTemperature: velocityParam.cZeroTemperature,
-                                    cTCoeff: velocityParam.cTCoeff,
-                                })}
-                            </Text20>
-                            <Text20>{t('uint_m_dash_s')}</Text20>
+                            <BulletSpeedSVG width={rem * 3.5} height={rem * 3.5} fillColor={colors.primary} />
+                            <VelocityTextWrapper>
+                                <Text20>{t('profile_muzzle_velocity')}</Text20>
+                                <TextSemiBold20>
+                                    {velocityFormula({
+                                        cMuzzleVelocity: velocityParam.cMuzzleVelocity,
+                                        powderTemperature: +values.powderTemperature,
+                                        cZeroTemperature: velocityParam.cZeroTemperature,
+                                        cTCoeff: velocityParam.cTCoeff,
+                                    })}
+                                </TextSemiBold20>
+                                <UintText>{t('uint_m_dash_s')}</UintText>
+                            </VelocityTextWrapper>
                         </Row>
                     )}
 

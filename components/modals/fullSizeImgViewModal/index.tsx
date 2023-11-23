@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Modal } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { GestureHandlerRootView, PinchGestureHandler } from 'react-native-gesture-handler';
 import Animated, {
@@ -10,16 +9,14 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from 'styled-components/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { DefaultModalProps } from '@/components/modals/DefaultModal';
-import { GoBackButtonText } from '@/components/modals/style';
+import { DefaultModal, DefaultModalWithBackBtnProps, ModalHeader } from '@/components/modals/DefaultModal';
+import { ContentContainer, GoBackButtonText } from '@/components/modals/style';
 import { AcceptButton, DefaultButton } from '@/components/button/style';
 import { FILE_NAMES, IReticle } from '@/interface/reticles';
 import { SelectInput } from '@/components/Inputs/select/select';
-import { Container, Header } from '@/components/modals/fullSizeImgViewModal/style';
 import { DeleteButtonWithConfirm } from '@/components/button/deleteButtonWithConfirm';
 
-interface FullSizeImgViewModalProps extends DefaultModalProps, IReticle {
+interface FullSizeImgViewModalProps extends DefaultModalWithBackBtnProps, IReticle {
     saveAction: (data: IReticle) => void;
     selectedList: FILE_NAMES[];
     deleteAction: () => void;
@@ -33,7 +30,6 @@ export const FullSizeImgViewModal: React.FC<FullSizeImgViewModalProps> = ({
     deleteAction,
     selectedList,
 }) => {
-    const { top } = useSafeAreaInsets();
     const { t } = useTranslation();
     const [localState, setLocalState] = useState<IReticle>({
         base64Str,
@@ -116,20 +112,20 @@ export const FullSizeImgViewModal: React.FC<FullSizeImgViewModalProps> = ({
     };
 
     return (
-        <Modal animationType="slide" visible={isVisible}>
-            <Container paddingTop={top}>
-                <Header>
-                    <DefaultButton onPress={goBack}>
-                        <GoBackButtonText>{t('default_go_back')}</GoBackButtonText>
-                    </DefaultButton>
+        <DefaultModal isVisible={isVisible}>
+            <ModalHeader>
+                <DefaultButton onPress={goBack}>
+                    <GoBackButtonText>{t('default_go_back')}</GoBackButtonText>
+                </DefaultButton>
 
-                    <DeleteButtonWithConfirm
-                        confirmMsg={t('reticles_are_you_certain_delete_file')}
-                        buttonText={t('default_delete')}
-                        confirmHandler={acceptDeleteHandler}
-                    />
-                </Header>
+                <DeleteButtonWithConfirm
+                    confirmMsg={t('reticles_are_you_certain_delete_file')}
+                    buttonText={t('default_delete')}
+                    confirmHandler={acceptDeleteHandler}
+                />
+            </ModalHeader>
 
+            <ContentContainer>
                 <SelectInput
                     label={t('reticles_set_zoom')}
                     list={['x1', 'x2', 'x3', 'x4', 'x6']}
@@ -150,7 +146,7 @@ export const FullSizeImgViewModal: React.FC<FullSizeImgViewModalProps> = ({
                 {localState.base64Str !== '' && (
                     <GestureHandlerRootView
                         style={{
-                            flex: 0.65,
+                            flex: 0.45,
                             width: '100%',
                             zIndex,
                         }}>
@@ -175,7 +171,7 @@ export const FullSizeImgViewModal: React.FC<FullSizeImgViewModalProps> = ({
                         <GoBackButtonText>{t('default_save_changes')}</GoBackButtonText>
                     </AcceptButton>
                 )}
-            </Container>
-        </Modal>
+            </ContentContainer>
+        </DefaultModal>
     );
 };

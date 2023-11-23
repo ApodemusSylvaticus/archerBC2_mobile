@@ -20,6 +20,10 @@ export const Row = styled.View`
     gap: ${props => rem(props, 0.8)};
 `;
 
+export const WrapRow = styled(Row)`
+    flex-wrap: wrap;
+`;
+
 export const Button = styled(AcceptButton)`
     align-self: end;
     margin-left: auto;
@@ -27,4 +31,11 @@ export const Button = styled(AcceptButton)`
 
 export const ButtonText = styled(Text20)`
     color: ${props => props.theme.colors.primary};
+`;
+
+export const VelocityTextWrapper = styled.View`
+    display: flex;
+    flex-direction: row;
+    gap: ${props => rem(props, 0.8)};
+    align-items: flex-end;
 `;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContainer } from '@/components/container/appContainer';
 import { Loader } from '@/components/loader';
@@ -8,13 +8,12 @@ import { useReticlesStore } from '@/store/useReticlesStore';
 import { CreateNewReticleFolderModal } from '@/components/modals/createNewReticleFolder';
 import { DefaultButton } from '@/components/button/style';
 import { Text20 } from '@/components/text/styled';
-import { IDbReticle, IReticle } from '@/interface/reticles';
-import { convertFromDb } from '@/helpers/reticles';
 import { useSettingStore } from '@/store/useSettingStore';
 import { RetryWithErrorMsg } from '@/components/retry';
 import { Container } from '@/components/reticles/style';
+import { ReticlesCore } from '@/core/reticlesCore';
 
-export const ReticlesFromServer: React.FC = () => {
+export const Reticles: React.FC = () => {
     const openReticlesListModal = useModalControllerStore(state => state.openReticlesListModal);
     const serverApi = useSettingStore(state => state.serverHost);
     const { t } = useTranslation();
@@ -22,131 +21,94 @@ export const ReticlesFromServer: React.FC = () => {
     const [errorMsg, setErrorMsg] = useState('');
     const [shouldRetry, setShouldRetry] = useState(false);
     const [isNewFolderOpen, setIsNewFolderOpen] = useState(false);
+    const reticleCore = useMemo(() => new ReticlesCore(), []);
 
     const { setDbData, reticles } = useReticlesStore(state => ({
         setDbData: state.setDbData,
         reticles: state.reticles,
     }));
-    useEffect(() => {
+
+    const fetchData = useCallback(async () => {
         setIsLoading(true);
         setErrorMsg('');
-        async function fetchData() {
-            try {
-                const reticlesListResponse = await fetch(`http://${serverApi}:8080/getReticlesList`);
-                const reticlesList: string[] = (await reticlesListResponse.json()) ?? [];
 
-                if (reticlesList.length === 0) {
-                    setDbData({ folderList: reticlesList, folders: {} });
-                    return;
-                }
-
-                const promises = reticlesList.map(async el => {
-                    const reticleImagesResponse = await fetch(
-                        `http://${serverApi}:8080/getReticleImages?folderName=${el}`,
-                    );
-                    const reticleImages: IDbReticle[] = await reticleImagesResponse.json();
-
-                    return { name: el, data: reticleImages };
-                });
-
-                const reticleData = await Promise.all(promises);
-
-                const folders: { [folderName: string]: IReticle[] } = {};
-                reticleData.forEach(el => {
-                    folders[el.name] = el.data.map(({ fileName, base64Str }) => ({
-                        fileName: convertFromDb(fileName),
-                        base64Str,
-                    }));
-                });
-                setDbData({ folderList: reticlesList, folders });
-            } catch (e) {
-                setErrorMsg('error_get_reticles_data');
-            } finally {
-                setIsLoading(false);
+        try {
+            const list = await reticleCore.getReticleList();
+            if (list.length === 0) {
+                setDbData({ folderList: list, folders: {} });
+                return;
             }
-        }
 
-        fetchData();
-    }, [serverApi]);
+            const folders = await reticleCore.getReticleListImg(list);
+            setDbData({ folderList: list, folders });
+        } catch (e) {
+            setErrorMsg(t('error_get_reticles_data'));
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
-        if (!shouldRetry) {
+        if (reticleCore.getServerApi() !== serverApi) {
+            reticleCore.setHrefBase(serverApi);
+
+            fetchData();
             return;
         }
-        setIsLoading(true);
-        setErrorMsg('');
-        setShouldRetry(false);
-        async function fetchData() {
-            try {
-                const reticlesListResponse = await fetch(`http://${serverApi}:8080/getReticlesList`);
-                const reticlesList: string[] = await reticlesListResponse.json();
 
-                const promises = reticlesList.map(async el => {
-                    const reticleImagesResponse = await fetch(
-                        `http://${serverApi}:8080/getReticleImages?folderName=${el}`,
-                    );
-                    const reticleImages: IDbReticle[] = await reticleImagesResponse.json();
+        if (reticles.folderList.length === 0) {
+            fetchData();
+        }
+    }, [reticles.folderList, serverApi]);
 
-                    return { name: el, data: reticleImages };
-                });
-
-                const reticleData = await Promise.all(promises);
-
-                const folders: { [folderName: string]: IReticle[] } = {};
-                reticleData.forEach(el => {
-                    folders[el.name] = el.data.map(({ fileName, base64Str }) => ({
-                        fileName: convertFromDb(fileName),
-                        base64Str,
-                    }));
-                });
-                setDbData({ folderList: reticlesList, folders });
-            } catch (e) {
-                setErrorMsg('error_get_reticles_data');
-            } finally {
-                setIsLoading(false);
-            }
+    useEffect(() => {
+        if (shouldRetry === false) {
+            return;
         }
 
+        setShouldRetry(false);
+
         fetchData();
-    }, [serverApi, shouldRetry]);
+    }, [shouldRetry]);
 
     if (isLoading) {
-        return <Loader size={20} />;
+        return (
+            <AppContainer>
+                <Loader size={20} />
+            </AppContainer>
+        );
     }
 
     if (errorMsg) {
-        return <RetryWithErrorMsg retryHandler={() => setShouldRetry(true)} msg={errorMsg} />;
+        return (
+            <AppContainer>
+                <RetryWithErrorMsg retryHandler={() => setShouldRetry(true)} msg={errorMsg} />
+            </AppContainer>
+        );
     }
-
     return (
-        <Container>
-            {reticles.folderList.map(el => (
-                <ReticleTab
-                    name={el}
-                    onPress={() => openReticlesListModal(el)}
-                    key={el}
-                    bmpImage={reticles.folders[el][0].base64Str}
+        <AppContainer refreshFunc={() => setShouldRetry(true)}>
+            <Container>
+                {reticles.folderList.map(el => (
+                    <ReticleTab
+                        name={el}
+                        onPress={() => openReticlesListModal(el)}
+                        key={el}
+                        bmpImage={reticles.folders[el][0].base64Str}
+                    />
+                ))}
+
+                {reticles.folderList.length < 5 && (
+                    <DefaultButton onPress={() => setIsNewFolderOpen(true)}>
+                        <Text20>{t('reticles_create_new_folder')}</Text20>
+                    </DefaultButton>
+                )}
+
+                <CreateNewReticleFolderModal
+                    isVisible={isNewFolderOpen}
+                    backButtonHandler={() => setIsNewFolderOpen(false)}
                 />
-            ))}
-
-            {reticles.folderList.length < 5 && (
-                <DefaultButton onPress={() => setIsNewFolderOpen(true)}>
-                    <Text20>{t('reticles_create_new_folder')}</Text20>
-                </DefaultButton>
-            )}
-
-            <CreateNewReticleFolderModal
-                isVisible={isNewFolderOpen}
-                backButtonHandler={() => setIsNewFolderOpen(false)}
-            />
-        </Container>
-    );
-};
-
-export const Reticles: React.FC = () => {
-    return (
-        <AppContainer>
-            <ReticlesFromServer />
+            </Container>
         </AppContainer>
     );
 };

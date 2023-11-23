@@ -8,18 +8,15 @@ import Animated, {
     withSpring,
 } from 'react-native-reanimated';
 import * as ImagePicker from 'expo-image-picker';
-import { Modal, View } from 'react-native';
 import { GestureHandlerRootView, PinchGestureHandler } from 'react-native-gesture-handler';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { GoBackButtonText } from '@/components/modals/style';
+import { ContentContainer, GoBackButtonText } from '@/components/modals/style';
 import { AcceptButton, DefaultButton } from '@/components/button/style';
 import { SelectInput } from '@/components/Inputs/select/select';
 import { FILE_NAMES, IReticle } from '@/interface/reticles';
-import { DefaultModalProps } from '@/components/modals/DefaultModal';
-import { Container } from '@/components/modals/fullSizeImgViewModal/style';
+import { DefaultModal, DefaultModalWithBackBtnProps, ModalHeader } from '@/components/modals/DefaultModal';
 import { findSmallestMissingValue } from '@/helpers/findSmallestMissingValue';
 
-interface CreateNewReticleFileModalProps extends DefaultModalProps {
+interface CreateNewReticleFileModalProps extends DefaultModalWithBackBtnProps {
     saveAction: (data: IReticle) => void;
     selectedList: FILE_NAMES[];
 }
@@ -32,7 +29,6 @@ export const CreateNewReticleFileModal: React.FC<CreateNewReticleFileModalProps>
 }) => {
     const { t } = useTranslation();
     const { colors } = useTheme();
-    const { top } = useSafeAreaInsets();
     const [localState, setLocalState] = useState<IReticle>({
         base64Str: '',
         fileName: findSmallestMissingValue(selectedList),
@@ -104,14 +100,14 @@ export const CreateNewReticleFileModal: React.FC<CreateNewReticleFileModalProps>
     };
 
     return (
-        <Modal animationType="slide" visible={isVisible}>
-            <Container paddingTop={top}>
-                <View style={{ display: 'flex', flexDirection: 'row', marginBottom: 16 }}>
-                    <DefaultButton onPress={backButtonHandler}>
-                        <GoBackButtonText>{t('default_go_back')}</GoBackButtonText>
-                    </DefaultButton>
-                </View>
+        <DefaultModal isVisible={isVisible}>
+            <ModalHeader>
+                <DefaultButton onPress={backButtonHandler}>
+                    <GoBackButtonText>{t('default_go_back')}</GoBackButtonText>
+                </DefaultButton>
+            </ModalHeader>
 
+            <ContentContainer>
                 <SelectInput
                     label={t('reticles_set_zoom')}
                     list={['x1', 'x2', 'x3', 'x4', 'x6']}
@@ -129,7 +125,7 @@ export const CreateNewReticleFileModal: React.FC<CreateNewReticleFileModalProps>
                 </DefaultButton>
 
                 {localState.base64Str !== '' && (
-                    <GestureHandlerRootView style={{ flex: 0.65, width: '100%', zIndex }}>
+                    <GestureHandlerRootView style={{ flex: 0.45, width: '100%', zIndex }}>
                         <PinchGestureHandler
                             onGestureEvent={pinchGestureHandler}
                             onActivated={() => setZIndex(5)}
@@ -151,7 +147,7 @@ export const CreateNewReticleFileModal: React.FC<CreateNewReticleFileModalProps>
                         <GoBackButtonText>{t('default_save')}</GoBackButtonText>
                     </AcceptButton>
                 )}
-            </Container>
-        </Modal>
+            </ContentContainer>
+        </DefaultModal>
     );
 };

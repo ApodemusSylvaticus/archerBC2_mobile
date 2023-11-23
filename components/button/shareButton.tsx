@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Profile } from '@/interface/profile';
 import { NotificationEnum, useNotificationStore } from '@/store/useNotificationStore';
 import { DefaultButton } from '@/components/button/style';
-import { Text20 } from '@/components/text/styled';
+import { TextSemiBold20 } from '@/components/text/styled';
 
 export const ShareButton: React.FC<Profile> = React.memo(profile => {
     const sendNotification = useNotificationStore(state => state.sendNotification);
@@ -55,7 +55,7 @@ export const ShareButton: React.FC<Profile> = React.memo(profile => {
 
     return (
         <DefaultButton onPress={handleClick}>
-            <Text20>{t('default_share')}</Text20>
+            <TextSemiBold20>{t('default_share')}</TextSemiBold20>
         </DefaultButton>
     );
 });

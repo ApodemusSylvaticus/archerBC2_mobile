@@ -9,6 +9,7 @@ import { useDevStatusStore } from '@/store/useDevStatusStore';
 import { useSettingStore } from '@/store/useSettingStore';
 import { Loader } from '@/components/loader';
 import { RetryWithErrorMsg } from '@/components/retry';
+import { testShotConditional } from '@/constant/testValue';
 
 const ShotConditions: React.FC = () => {
     const { setDevStatus, setActiveProfile, devStatus } = useDevStatusStore(state => ({
@@ -32,6 +33,9 @@ const ShotConditions: React.FC = () => {
     }, []);
 
     useEffect(() => {
+        if (testShotConditional.isTesting) {
+            return;
+        }
         coreProtobuf.connect(serverApi);
     }, [serverApi]);
 
