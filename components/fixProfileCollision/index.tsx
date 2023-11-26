@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Modal } from 'react-native';
+import React, { PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
+import { View } from 'react-native';
 import { useActiveProfileStore } from '@/store/useActiveProfileStore';
 import { ProfileWorker } from '@/core/profileWorker';
 import { Text20 } from '@/components/text/styled';
@@ -26,9 +26,10 @@ function areStringArraysEqual(arr1: string[], arr2: string[]): boolean {
     return true;
 }
 
-export const FixProfileCollision: React.FC = () => {
+export const FixProfileCollision: React.FC<PropsWithChildren> = ({ children }) => {
     const [hasCollision, setHasCollision] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isFailed, setIsFailed] = useState<boolean>(false);
 
     const { profileListServerData, fileList } = useActiveProfileStore(state => ({
         profileListServerData: state.profileListServerData,
@@ -65,7 +66,7 @@ export const FixProfileCollision: React.FC = () => {
             });
             setIsLoading(false);
         } catch {
-            setHasCollision(true);
+            setIsFailed(true);
         }
     }, [fileList, profileWorker]);
 
@@ -78,10 +79,21 @@ export const FixProfileCollision: React.FC = () => {
         handler();
     }, [hasCollision, fileList, profileListServerData]);
 
-    return (
-        <Modal visible={isLoading} animationType="fade">
-            <Text20>Try to fix profiles collision</Text20>
-            <Text20>Check your connection</Text20>
-        </Modal>
+    return isLoading ? (
+        <View>
+            {isFailed ? (
+                <>
+                    <Text20>Failed to fix profiles collision</Text20>
+                    <Text20>Check your connection and reload page</Text20>
+                </>
+            ) : (
+                <>
+                    <Text20>Trying to fix profiles collision...</Text20>
+                    <Text20>Check your connection</Text20>
+                </>
+            )}
+        </View>
+    ) : (
+        children
     );
 };

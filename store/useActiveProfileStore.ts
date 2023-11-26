@@ -28,10 +28,10 @@ interface IUseActiveProfileStore {
     deleteProfile: (fileName: string, newProfileListServerData: IProfileListServerData) => void;
 }
 export const useActiveProfileStore = create<IUseActiveProfileStore>()(set => ({
-    activeProfilesMap: testActiveProfile.activeProfilesMap,
-    activeProfile: testActiveProfile.activeProfile,
-    fileList: testActiveProfile.fileList,
-    profileListServerData: testActiveProfile.profileListServerData,
+    activeProfilesMap: testActiveProfile.isTesting ? testActiveProfile.activeProfilesMap : {},
+    activeProfile: testActiveProfile.isTesting ? testActiveProfile.activeProfile : '',
+    fileList: testActiveProfile.isTesting ? testActiveProfile.fileList : [],
+    profileListServerData: testActiveProfile.isTesting ? testActiveProfile.profileListServerData : null,
     setProfileListServerData: data => set({ profileListServerData: data }),
     setActiveProfile: fileName => set({ activeProfile: fileName }),
 

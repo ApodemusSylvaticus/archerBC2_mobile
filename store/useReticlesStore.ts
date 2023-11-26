@@ -1,7 +1,8 @@
 import { create } from 'zustand/esm/index';
 import { FILE_NAMES, IReticle } from '@/interface/reticles';
+import { testReticles } from '@/constant/testValue';
 
-export interface reticlesFolders {
+export interface ReticlesFolders {
     folderList: string[];
     folders: {
         [folderName: string]: IReticle[];
@@ -9,8 +10,8 @@ export interface reticlesFolders {
 }
 
 interface IUseReticlesStore {
-    reticles: reticlesFolders;
-    setDbData: (data: reticlesFolders) => void;
+    reticles: ReticlesFolders;
+    setDbData: (data: ReticlesFolders) => void;
     deleteFile: (params: { folderName: string; fileName: FILE_NAMES }) => void;
     addNewFile: (params: { folderName: string; reticle: IReticle }) => void;
     deleteFolder: (folderName: string) => void;
@@ -19,10 +20,12 @@ interface IUseReticlesStore {
 }
 
 export const useReticlesStore = create<IUseReticlesStore>(set => ({
-    reticles: {
-        folderList: [],
-        folders: {},
-    },
+    reticles: testReticles.isTesting
+        ? testReticles.reticlesFolders
+        : {
+              folderList: [],
+              folders: {},
+          },
     setDbData: data => set({ reticles: data }),
     deleteFile: ({ folderName, fileName }) =>
         set(state => {

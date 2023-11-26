@@ -434,10 +434,11 @@ export const CurrProfile: React.FC = () => {
 
     return (
         <AppContainer refreshFunc={retryHandler}>
-            {isLoading && <Loader size={rem * 3.2} />}
-            {!isLoading && errorMsg !== '' && <RetryWithErrorMsg retryHandler={retryHandler} msg={errorMsg} />}
-            {!isLoading && errorMsg === '' && <Content />}
-            <FixProfileCollision />
+            <FixProfileCollision>
+                {isLoading && <Loader size={rem * 3.2} />}
+                {!isLoading && errorMsg !== '' && <RetryWithErrorMsg retryHandler={retryHandler} msg={errorMsg} />}
+                {!isLoading && errorMsg === '' && <Content />}
+            </FixProfileCollision>
         </AppContainer>
     );
 };
