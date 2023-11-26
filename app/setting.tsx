@@ -8,6 +8,7 @@ import { languageArray } from '@/i18n';
 import { useSettingStore } from '@/store/useSettingStore';
 import { Resize } from '@/components/resize';
 import { darkTheme, lightDark, lightTheme } from '@/constant/theme';
+import { PixelEditorModal } from '@/components/modals/pixelEditor';
 
 const Setting: React.FC = () => {
     const { t } = useTranslation();
@@ -55,6 +56,7 @@ const Setting: React.FC = () => {
                     zIndex={4}
                 />
             </DefaultColumnContainer>
+            <PixelEditorModal isVisible />
         </AppContainer>
     );
 };
