@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'styled-components/native';
+import { Button } from 'react-native';
 import { AppContainer } from '@/components/container/appContainer';
 import { DefaultColumnContainer } from '@/components/container/defaultBox';
 import { SelectInput } from '@/components/Inputs/select/select';
@@ -33,6 +34,8 @@ const Setting: React.FC = () => {
         setTheme(themeList[value]);
     };
 
+    const [isOpen, setIsOpen] = useState(false);
+
     return (
         <AppContainer>
             <DefaultColumnContainer>
@@ -56,7 +59,8 @@ const Setting: React.FC = () => {
                     zIndex={4}
                 />
             </DefaultColumnContainer>
-            <PixelEditorModal isVisible />
+            <Button title="test" onPress={() => setIsOpen(true)} />
+            <PixelEditorModal isVisible={isOpen} />
         </AppContainer>
     );
 };

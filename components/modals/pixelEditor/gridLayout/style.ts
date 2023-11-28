@@ -17,7 +17,5 @@ interface CeilProps {
     totalWidth: number;
 }
 export const Cell = styled.View<CeilProps>`
-    width: ${props => props.totalWidth / props.size}px;
-    aspect-ratio: 1 / 1;
     border-color: ${props => props.theme.colors.l1ActiveEl};
 `;
