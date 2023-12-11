@@ -109,7 +109,7 @@ export const FullSizeImgViewModal: React.FC<FullSizeImgViewModalProps> = ({
         setLocalState(prevState => ({ fileName: prevState.fileName, base64Str: newBase64Str }));
     };
 
-    const acceptDeleteHandler = () => {
+    const acceptDeleteHandler = async () => {
         deleteAction();
     };
 

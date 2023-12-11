@@ -27,7 +27,7 @@ export const RealImgContainer = styled.View<RealImgContainerProps>`
 export const SetRadiusContainer = styled.View`
     display: flex;
     gap: ${props => rem(props, 1.6)};
-    width: 50%;
+    width: 75%;
     height: 35%;
     padding: ${props => rem(props, 1.6)};
     border-radius: 16px;

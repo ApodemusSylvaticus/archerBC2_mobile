@@ -3,6 +3,7 @@ import { SkImage, useCanvasRef, Canvas, Image, Rect } from '@shopify/react-nativ
 import Animated, { useSharedValue } from 'react-native-reanimated';
 import { PixelRatio, ScrollView } from 'react-native';
 import { useTheme } from 'styled-components/native';
+import { useTranslation } from 'react-i18next';
 import { Nullable } from '@/interface/helper';
 import { LongPressButton } from '@/components/button/longPressButton';
 import {
@@ -15,6 +16,7 @@ import {
 import { PureArrow } from '@/components/svg/pureArrow';
 import { SeparateRow } from '@/components/container/defaultBox';
 import { ANIMATION_TIMEOUT, FUNC_TIME_DELAY, ICON_SIZE, NUMBER_OF_CENTER_CELL } from '@/constant/pixelEditor';
+import { PixelEditorCrossColor } from '@/constant/theme';
 
 function findClosestWidth(inputNumber: number): number {
     let result = inputNumber;
@@ -30,6 +32,8 @@ export const SetCenterComponent: React.FC<{ img: SkImage; centerSelectedAction: 
     img,
     centerSelectedAction,
 }) => {
+    const { t } = useTranslation();
+    const { colors } = useTheme();
     const translateX = useSharedValue(0);
     const translateY = useSharedValue(0);
     const ref = useCanvasRef();
@@ -137,14 +141,14 @@ export const SetCenterComponent: React.FC<{ img: SkImage; centerSelectedAction: 
                                     height={containerWidth}
                                     x={(containerWidth / NUMBER_OF_CENTER_CELL) * 10}
                                     y={0}
-                                    color="rgba(120, 159, 255, 0.3)"
+                                    color={PixelEditorCrossColor}
                                 />
                                 <Rect
                                     width={containerWidth}
                                     height={containerWidth / NUMBER_OF_CENTER_CELL}
                                     x={0}
                                     y={(containerWidth / NUMBER_OF_CENTER_CELL) * 10}
-                                    color="rgba(120, 159, 255, 0.3)"
+                                    color={PixelEditorCrossColor}
                                 />
                             </Canvas>
                         </Animated.View>
@@ -153,7 +157,7 @@ export const SetCenterComponent: React.FC<{ img: SkImage; centerSelectedAction: 
                             <PureArrow
                                 width={ICON_SIZE * rem}
                                 height={ICON_SIZE * rem}
-                                fillColor="red"
+                                fillColor={colors.l1ActiveEl}
                                 orientation="top"
                                 onPress={() => moveVertically(-1 / pixelRatio)}
                             />
@@ -161,14 +165,14 @@ export const SetCenterComponent: React.FC<{ img: SkImage; centerSelectedAction: 
                                 <PureArrow
                                     width={ICON_SIZE * rem}
                                     height={ICON_SIZE * rem}
-                                    fillColor="red"
+                                    fillColor={colors.l1ActiveEl}
                                     orientation="left"
                                     onPress={() => moveHorizontally(-1 / pixelRatio)}
                                 />
                                 <PureArrow
                                     width={ICON_SIZE * rem}
                                     height={ICON_SIZE * rem}
-                                    fillColor="red"
+                                    fillColor={colors.l1ActiveEl}
                                     orientation="right"
                                     onPress={() => moveHorizontally(1 / pixelRatio)}
                                 />
@@ -176,14 +180,14 @@ export const SetCenterComponent: React.FC<{ img: SkImage; centerSelectedAction: 
                             <PureArrow
                                 width={ICON_SIZE * rem}
                                 height={ICON_SIZE * rem}
-                                fillColor="red"
+                                fillColor={colors.l1ActiveEl}
                                 orientation="bottom"
                                 onPress={() => moveVertically(1 / pixelRatio)}
                             />
                         </ControlPadContainer>
 
                         <LongPressButton time={FUNC_TIME_DELAY} handleLongPress={handleFinish}>
-                            Next stage
+                            {t('reticles_next_stage')}
                         </LongPressButton>
                     </>
                 )}

@@ -11,7 +11,7 @@ import {
 } from 'react-native-gesture-handler';
 import { getWindowWidth } from '@/helpers/getWindowParam';
 import { Nullable } from '@/interface/helper';
-import { IRect, TOOLS } from '@/interface/components/pixelEditor';
+import { TOOLS } from '@/interface/components/pixelEditor';
 
 export class PixelEditorCore {
     private readonly pixelRatio;
@@ -263,7 +263,6 @@ export class PixelEditorCore {
     }
 
     endDrawingRectangle(e: GestureStateChangeEvent<PanGestureHandlerEventPayload>) {
-        const res: IRect[] = [];
         const { x, y, size } = this.baseTapAction(e);
         const { realX, realY } = this.startPositionDrawingRect;
         const startOx = Math.min(x, realX);
@@ -271,15 +270,15 @@ export class PixelEditorCore {
         const endOx = Math.max(x, realX);
         const endOy = Math.max(y, realY);
 
-        for (let i = startOx; i <= endOx; i += size) {
-            res.push({ x: i, y: startOy, size, color: 'black' });
-            res.push({ x: i, y: endOy, size, color: 'black' });
-        }
-        for (let i = startOy; i < endOy; i += size) {
-            res.push({ x: startOx, y: i, size, color: 'black' });
-            res.push({ x: endOx, y: i, size, color: 'black' });
-        }
-        return res;
+        const lengthOx = (endOx - startOx) / size + 1;
+        const lengthOy = (endOy - startOy) / size + 1;
+
+        const outer = rrect(rect(startOx, startOy, endOx - startOx + size, endOy - startOy + size), 0, 0);
+        const inner =
+            lengthOx > 2 && lengthOy > 2
+                ? rrect(rect(startOx + size, startOy + size, (lengthOx - 2) * size, (lengthOy - 2) * size), 0, 0)
+                : rrect(rect(0, 0, 0, 0), 0, 0);
+        return { outer, inner };
     }
 
     private lastValueDrawing: { x: number; y: number } = { x: 0, y: 0 };
@@ -293,6 +292,7 @@ export class PixelEditorCore {
         if (Math.abs(this.lastValueDrawing.x - x) < cellSize && Math.abs(this.lastValueDrawing.y - y) < cellSize) {
             return null;
         }
+
         const start = this.getStartPositionDrawingRect;
 
         const roundedX = Math.floor(x / cellSize) * cellSize;
@@ -308,7 +308,7 @@ export class PixelEditorCore {
 
         const outer = rrect(rect(visibleStart.x, visibleStart.y, lengthOx * cellSize, lengthOy * cellSize), 0, 0);
         const inner =
-            lengthOx > 2 && lengthOx > 2
+            lengthOx > 2 && lengthOy > 2
                 ? rrect(
                       rect(
                           visibleStart.x + cellSize,

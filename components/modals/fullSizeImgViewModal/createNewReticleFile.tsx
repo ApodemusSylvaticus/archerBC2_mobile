@@ -15,6 +15,7 @@ import { SelectInput } from '@/components/Inputs/select/select';
 import { FILE_NAMES, IReticle } from '@/interface/reticles';
 import { DefaultModal, DefaultModalWithBackBtnProps, ModalHeader } from '@/components/modals/DefaultModal';
 import { findSmallestMissingValue } from '@/helpers/findSmallestMissingValue';
+import { PixelEditorModal } from '@/components/modals/pixelEditor';
 
 interface CreateNewReticleFileModalProps extends DefaultModalWithBackBtnProps {
     saveAction: (data: IReticle) => void;
@@ -27,6 +28,7 @@ export const CreateNewReticleFileModal: React.FC<CreateNewReticleFileModalProps>
     saveAction,
     selectedList,
 }) => {
+    const [isPixelEditorOpen, setIsPixelEditorOpen] = useState(false);
     const { t } = useTranslation();
     const { colors } = useTheme();
     const [localState, setLocalState] = useState<IReticle>({
@@ -140,6 +142,23 @@ export const CreateNewReticleFileModal: React.FC<CreateNewReticleFileModalProps>
                             </Animated.View>
                         </PinchGestureHandler>
                     </GestureHandlerRootView>
+                )}
+
+                {localState.base64Str !== '' && (
+                    <>
+                        <PixelEditorModal
+                            setNewImg={data => {
+                                setLocalState(prevState => ({ fileName: prevState.fileName, base64Str: data }));
+                                setIsPixelEditorOpen(false);
+                            }}
+                            backButtonHandler={() => setIsPixelEditorOpen(false)}
+                            isVisible={isPixelEditorOpen}
+                            image={localState.base64Str}
+                        />
+                        <DefaultButton onPress={() => setIsPixelEditorOpen(true)}>
+                            <GoBackButtonText>{t('reticles_pixel_editor')}</GoBackButtonText>
+                        </DefaultButton>
+                    </>
                 )}
 
                 {localState.base64Str !== '' && (

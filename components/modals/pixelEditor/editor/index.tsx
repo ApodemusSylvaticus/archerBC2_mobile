@@ -10,7 +10,6 @@ import {
     SkRRect,
     useCanvasRef,
 } from '@shopify/react-native-skia';
-import Animated, { useSharedValue, withTiming } from 'react-native-reanimated';
 import {
     Gesture,
     GestureDetector,
@@ -18,7 +17,10 @@ import {
     GestureStateChangeEvent,
     TapGestureHandlerEventPayload,
 } from 'react-native-gesture-handler';
+import { throttle } from 'lodash';
 import { useTheme } from 'styled-components/native';
+import Animated, { useSharedValue, withTiming } from 'react-native-reanimated';
+import { useTranslation } from 'react-i18next';
 import { Nullable } from '@/interface/helper';
 import { MemoGridLayout } from '@/components/modals/pixelEditor/gridLayout';
 import { PixelEditorCore } from '@/components/modals/pixelEditor/core';
@@ -41,6 +43,8 @@ import {
     SetRadiusContainer,
     VisibleContentContainer,
 } from '@/components/modals/pixelEditor/editor/style';
+import { DefaultButton } from '@/components/button/style';
+import { TextSemiBold20 } from '@/components/text/styled';
 
 function useRerenderEvery50ms() {
     const [rerenderCount, setRerenderCount] = useState(0);
@@ -59,6 +63,7 @@ function useRerenderEvery50ms() {
 }
 
 export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
+    const { t } = useTranslation();
     const core = useMemo(() => new PixelEditorCore(img), [img]);
 
     useEffect(() => {
@@ -80,6 +85,7 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
     const [activeTool, setActiveTool] = useState<TOOLS>(TOOLS.PEN);
 
     const [temporaryRectangle, setTemporaryRectangle] = useState<Nullable<{ outer: SkRRect; inner: SkRRect }>>(null);
+    const [realRectanle, setRealRectangle] = useState<Nullable<{ outer: SkRRect; inner: SkRRect }>>(null);
 
     const pressTool = useCallback((data: TOOLS) => setActiveTool(data), []);
     // shared
@@ -112,6 +118,7 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
         core.setImgToHistory(imageSnapshot);
         setIsHistoryAvailable({ back: true, forward: false });
         setPixels([]);
+        setRealRectangle(null);
     };
 
     const tap = Gesture.Tap()
@@ -127,6 +134,18 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
                 createSnapshot();
             }, ANIMATION_TIMEOUT);
         });
+
+    const handlePan = useCallback(event => {
+        const val = core.visualizationDrawingRectangle(event);
+
+        if (val === null) {
+            return;
+        }
+
+        setTemporaryRectangle(val);
+    }, []);
+
+    const throttledPanHandler = useCallback(throttle(handlePan, (ANIMATION_TIMEOUT / 3) * 2), [handlePan]);
 
     const pinchGestureEvent = Gesture.Pinch()
         .runOnJS(true)
@@ -149,10 +168,9 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
             });
         });
 
-    /*
     const circleTap = useCallback(() => {
         if (penCircleEventValue) {
-            const value = core.circleTapAction(penCircleEventValue, radius);
+            const value = core.circleTapAction(penCircleEventValue, Math.floor(radius));
             setPixels(prev => [...prev, ...value]);
             setTimeout(() => {
                 createSnapshot();
@@ -160,7 +178,6 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
             }, ANIMATION_TIMEOUT);
         }
     }, [radius, core, createSnapshot, penCircleEventValue]);
-*/
 
     const panOneG = Gesture.Pan()
         .maxPointers(1)
@@ -174,13 +191,7 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
         })
         .onChange(event => {
             if (activeTool === TOOLS.RECTANGLE) {
-                const val = core.visualizationDrawingRectangle(event);
-
-                if (val === null) {
-                    return;
-                }
-
-                setTemporaryRectangle(val);
+                throttledPanHandler(event);
                 return;
             }
 
@@ -195,11 +206,18 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
         .onEnd(e => {
             if (activeTool === TOOLS.RECTANGLE) {
                 const val = core.endDrawingRectangle(e);
-                setPixels(prev => [...prev, ...val]);
+                setRealRectangle(val);
                 setTemporaryRectangle(null);
                 setTimeout(() => {
                     createSnapshot();
                 }, ANIMATION_TIMEOUT);
+
+                setTimeout(
+                    () => {
+                        setTemporaryRectangle(null);
+                    },
+                    (ANIMATION_TIMEOUT * 3) / 2,
+                );
             }
         });
 
@@ -239,6 +257,11 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
         setNewImg(realImg.encodeToBase64(ImageFormat.PNG, 1));
     }, [realImg, setNewImg]);
 
+    const handleCloseRadiusModal = useCallback(() => {
+        setRadius(1);
+        setPenCircleEventValue(null);
+    }, []);
+
     return (
         <Container>
             <VisibleContentContainer>
@@ -263,11 +286,12 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
                                     ]}>
                                     <Image image={realImg} x={0} y={0} width={width} height={height} />
                                 </Group>
+
                                 {temporaryRectangle && (
                                     <DiffRect
                                         inner={temporaryRectangle.inner}
                                         outer={temporaryRectangle.outer}
-                                        color="lightblue"
+                                        color={colors.success}
                                     />
                                 )}
                             </Canvas>
@@ -329,22 +353,25 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
 
                 <SaveButtonContainer>
                     <LongPressButton time={FUNC_TIME_DELAY} handleLongPress={handleFinish}>
-                        Save
+                        {t('default_save')}
                     </LongPressButton>
                 </SaveButtonContainer>
             </VisibleContentContainer>
 
-            <AlertModalContainer isOpen={!!penCircleEventValue} closeHandler={() => setPenCircleEventValue(null)}>
+            <AlertModalContainer isOpen={!!penCircleEventValue} closeHandler={handleCloseRadiusModal}>
                 <SetRadiusContainer>
                     <DefaultRow>
                         <NumericInput
                             value={radius.toString()}
-                            onChangeText={val => setRadius(+val)}
+                            onChangeText={val => setRadius(val)}
                             label="Set radius"
                             onBlur={() => undefined}
                             background={colors.cardBg}
                         />
                     </DefaultRow>
+                    <DefaultButton onPress={circleTap}>
+                        <TextSemiBold20>{t('default_add')}</TextSemiBold20>
+                    </DefaultButton>
                 </SetRadiusContainer>
             </AlertModalContainer>
 
@@ -359,6 +386,8 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
                     {newPixels.map(el => (
                         <Rect x={el.x} y={el.y} height={el.size} width={el.size} color={el.color} strokeWidth={0} />
                     ))}
+
+                    {realRectanle && <DiffRect inner={realRectanle.inner} outer={realRectanle.outer} color="black" />}
                 </Canvas>
             </RealImgContainer>
         </Container>

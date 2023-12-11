@@ -44,31 +44,36 @@ export const NumericInput: React.FC<PropsWithChildren<NumericInputProps>> = ({
     };
 
     const handleOnChangeText = (text: string) => {
-        if (text.startsWith('-0') && text.length > 2 && text[2] !== '.') {
-            onChangeText(`-${text[2]}`);
-            return;
-        }
-
-        if (text.startsWith('0') && text.length > 1 && text[1] !== '.') {
-            onChangeText(text[1]);
-            return;
-        }
-
-        if (text.length === 0) {
-            onChangeText(text);
-            return;
-        }
-        if (text.length === 1 && text === '-') {
-            onChangeText(text);
-            return;
-        }
-
-        if (text.length === 2 && text === '-0') {
-            onChangeText(text);
-            return;
-        }
-
         const newText = text.replace(',', '.');
+
+        if (newText.startsWith('-0') && newText.length > 2 && newText[2] !== '.') {
+            onChangeText(`-${text[2]}`);
+
+            return;
+        }
+
+        if (newText.startsWith('0') && text.length > 1 && newText[1] !== '.') {
+            onChangeText(newText[1]);
+
+            return;
+        }
+
+        if (newText.length === 0) {
+            onChangeText(newText);
+
+            return;
+        }
+        if (newText.length === 1 && newText === '-') {
+            onChangeText(newText);
+
+            return;
+        }
+
+        if (newText.length === 2 && newText === '-0') {
+            onChangeText(newText);
+
+            return;
+        }
 
         const lastIndex = newText.length - 1;
 
@@ -79,7 +84,7 @@ export const NumericInput: React.FC<PropsWithChildren<NumericInputProps>> = ({
             return;
         }
 
-        if (regexNumeric.test(text)) {
+        if (regexNumeric.test(newText)) {
             onChangeText(newText);
         }
     };
