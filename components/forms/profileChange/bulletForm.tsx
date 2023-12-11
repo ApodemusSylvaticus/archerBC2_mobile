@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from 'styled-components/native';
 import { Formik } from 'formik';
 import { Coefficient } from '@/interface/profile';
-import { ballisticFunctionList } from '@/constant/data';
+import { ballisticFunctionList } from '@/constant/profile';
 import { NumericInput } from '@/components/Inputs/numericInput';
 import { SelectInput } from '@/components/Inputs/select/select';
 import { AddNewCoeffButton, ErrorText, MultiCoefficientWrapper } from '@/components/forms/style';

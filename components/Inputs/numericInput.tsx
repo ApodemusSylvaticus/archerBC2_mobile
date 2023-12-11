@@ -44,17 +44,36 @@ export const NumericInput: React.FC<PropsWithChildren<NumericInputProps>> = ({
     };
 
     const handleOnChangeText = (text: string) => {
+        if (text.startsWith('-0') && text.length > 2 && text[2] !== '.') {
+            onChangeText(`-${text[2]}`);
+            return;
+        }
+
+        if (text.startsWith('0') && text.length > 1 && text[1] !== '.') {
+            onChangeText(text[1]);
+            return;
+        }
+
         if (text.length === 0) {
             onChangeText(text);
+            return;
         }
         if (text.length === 1 && text === '-') {
             onChangeText(text);
+            return;
+        }
+
+        if (text.length === 2 && text === '-0') {
+            onChangeText(text);
+            return;
         }
 
         const newText = text.replace(',', '.');
 
         const lastIndex = newText.length - 1;
+
         const lastLetter = newText.at(-1);
+
         if (lastLetter === '.' && newText.indexOf('.') === lastIndex) {
             onChangeText(newText);
             return;

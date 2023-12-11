@@ -18,6 +18,7 @@ export const Reticles: React.FC = () => {
     const openReticlesListModal = useModalControllerStore(state => state.openReticlesListModal);
     const serverApi = useSettingStore(state => state.serverHost);
     const { t } = useTranslation();
+
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const [shouldRetry, setShouldRetry] = useState(false);
@@ -64,7 +65,7 @@ export const Reticles: React.FC = () => {
         if (reticles.folderList.length === 0) {
             fetchData();
         }
-    }, [reticles.folderList, serverApi]);
+    }, [serverApi]);
 
     useEffect(() => {
         if (shouldRetry === false) {
