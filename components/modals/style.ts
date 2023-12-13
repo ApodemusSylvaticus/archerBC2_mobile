@@ -21,6 +21,8 @@ export const ContentContainer = styled.View`
 `;
 
 export const GoBackButton = styled(DefaultButton)`
+    padding: ${props => rem(props, 0.4)} ${props => rem(props, 2.4)};
+
     background: ${props => props.theme.colors.l1ActiveEl};
 `;
 

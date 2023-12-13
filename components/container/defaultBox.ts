@@ -44,6 +44,12 @@ export const DefaultRow = styled.View`
     gap: ${props => rem(props, 0.8)};
 `;
 
+export const DefaultRowCenterContent = styled.View`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+`;
 export const DefaultRowFlex1 = styled(DefaultRow)`
     flex: 1;
 `;

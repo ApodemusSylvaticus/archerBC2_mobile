@@ -44,23 +44,47 @@ export const NumericInput: React.FC<PropsWithChildren<NumericInputProps>> = ({
     };
 
     const handleOnChangeText = (text: string) => {
-        if (text.length === 0) {
-            onChangeText(text);
-        }
-        if (text.length === 1 && text === '-') {
-            onChangeText(text);
-        }
-
         const newText = text.replace(',', '.');
 
+        if (newText.startsWith('-0') && newText.length > 2 && newText[2] !== '.') {
+            onChangeText(`-${text[2]}`);
+
+            return;
+        }
+
+        if (newText.startsWith('0') && text.length > 1 && newText[1] !== '.') {
+            onChangeText(newText[1]);
+
+            return;
+        }
+
+        if (newText.length === 0) {
+            onChangeText(newText);
+
+            return;
+        }
+        if (newText.length === 1 && newText === '-') {
+            onChangeText(newText);
+
+            return;
+        }
+
+        if (newText.length === 2 && newText === '-0') {
+            onChangeText(newText);
+
+            return;
+        }
+
         const lastIndex = newText.length - 1;
+
         const lastLetter = newText.at(-1);
+
         if (lastLetter === '.' && newText.indexOf('.') === lastIndex) {
             onChangeText(newText);
             return;
         }
 
-        if (regexNumeric.test(text)) {
+        if (regexNumeric.test(newText)) {
             onChangeText(newText);
         }
     };

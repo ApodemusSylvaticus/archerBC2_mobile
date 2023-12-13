@@ -6,7 +6,7 @@ import { ButtonContainer } from '@/components/forms/style';
 import { ArrowSVG } from '@/components/svg/arrow';
 import { IForm } from '@/interface/form';
 import { SelectInput } from '@/components/Inputs/select/select';
-import { ballisticFunctionList } from '@/constant/data';
+import { ballisticFunctionList } from '@/constant/profile';
 
 export const BallisticProfileForm: React.FC<IForm> = ({ goForward, goBack }) => {
     const { t } = useTranslation();

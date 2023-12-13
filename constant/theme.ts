@@ -1,3 +1,5 @@
+export const PixelEditorCrossColor = 'rgba(120, 159, 255, 0.3)';
+
 export interface ITheme {
     name: string;
     colors: {

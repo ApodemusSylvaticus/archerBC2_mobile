@@ -15,6 +15,7 @@ import { AcceptButton, DefaultButton } from '@/components/button/style';
 import { FILE_NAMES, IReticle } from '@/interface/reticles';
 import { SelectInput } from '@/components/Inputs/select/select';
 import { DeleteButtonWithConfirm } from '@/components/button/deleteButtonWithConfirm';
+import { PixelEditorModal } from '@/components/modals/pixelEditor';
 
 interface FullSizeImgViewModalProps extends DefaultModalWithBackBtnProps, IReticle {
     saveAction: (data: IReticle) => void;
@@ -36,6 +37,7 @@ export const FullSizeImgViewModal: React.FC<FullSizeImgViewModalProps> = ({
         fileName,
     });
 
+    const [isPixelEditorOpen, setIsPixelEditorOpen] = useState(false);
     const [zIndex, setZIndex] = useState(1);
     const { colors } = useTheme();
     const scale = useSharedValue(1);
@@ -107,7 +109,7 @@ export const FullSizeImgViewModal: React.FC<FullSizeImgViewModalProps> = ({
         setLocalState(prevState => ({ fileName: prevState.fileName, base64Str: newBase64Str }));
     };
 
-    const acceptDeleteHandler = () => {
+    const acceptDeleteHandler = async () => {
         deleteAction();
     };
 
@@ -164,6 +166,23 @@ export const FullSizeImgViewModal: React.FC<FullSizeImgViewModalProps> = ({
                             </Animated.View>
                         </PinchGestureHandler>
                     </GestureHandlerRootView>
+                )}
+
+                {localState.base64Str !== '' && (
+                    <>
+                        <PixelEditorModal
+                            setNewImg={data => {
+                                setLocalState(prevState => ({ fileName: prevState.fileName, base64Str: data }));
+                                setIsPixelEditorOpen(false);
+                            }}
+                            backButtonHandler={() => setIsPixelEditorOpen(false)}
+                            isVisible={isPixelEditorOpen}
+                            image={localState.base64Str}
+                        />
+                        <DefaultButton onPress={() => setIsPixelEditorOpen(true)}>
+                            <GoBackButtonText>{t('reticles_pixel_editor')}</GoBackButtonText>
+                        </DefaultButton>
+                    </>
                 )}
 
                 {(localState.base64Str !== base64Str || localState.fileName !== fileName) && (

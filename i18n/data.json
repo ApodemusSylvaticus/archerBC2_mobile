@@ -142,6 +142,8 @@
       "reticles_section_name": "Reticles",
       "reticles_enter_folder_name": "Enter folder name",
       "reticles_create_new_folder": "Create folder",
+      "reticles_pixel_editor": "Pixel editor",
+      "reticles_next_stage": "Next stage",
       "shot_conditions_wind_speed": "Wind speed",
       "shot_conditions_wind_direction": "Wind direction",
       "error_failed_calc_mv": "Failed to calculate muzzle velocity",
@@ -155,7 +157,8 @@
       "error_notification_not_available": "Notification is not available",
       "error_failed_to_update_profile_list": "Failed to update profile list",
       "error_failed_to_add_new_profile": "Failed to add new profiles",
-      "error_failed_to_update_state": "Failed to update active profile list."
+      "error_failed_to_update_state": "Failed to update active profile list.",
+      "error_failed_connect_to_wifi": "Connection failed. Check your WiFi connection"
     }
   },
   "ua": {
@@ -301,6 +304,8 @@
       "reticles_section_name": "Сітки",
       "reticles_enter_folder_name": "Введіть назву папки",
       "reticles_create_new_folder": "Створити папку",
+      "reticles_pixel_editor": "Піксельний редактор",
+      "reticles_next_stage": "Наступний етап",
       "shot_conditions_wind_speed": "Швидкість вітру",
       "shot_conditions_wind_direction": "Напрямок вітру",
       "error_failed_calc_mv": "Не вдалося розрахувати початкову швидкість",
@@ -314,7 +319,8 @@
       "error_notification_not_available": "Сповіщення недоступні",
       "error_failed_to_update_profile_list": "Не вдалося оновити список профілів",
       "error_failed_to_add_new_profile": "Не вдалося додати нові профілі",
-      "error_failed_to_update_state": "Не вдалося оновити список активних профілів."
+      "error_failed_to_update_state": "Не вдалося оновити список активних профілів.",
+      "error_failed_connect_to_wifi": "Підключення не вдалося. Перевірте підключення Wi-Fi"
     }
   },
   "ua-RTL": {
@@ -460,6 +466,8 @@
       "reticles_section_name": "Сітки",
       "reticles_enter_folder_name": "Введіть назву папки",
       "reticles_create_new_folder": "Створити папку",
+      "reticles_pixel_editor": "Піксельний редактор",
+      "reticles_next_stage": "Наступний етап",
       "shot_conditions_wind_speed": "Швидкість вітру",
       "shot_conditions_wind_direction": "Напрямок вітру",
       "error_failed_calc_mv": "Не вдалося розрахувати початкову швидкість",
@@ -473,7 +481,8 @@
       "error_notification_not_available": "Сповіщення недоступні",
       "error_failed_to_update_profile_list": "Не вдалося оновити список профілів",
       "error_failed_to_add_new_profile": "Не вдалося додати нові профілі",
-      "error_failed_to_update_state": "Не вдалося оновити список активних профілів."
+      "error_failed_to_update_state": "Не вдалося оновити список активних профілів.",
+      "error_failed_connect_to_wifi": "Підключення не вдалося. Перевірте підключення Wi-Fi"
     }
   },
   "languageSimbolArray": [

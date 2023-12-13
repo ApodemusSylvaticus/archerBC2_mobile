@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
 import { Coefficient, Profile, SwitchPosition } from '@/interface/profile';
-import { ballisticFunctionList } from '@/constant/data';
+import { ballisticFunctionList } from '@/constant/profile';
 import { BallisticFunctionType, BallisticProfileType } from '@/interface/newProfile';
 import { useProfileStore } from '@/store/useProfileStore';
 
