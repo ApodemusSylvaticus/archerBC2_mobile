@@ -431,13 +431,22 @@ export const CurrProfile: React.FC = () => {
     const { rem } = useTheme();
 
     const { isLoading, errorMsg, retryHandler } = useA();
+    const isTesting = useActiveProfileStore(state => state.isTesting);
 
     return (
         <AppContainer refreshFunc={retryHandler}>
             <FixProfileCollision>
-                {isLoading && <Loader size={rem * 3.2} />}
-                {!isLoading && errorMsg !== '' && <RetryWithErrorMsg retryHandler={retryHandler} msg={errorMsg} />}
-                {!isLoading && errorMsg === '' && <Content />}
+                {isTesting ? (
+                    <Content />
+                ) : (
+                    <>
+                        {isLoading && <Loader size={rem * 3.2} />}
+                        {!isLoading && errorMsg !== '' && (
+                            <RetryWithErrorMsg retryHandler={retryHandler} msg={errorMsg} />
+                        )}
+                        {!isLoading && errorMsg === '' && <Content />}
+                    </>
+                )}
             </FixProfileCollision>
         </AppContainer>
     );

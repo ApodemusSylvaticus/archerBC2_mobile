@@ -7,6 +7,8 @@ import { darkTheme, ITheme } from '@/constant/theme';
 interface IUseSettingStore {
     language: string;
     setLanguage: (data: string) => void;
+    isDevMode: boolean;
+    swapDevMode: () => void;
     setTheme: (theme: ITheme) => void;
     size: number;
     setSize: (data: number) => void;
@@ -21,8 +23,10 @@ interface IUseSettingStore {
 
 export const useSettingStore = create<IUseSettingStore>()(set => ({
     language: languageSimbolArray[0],
-    serverHost: `192.168.1.128`,
+    serverHost: `192.168.1.1`,
     isWiFiConnected: false,
+    isDevMode: false,
+    swapDevMode: () => set(prev => ({ isDevMode: !prev.isDevMode })),
     setIsWiFiConnected: isWiFiConnected => set({ isWiFiConnected }),
     setLanguage: language =>
         set(() => {

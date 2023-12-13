@@ -14,6 +14,9 @@ interface IUseActiveProfileStore {
     activeProfilesMap: ActiveProfileMap;
     activeProfile: string;
 
+    isTesting: boolean;
+    setIsTestMode: (data: boolean) => void;
+
     setActiveProfile: (fileName: string) => void;
     fileList: string[];
     profileListServerData: Nullable<IProfileListServerData>;
@@ -28,10 +31,22 @@ interface IUseActiveProfileStore {
     deleteProfile: (fileName: string, newProfileListServerData: IProfileListServerData) => void;
 }
 export const useActiveProfileStore = create<IUseActiveProfileStore>()(set => ({
-    activeProfilesMap: testActiveProfile.isTesting ? testActiveProfile.activeProfilesMap : {},
-    activeProfile: testActiveProfile.isTesting ? testActiveProfile.activeProfile : '',
-    fileList: testActiveProfile.isTesting ? testActiveProfile.fileList : [],
-    profileListServerData: testActiveProfile.isTesting ? testActiveProfile.profileListServerData : null,
+    activeProfilesMap: {},
+    activeProfile: '',
+    fileList: [],
+    profileListServerData: null,
+
+    isTesting: false,
+    setIsTestMode: data =>
+        set(() => {
+            return {
+                isTesting: data,
+                activeProfilesMap: data ? testActiveProfile.activeProfilesMap : {},
+                activeProfile: data ? testActiveProfile.activeProfile : '',
+                fileList: data ? testActiveProfile.fileList : [],
+                profileListServerData: data ? testActiveProfile.profileListServerData : null,
+            };
+        }),
     setProfileListServerData: data => set({ profileListServerData: data }),
     setActiveProfile: fileName => set({ activeProfile: fileName }),
 

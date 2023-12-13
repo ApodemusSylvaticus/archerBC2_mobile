@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'styled-components/native';
+import { Button } from 'react-native';
 import { AppContainer } from '@/components/container/appContainer';
 import { DefaultColumnContainer } from '@/components/container/defaultBox';
 import { SelectInput } from '@/components/Inputs/select/select';
@@ -11,11 +12,13 @@ import { darkTheme, lightDark, lightTheme } from '@/constant/theme';
 
 const Setting: React.FC = () => {
     const { t } = useTranslation();
-    const { language, setLanguage, setTheme, theme } = useSettingStore(state => ({
+    const { language, setLanguage, setTheme, theme, isDevMode, swapDevMode } = useSettingStore(state => ({
         language: state.language,
         setLanguage: state.setLanguage,
         setTheme: state.setTheme,
         theme: state.theme,
+        isDevMode: state.isDevMode,
+        swapDevMode: state.swapDevMode,
     }));
     const [activeLanguage, setActiveLanguage] = useState(languageArray.findIndex(el => el.simbol === language));
     const { colors } = useTheme();
@@ -54,6 +57,8 @@ const Setting: React.FC = () => {
                     chosenEl={themeList.findIndex(el => el.name === theme.name)}
                     zIndex={4}
                 />
+
+                <Button title={isDevMode ? 'Remove mock data' : 'Set mock data'} onPress={swapDevMode} />
             </DefaultColumnContainer>
         </AppContainer>
     );

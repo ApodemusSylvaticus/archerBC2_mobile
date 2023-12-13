@@ -10,6 +10,8 @@ export interface ReticlesFolders {
 }
 
 interface IUseReticlesStore {
+    isTesting: boolean;
+    setIsTestMode: (data: boolean) => void;
     reticles: ReticlesFolders;
     setDbData: (data: ReticlesFolders) => void;
     deleteFile: (params: { folderName: string; fileName: FILE_NAMES }) => void;
@@ -20,12 +22,23 @@ interface IUseReticlesStore {
 }
 
 export const useReticlesStore = create<IUseReticlesStore>(set => ({
-    reticles: testReticles.isTesting
-        ? testReticles.reticlesFolders
-        : {
-              folderList: [],
-              folders: {},
-          },
+    reticles: {
+        folderList: [],
+        folders: {},
+    },
+    isTesting: false,
+    setIsTestMode: data =>
+        set(() => {
+            return {
+                isTesting: data,
+                reticles: data
+                    ? testReticles.reticlesFolders
+                    : {
+                          folderList: [],
+                          folders: {},
+                      },
+            };
+        }),
     setDbData: data => set({ reticles: data }),
     deleteFile: ({ folderName, fileName }) =>
         set(state => {

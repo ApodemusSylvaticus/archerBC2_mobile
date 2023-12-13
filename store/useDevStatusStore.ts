@@ -18,6 +18,8 @@ export interface DevStatus {
 }
 
 interface IUseDevStatusStore {
+    isTesting: boolean;
+    setIsTestMode: (data: boolean) => void;
     devStatus: Nullable<DevStatus>;
     setDevStatus: (data: DevStatus) => void;
     activeProfile: Nullable<string>;
@@ -27,8 +29,18 @@ interface IUseDevStatusStore {
 }
 
 export const useDevStatusStore = create<IUseDevStatusStore>()(set => ({
-    devStatus: testShotConditional.isTesting ? testShotConditional.devStatus : null,
-    activeProfile: testShotConditional.isTesting ? testShotConditional.activeProfile : null,
+    devStatus: null,
+    activeProfile: null,
+
+    isTesting: false,
+    setIsTestMode: data =>
+        set(() => {
+            return {
+                isTesting: data,
+                devStatus: data ? testShotConditional.devStatus : null,
+                activeProfile: data ? testShotConditional.activeProfile : null,
+            };
+        }),
     setActiveProfile: data => set({ activeProfile: data }),
     setDevStatus: data => set({ devStatus: data }),
     setEnvironmentParam: data =>

@@ -52,10 +52,11 @@ export const useA = () => {
             helper(serverApi, shouldRetry);
             return;
         }
+        helper(serverApi, false);
 
-        if (profileWorker.getServerApi() !== serverApi) {
+        /*  if (profileWorker.getServerApi() !== serverApi) {
             helper(serverApi, false);
-        }
+        } */
     }, [serverApi, shouldRetry]);
 
     return { isLoading, errorMsg, retryHandler: () => setShouldRetry(true) };

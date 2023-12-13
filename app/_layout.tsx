@@ -19,6 +19,9 @@ import { ErrorBoundary } from '@/components/errorBoundary';
 // eslint-disable-next-line import/no-extraneous-dependencies,import/order
 import NetInfo from '@react-native-community/netinfo';
 import { ReticlesCore } from '@/core/reticlesCore';
+import { useActiveProfileStore } from '@/store/useActiveProfileStore';
+import { useDevStatusStore } from '@/store/useDevStatusStore';
+import { useReticlesStore } from '@/store/useReticlesStore';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -29,14 +32,27 @@ export default function RootLayout() {
         profileWorker.loadProto();
     }, []);
 
-    const { getDataFromStorage, theme, size, language, setIsWiFiConnected, serverHost } = useSettingStore(state => ({
-        getDataFromStorage: state.getDataFromStorage,
-        theme: state.theme,
-        size: state.size,
-        language: state.language,
-        setIsWiFiConnected: state.setIsWiFiConnected,
-        serverHost: state.serverHost,
-    }));
+    const { getDataFromStorage, theme, size, language, setIsWiFiConnected, serverHost, isDevMode } = useSettingStore(
+        state => ({
+            getDataFromStorage: state.getDataFromStorage,
+            theme: state.theme,
+            size: state.size,
+            language: state.language,
+            setIsWiFiConnected: state.setIsWiFiConnected,
+            serverHost: state.serverHost,
+            isDevMode: state.isDevMode,
+        }),
+    );
+
+    const setIsTestModeActiveProfile = useActiveProfileStore(state => state.setIsTestMode);
+    const setIsTestModeDevStatus = useDevStatusStore(state => state.setIsTestMode);
+    const setIsTestModReticles = useReticlesStore(state => state.setIsTestMode);
+
+    useEffect(() => {
+        setIsTestModeActiveProfile(isDevMode);
+        setIsTestModeDevStatus(isDevMode);
+        setIsTestModReticles(isDevMode);
+    }, [isDevMode]);
 
     useEffect(() => {
         // Initialization
@@ -63,7 +79,9 @@ export default function RootLayout() {
 
     useEffect(() => {
         const unsubscribe = NetInfo.addEventListener(state => {
-            setIsWiFiConnected(state.type === 'wifi');
+            console.log(state);
+            /* setIsWiFiConnected(state.type === 'wifi'); */
+            setIsWiFiConnected(true);
         });
         return unsubscribe;
     }, []);
