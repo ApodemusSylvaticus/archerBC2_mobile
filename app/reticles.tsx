@@ -11,7 +11,7 @@ import { Text20 } from '@/components/text/styled';
 import { useSettingStore } from '@/store/useSettingStore';
 import { RetryWithErrorMsg } from '@/components/retry';
 import { Container } from '@/components/reticles/style';
-import { ReticlesCore } from '@/core/reticlesCore';
+import { ReticlesCoreV2 } from '@/core/reticlesCore';
 import { useCheckWiFiStatus } from '@/hooks/useCheckWiFiStatus';
 
 export const Reticles: React.FC = () => {
@@ -23,7 +23,7 @@ export const Reticles: React.FC = () => {
     const [errorMsg, setErrorMsg] = useState('');
     const [shouldRetry, setShouldRetry] = useState(false);
     const [isNewFolderOpen, setIsNewFolderOpen] = useState(false);
-    const reticleCore = useMemo(() => new ReticlesCore(), []);
+    const reticleCore = useMemo(() => new ReticlesCoreV2(), []);
     const checkWifi = useCheckWiFiStatus();
     const { setDbData, reticles } = useReticlesStore(state => ({
         setDbData: state.setDbData,
@@ -46,6 +46,7 @@ export const Reticles: React.FC = () => {
             }
 
             const folders = await reticleCore.getReticleListImg(list);
+
             setDbData({ folderList: list, folders });
         } catch (e) {
             setErrorMsg(t('error_get_reticles_data'));
@@ -100,7 +101,7 @@ export const Reticles: React.FC = () => {
                         name={el}
                         onPress={() => openReticlesListModal(el)}
                         key={el}
-                        bmpImage={reticles.folders[el][0].base64Str}
+                        bmpImageUrl={reticles.folders[el][0].url}
                     />
                 ))}
 

@@ -21,7 +21,6 @@ workbook.xlsx.readFile(xlsFilePath)
             const rowData = {};
 
             row.eachCell((cell, colIndex) => {
-                console.log(cell.value)
                 const header = headers[colIndex];
                 const value = cell.value;
 

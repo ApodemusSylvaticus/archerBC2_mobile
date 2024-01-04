@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModalControllerStore } from '@/store/useModalControllerStore';
 import { DefaultModalWithBackBtn } from '@/components/modals/DefaultModal';
@@ -12,7 +12,7 @@ import { DefaultButton, DeleteButton } from '@/components/button/style';
 import { Text20 } from '@/components/text/styled';
 import { CreateNewReticleFileModal } from '@/components/modals/fullSizeImgViewModal/createNewReticleFile';
 import { AreYouSureModal } from '@/components/modals/specificModal/alertModal/areYouSure';
-import { ReticlesCore } from '@/core/reticlesCore';
+import { ReticlesCoreV2 } from '@/core/reticlesCore';
 import { useCheckWiFiStatus } from '@/hooks/useCheckWiFiStatus';
 
 export const ReticlesListModal: React.FC = () => {
@@ -34,99 +34,106 @@ export const ReticlesListModal: React.FC = () => {
         deleteFolder: state.deleteFolder,
     }));
 
-    const reticlesCore = useMemo(() => new ReticlesCore(), []);
+    const reticlesCore = useMemo(() => new ReticlesCoreV2(), []);
 
     const [fullSizeState, setFullSizeState] = useState({
         isVisible: false,
-        base64Str: '',
+        url: '',
         fileName: FILE_NAMES.FIRST,
     });
+    const deleteAction = useCallback(
+        (filePath: string, fileName: FILE_NAMES) => {
+            if (!checkWifi()) {
+                return;
+            }
+            reticlesCore
+                .deleteReticle(reticlesFolderName, filePath)
+                .then(() => {
+                    deleteFile({ folderName: reticlesFolderName, fileName });
+                    sendNotification({ type: NotificationEnum.SUCCESS, msg: t('default_file_deleted') });
+                })
+                .catch(reason => {
+                    sendNotification({
+                        type: NotificationEnum.ERROR,
+                        msg: reason.msg ?? reason.data ?? t('default_smth_went_wrong'),
+                    });
+                })
+                .finally(() => {
+                    setFullSizeState({
+                        isVisible: false,
+                        url: '',
+                        fileName: FILE_NAMES.FIRST,
+                    });
+                });
+        },
+        [checkWifi, deleteFile, reticlesCore, reticlesFolderName, sendNotification, t],
+    );
 
-    const openViewImgModal = (base64Str: string, fileName: FILE_NAMES) => {
-        setFullSizeState({ isVisible: true, base64Str, fileName });
+    const openViewImgModal = (url: string, fileName: FILE_NAMES) => {
+        setFullSizeState({ isVisible: true, url, fileName });
     };
 
     const backButtonHandler = () => {
-        setFullSizeState({ isVisible: false, base64Str: '', fileName: FILE_NAMES.FIRST });
+        setFullSizeState({ isVisible: false, url: '', fileName: FILE_NAMES.FIRST });
     };
 
-    const saveAction = (data: IReticle) => {
+    const saveAction = useCallback(
+        (prevState: IReticle, newState: IReticle) => {
+            if (!checkWifi()) {
+                return;
+            }
+            reticlesCore
+                .replaceReticles(reticlesFolderName, prevState, newState)
+                .then(() => {
+                    changeFile({
+                        prevState,
+                        newState,
+                        folderName: reticlesFolderName,
+                    });
+                    sendNotification({ type: NotificationEnum.SUCCESS, msg: t('default_files_changed') });
+                })
+                .catch(reason => {
+                    sendNotification({
+                        type: NotificationEnum.ERROR,
+                        msg: reason.msg ?? reason.data ?? t('default_smth_went_wrong'),
+                    });
+                })
+                .finally(() => {
+                    backButtonHandler();
+                });
+        },
+        [changeFile, checkWifi, reticlesCore, reticlesFolderName, sendNotification, t],
+    );
+
+    const saveActionCreateNewReticalFile = useCallback(
+        (data: IReticle) => {
+            if (!checkWifi()) {
+                return;
+            }
+            reticlesCore
+                .saveActionCreateNewReticalFile(reticlesFolderName, data)
+                .then(() => {
+                    addNewFile({ folderName: reticlesFolderName, reticle: data });
+                    sendNotification({ type: NotificationEnum.SUCCESS, msg: t('default_file_added') });
+                })
+                .catch(reason => {
+                    sendNotification({
+                        type: NotificationEnum.ERROR,
+                        msg: reason.msg ?? reason.data ?? t('default_smth_went_wrong'),
+                    });
+                })
+                .finally(() => {
+                    backButtonHandler();
+                });
+        },
+        [addNewFile, checkWifi, reticlesCore, reticlesFolderName, sendNotification, t],
+    );
+    const deleteFolderHandler = useCallback(() => {
         if (!checkWifi()) {
             return;
         }
         reticlesCore
-            .replaceReticleFile(reticlesFolderName, fullSizeState, data)
-            .then(() => {
-                changeFile({
-                    prevState: { fileName: fullSizeState.fileName, base64Str: fullSizeState.base64Str },
-                    newState: data,
-                    folderName: reticlesFolderName,
-                });
-                sendNotification({ type: NotificationEnum.SUCCESS, msg: t('default_files_changed') });
-            })
-            .catch(reason => {
-                sendNotification({
-                    type: NotificationEnum.ERROR,
-                    msg: reason.msg ?? reason.data ?? t('default_smth_went_wrong'),
-                });
-            })
-            .finally(() => {
-                backButtonHandler();
-            });
-    };
-
-    const deleteAction = () => {
-        if (!checkWifi()) {
-            return;
-        }
-        reticlesCore
-            .deleteReticle(reticlesFolderName, fullSizeState.fileName)
-            .then(() => {
-                deleteFile({ folderName: reticlesFolderName, fileName: fullSizeState.fileName });
-                sendNotification({ type: NotificationEnum.SUCCESS, msg: t('default_file_deleted') });
-            })
-            .catch(reason => {
-                sendNotification({
-                    type: NotificationEnum.ERROR,
-                    msg: reason.msg ?? reason.data ?? t('default_smth_went_wrong'),
-                });
-            })
-            .finally(() => {
-                setFullSizeState({
-                    isVisible: false,
-                    base64Str: '',
-                    fileName: FILE_NAMES.FIRST,
-                });
-            });
-    };
-
-    const saveActionCNRF = (data: IReticle) => {
-        if (!checkWifi()) {
-            return;
-        }
-        reticlesCore
-            .sendFolderToServer(reticlesFolderName, [{ fileName: data.fileName, base64Str: data.base64Str }])
-            .then(() => {
-                addNewFile({ folderName: reticlesFolderName, reticle: data });
-                sendNotification({ type: NotificationEnum.SUCCESS, msg: t('default_file_added') });
-            })
-            .catch(reason => {
-                sendNotification({
-                    type: NotificationEnum.ERROR,
-                    msg: reason.msg ?? reason.data ?? t('default_smth_went_wrong'),
-                });
-            })
-            .finally(() => {
-                backButtonHandler();
-            });
-    };
-
-    const deleteFolderHandler = () => {
-        if (!checkWifi()) {
-            return;
-        }
-        reticlesCore
-            .deleteReticleFolder(reticlesFolderName)
+            .deleteReticleByFolderName(reticlesFolderName)
             .then(() => {
                 close();
                 deleteFolder(reticlesFolderName);
@@ -139,7 +146,7 @@ export const ReticlesListModal: React.FC = () => {
                 });
             })
             .finally(() => setAreUSureDeleteFolder(false));
-    };
+    }, [checkWifi, close, deleteFolder, reticlesCore, reticlesFolderName, sendNotification, t]);
 
     useEffect(() => {
         if (!reticles.folders[reticlesFolderName]) {
@@ -157,9 +164,9 @@ export const ReticlesListModal: React.FC = () => {
             {reticles.folders[reticlesFolderName].map(el => (
                 <ReticleTab
                     name={convertFromFileNameToString(el.fileName)}
-                    onPress={() => openViewImgModal(el.base64Str, el.fileName)}
+                    onPress={() => openViewImgModal(el.url, el.fileName)}
                     key={`${reticlesFolderName}_${el.fileName}`}
-                    bmpImage={el.base64Str}
+                    bmpImageUrl={el.url}
                 />
             ))}
 
@@ -181,7 +188,7 @@ export const ReticlesListModal: React.FC = () => {
             />
 
             <CreateNewReticleFileModal
-                saveAction={saveActionCNRF}
+                saveAction={saveActionCreateNewReticalFile}
                 selectedList={reticles.folders[reticlesFolderName].map(el => el.fileName)}
                 backButtonHandler={() => setIsCreateNewFileOpen(false)}
                 isVisible={isCreateNewFileOpen}
@@ -190,7 +197,7 @@ export const ReticlesListModal: React.FC = () => {
                 saveAction={saveAction}
                 selectedList={reticles.folders[reticlesFolderName].map(el => el.fileName)}
                 deleteAction={deleteAction}
-                base64Str={fullSizeState.base64Str}
+                url={fullSizeState.url}
                 fileName={fullSizeState.fileName}
                 isVisible={fullSizeState.isVisible}
                 backButtonHandler={backButtonHandler}

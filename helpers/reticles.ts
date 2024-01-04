@@ -12,6 +12,28 @@ export const convertFromDb = (data: string): FILE_NAMES => {
             return FILE_NAMES.FOURTH;
         case '6.bmp':
             return FILE_NAMES.SIXTH;
+
+        case '1.png':
+            return FILE_NAMES.FIRST;
+        case '2.png':
+            return FILE_NAMES.SECOND;
+        case '3.png':
+            return FILE_NAMES.THIRD;
+        case '4.png':
+            return FILE_NAMES.FOURTH;
+        case '6.png':
+            return FILE_NAMES.SIXTH;
+
+        case '1.jpg':
+            return FILE_NAMES.FIRST;
+        case '2.jpg':
+            return FILE_NAMES.SECOND;
+        case '3.jpg':
+            return FILE_NAMES.THIRD;
+        case '4.jpg':
+            return FILE_NAMES.FOURTH;
+        case '6.jpg':
+            return FILE_NAMES.SIXTH;
         default:
             throw new Error('convertFromDb error');
     }
@@ -20,15 +42,15 @@ export const convertFromDb = (data: string): FILE_NAMES => {
 export const convertToDB = (data: FILE_NAMES): string => {
     switch (data) {
         case FILE_NAMES.FIRST:
-            return '1';
+            return '1.bmp';
         case FILE_NAMES.SECOND:
-            return '2';
+            return '2.bmp';
         case FILE_NAMES.THIRD:
-            return '3';
+            return '3.bmp';
         case FILE_NAMES.FOURTH:
-            return '4';
+            return '4.bmp';
         case FILE_NAMES.SIXTH:
-            return '6';
+            return '6.bmp';
         default:
             throw new Error('convertToDB error');
     }

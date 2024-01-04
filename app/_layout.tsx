@@ -18,7 +18,7 @@ import { ProfileWorker } from '@/core/profileWorker';
 import { ErrorBoundary } from '@/components/errorBoundary';
 // eslint-disable-next-line import/no-extraneous-dependencies,import/order
 import NetInfo from '@react-native-community/netinfo';
-import { ReticlesCore } from '@/core/reticlesCore';
+import { ReticlesCoreV2 } from '@/core/reticlesCore';
 import { useActiveProfileStore } from '@/store/useActiveProfileStore';
 import { useDevStatusStore } from '@/store/useDevStatusStore';
 import { useReticlesStore } from '@/store/useReticlesStore';
@@ -54,12 +54,11 @@ export default function RootLayout() {
         setIsTestModReticles(isDevMode);
     }, [isDevMode]);
 
+    // TODO isNecessary?
     useEffect(() => {
         // Initialization
-        const reticleCore = new ReticlesCore();
+        const reticleCore = new ReticlesCoreV2();
         reticleCore.setHrefBase(serverHost);
-        const profileWorker = new ProfileWorker();
-        profileWorker.setHrefBase(serverHost);
     }, []);
 
     const { i18n } = useTranslation();
@@ -79,8 +78,8 @@ export default function RootLayout() {
 
     useEffect(() => {
         const unsubscribe = NetInfo.addEventListener(state => {
-            console.log(state);
             /* setIsWiFiConnected(state.type === 'wifi'); */
+            console.log(state);
             setIsWiFiConnected(true);
         });
         return unsubscribe;

@@ -22,7 +22,11 @@ export class CoreProtobuf implements ICoreProtobuf {
 
     t!: (data: string) => string;
 
-    actualServerApi: string = '';
+    private actualServerApi: string = '';
+
+    get getActualServerApi() {
+        return this.actualServerApi;
+    }
 
     private commandMappings:
         | {
@@ -85,6 +89,7 @@ export class CoreProtobuf implements ICoreProtobuf {
             return CoreProtobuf.instance;
         }
         CoreProtobuf.instance = this;
+        this.loadProto();
         // eslint-disable-next-line no-constructor-return
         return this;
     }
@@ -124,14 +129,13 @@ export class CoreProtobuf implements ICoreProtobuf {
         this.ws.binaryType = 'arraybuffer';
         this.ws.onopen = event => {
             this.actualServerApi = serverApi;
+            this.getHostDevStatus();
             console.log('WebSocket connection opened:', event);
-            this.loadProto().then(() => this.getHostDevStatus());
         };
         this.ws.onerror = event => {
             console.log('WebSocket error:', event);
             this.actualServerApi = '';
             this.setErrorMsg(this.t('error_sc_connection_failed'));
-            this.setIsLoading(false);
         };
         this.ws.onclose = event => {
             this.setIsLoading(false);
@@ -139,13 +143,13 @@ export class CoreProtobuf implements ICoreProtobuf {
             this.actualServerApi = '';
             console.log('WebSocket connection closed:', event);
         };
+
         this.ws.onmessage = event => this.handleServerMessage(event.data);
     }
 
-    loadProto = async () => {
-        /*    const protoResponse = await fetch('assets/demo_protocol.proto');
-        const protoText = await protoResponse.text(); */
-
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    loadProto = () => {
         const protobufRoot = protobuf.parse(`syntax = "proto3";
 
 package demo_protocol;
@@ -512,8 +516,6 @@ message HostProfile {
             defaults: true,
         });
 
-        console.log('hostPayloadObject', hostPayloadObject);
-
         if (hostPayloadObject?.profile?.profileFileName) {
             if (!this.setActiveProfile) {
                 throw new Error('Forgot to add method');
@@ -524,9 +526,10 @@ message HostProfile {
             if (!this.setDevStatus) {
                 throw new Error('Forgot to add method');
             }
-            this.setIsLoading(false);
 
             this.setDevStatus(hostPayloadObject.devStatus);
+            this.getHostProfile();
+            this.setIsLoading(false);
         }
     };
 
@@ -675,7 +678,6 @@ message HostProfile {
     }
 
     getHostDevStatus() {
-        console.log('getHostDevStatus');
         const commandData = {
             commandType: 'getHostDevStatus',
         };
@@ -683,8 +685,6 @@ message HostProfile {
     }
 
     getHostProfile() {
-        console.log('getHostProfile');
-
         const commandData = {
             commandType: 'getHostProfile',
         };

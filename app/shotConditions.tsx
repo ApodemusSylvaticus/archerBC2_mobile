@@ -9,18 +9,35 @@ import { useDevStatusStore } from '@/store/useDevStatusStore';
 import { useSettingStore } from '@/store/useSettingStore';
 import { Loader } from '@/components/loader';
 import { RetryWithErrorMsg } from '@/components/retry';
-import { testShotConditional } from '@/constant/testValue';
+import { useUpdateEnvParam } from '@/hooks/useUpdate';
 
+const Updater: React.FC = () => {
+    useUpdateEnvParam();
+    const { rem } = useTheme();
+
+    const devStatus = useDevStatusStore(state => state.devStatus);
+
+    if (devStatus === null) {
+        return <Loader size={rem * 3.2} />;
+    }
+
+    return (
+        <DefaultColumnContainer>
+            <WindParamColumn />
+            <EnvironmentParam />
+        </DefaultColumnContainer>
+    );
+};
 const ShotConditions: React.FC = () => {
-    const { setDevStatus, setActiveProfile, devStatus } = useDevStatusStore(state => ({
+    const { setDevStatus, setActiveProfile, devStatus, isTesting } = useDevStatusStore(state => ({
         setDevStatus: state.setDevStatus,
         setActiveProfile: state.setActiveProfile,
         devStatus: state.devStatus,
+        isTesting: state.isTesting,
     }));
     const { t } = useTranslation();
     const { rem } = useTheme();
     const [shouldRetry, setShouldRetry] = useState(false);
-
     const [isLoading, setIsLoading] = useState(!devStatus);
     const [errorMsg, setErrorMsg] = useState('');
 
@@ -33,7 +50,7 @@ const ShotConditions: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (testShotConditional.isTesting) {
+        if (isTesting) {
             return;
         }
         coreProtobuf.connect(serverApi);
@@ -53,12 +70,7 @@ const ShotConditions: React.FC = () => {
                 <RetryWithErrorMsg retryHandler={() => setShouldRetry(true)} msg={errorMsg} />
             )}
 
-            {!isLoading && errorMsg === '' && (
-                <DefaultColumnContainer>
-                    <WindParamColumn />
-                    <EnvironmentParam />
-                </DefaultColumnContainer>
-            )}
+            {!isLoading && errorMsg === '' && <Updater />}
         </AppContainer>
     );
 };

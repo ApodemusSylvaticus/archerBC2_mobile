@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Skia, SkImage } from '@shopify/react-native-skia';
+import { SkImage, useImage } from '@shopify/react-native-skia';
 import { useTranslation } from 'react-i18next';
 import { DefaultModal, ModalHeader } from '@/components/modals/DefaultModal';
 import { Nullable } from '@/interface/helper';
@@ -14,8 +14,11 @@ export const PixelEditorModal: React.FC<PixelEditorModalProps> = ({
     image,
     setNewImg,
 }) => {
+    /*
     const img = Skia.Image.MakeImageFromEncoded(Skia.Data.fromBase64(image));
+*/
 
+    const img = useImage(image);
     const { t } = useTranslation();
     const [stage, setStage] = useState(0);
     const [readyToChangeImg, setReadyToChangeImg] = useState<Nullable<SkImage>>(null);

@@ -5,9 +5,9 @@ import { TextSemiBold24 } from '@/components/text/styled';
 interface IReticleTab {
     name: string;
     onPress: () => void;
-    bmpImage: string;
+    bmpImageUrl: string;
 }
-export const ReticleTab: React.FC<IReticleTab> = ({ name, onPress, bmpImage }) => {
+export const ReticleTab: React.FC<IReticleTab> = ({ name, onPress, bmpImageUrl }) => {
     return (
         <Container onPress={onPress}>
             <NameBlock>
@@ -19,7 +19,8 @@ export const ReticleTab: React.FC<IReticleTab> = ({ name, onPress, bmpImage }) =
                     resizeMode: 'cover',
                 }}
                 source={{
-                    uri: `data:image/jpeg;base64,${bmpImage}`,
+                    uri: bmpImageUrl,
+                    cache: 'reload',
                 }}
             />
         </Container>
