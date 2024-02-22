@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from 'styled-components/native';
 import { AppContainer } from '@/components/container/appContainer';
 import { Loader } from '@/components/loader';
 import { ReticleTab } from '@/components/reticles/reticleTab';
@@ -18,6 +19,7 @@ export const Reticles: React.FC = () => {
     const openReticlesListModal = useModalControllerStore(state => state.openReticlesListModal);
     const serverApi = useSettingStore(state => state.serverHost);
     const { t } = useTranslation();
+    const { rem } = useTheme();
 
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
@@ -46,6 +48,7 @@ export const Reticles: React.FC = () => {
             }
 
             const folders = await reticleCore.getReticleListImg(list);
+
             setDbData({ folderList: list, folders });
         } catch (e) {
             setErrorMsg(t('error_get_reticles_data'));
@@ -80,7 +83,7 @@ export const Reticles: React.FC = () => {
     if (isLoading) {
         return (
             <AppContainer>
-                <Loader size={20} />
+                <Loader size={rem * 3.2} />
             </AppContainer>
         );
     }
@@ -100,7 +103,7 @@ export const Reticles: React.FC = () => {
                         name={el}
                         onPress={() => openReticlesListModal(el)}
                         key={el}
-                        bmpImage={reticles.folders[el][0].base64Str}
+                        bmpImageUrl={reticles.folders[el][0].url}
                     />
                 ))}
 

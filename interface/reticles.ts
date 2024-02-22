@@ -7,10 +7,10 @@ export enum FILE_NAMES {
 }
 export interface IReticle {
     fileName: FILE_NAMES;
-    base64Str: string;
+    url: string;
 }
 
 export interface IDbReticle {
     fileName: string;
-    base64Str: string;
+    url: string;
 }

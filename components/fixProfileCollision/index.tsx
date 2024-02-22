@@ -74,7 +74,6 @@ export const FixProfileCollision: React.FC<PropsWithChildren> = ({ children }) =
         if (!hasCollision) {
             return;
         }
-        console.log({ profileListServerData, fileList, hasCollision });
 
         handler();
     }, [hasCollision, fileList, profileListServerData]);

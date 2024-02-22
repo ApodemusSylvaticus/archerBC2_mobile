@@ -21,8 +21,10 @@ import { RetryWithErrorMsg } from '@/components/retry';
 import { IProfileListServerData } from '@/interface/core/profileProtobuf';
 import { FixProfileCollision } from '@/components/fixProfileCollision';
 import { useCheckWiFiStatus } from '@/hooks/useCheckWiFiStatus';
+import { useUpdateActiveProfile } from '@/hooks/useUpdate';
 
 const Content: React.FC = () => {
+    useUpdateActiveProfile();
     const sendNotification = useNotificationStore(state => state.sendNotification);
     const importProfile = useProfileStore(state => state.importProfile);
     const [isLoading, setIsLoading] = useState(true);
@@ -374,7 +376,6 @@ const Content: React.FC = () => {
                 sendNotification({ type: NotificationEnum.SUCCESS, msg: t('default_profile_updated') });
                 handleRefreshList();
             } else {
-                console.log(res);
                 sendNotification({ type: NotificationEnum.SUCCESS, msg: t('error_failed_to_update_profile_data') });
             }
         });

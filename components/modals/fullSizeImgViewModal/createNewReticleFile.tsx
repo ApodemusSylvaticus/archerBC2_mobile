@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'styled-components/native';
 import Animated, {
@@ -16,6 +16,7 @@ import { FILE_NAMES, IReticle } from '@/interface/reticles';
 import { DefaultModal, DefaultModalWithBackBtnProps, ModalHeader } from '@/components/modals/DefaultModal';
 import { findSmallestMissingValue } from '@/helpers/findSmallestMissingValue';
 import { PixelEditorModal } from '@/components/modals/pixelEditor';
+import { convertBase64ToBmpFile } from '@/helpers/createUrlFromBase64';
 
 interface CreateNewReticleFileModalProps extends DefaultModalWithBackBtnProps {
     saveAction: (data: IReticle) => void;
@@ -32,12 +33,12 @@ export const CreateNewReticleFileModal: React.FC<CreateNewReticleFileModalProps>
     const { t } = useTranslation();
     const { colors } = useTheme();
     const [localState, setLocalState] = useState<IReticle>({
-        base64Str: '',
+        url: '',
         fileName: findSmallestMissingValue(selectedList),
     });
 
     useEffect(() => {
-        setLocalState({ base64Str: '', fileName: findSmallestMissingValue(selectedList) });
+        setLocalState({ url: '', fileName: findSmallestMissingValue(selectedList) });
     }, [selectedList]);
     const scale = useSharedValue(1);
     const [zIndex, setZIndex] = useState(1);
@@ -50,14 +51,23 @@ export const CreateNewReticleFileModal: React.FC<CreateNewReticleFileModalProps>
 
     const pinchGestureHandler = useAnimatedGestureHandler({
         onStart: event => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
             initialFocalX.value = event.focalX;
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
             initialFocalY.value = event.focalY;
         },
         onActive: event => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
             offsetX.value = event.focalX - initialFocalX.value;
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
             offsetY.value = event.focalY - initialFocalY.value;
 
-            // Устанавливаем масштаб
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
             scale.value = event.scale;
         },
         onEnd: () => {
@@ -78,28 +88,31 @@ export const CreateNewReticleFileModal: React.FC<CreateNewReticleFileModalProps>
             allowsEditing: true,
             quality: 1,
             aspect: [4, 3],
-            base64: true,
         });
         if (result.canceled) {
             return;
         }
 
-        const base64Str = result.assets[0].base64;
-        if (!base64Str) {
-            throw new Error('Cannot convert img to base64');
-        }
+        const { uri } = result.assets[0];
 
-        setLocalState(prevState => ({ base64Str, fileName: prevState.fileName }));
+        setLocalState(prevState => ({ url: uri, fileName: prevState.fileName }));
     };
 
     const setFileName = (val: number) => {
-        setLocalState(prev => ({ base64Str: prev.base64Str, fileName: val }));
+        setLocalState(prev => ({ url: prev.url, fileName: val }));
     };
 
     const createNew = () => {
         saveAction(localState);
         backButtonHandler();
     };
+
+    const setNewImg = useCallback(async (base64Str: string) => {
+        const url = await convertBase64ToBmpFile(base64Str);
+
+        setLocalState(prevState => ({ fileName: prevState.fileName, url }));
+        setIsPixelEditorOpen(false);
+    }, []);
 
     return (
         <DefaultModal isVisible={isVisible}>
@@ -122,11 +135,11 @@ export const CreateNewReticleFileModal: React.FC<CreateNewReticleFileModalProps>
 
                 <DefaultButton onPress={chooseImage}>
                     <GoBackButtonText>
-                        {localState.base64Str === '' ? t('reticles_add_bmp') : t('reticles_change_bmp')}
+                        {localState.url === '' ? t('reticles_add_bmp') : t('reticles_change_bmp')}
                     </GoBackButtonText>
                 </DefaultButton>
 
-                {localState.base64Str !== '' && (
+                {localState.url !== '' && (
                     <GestureHandlerRootView style={{ flex: 0.45, width: '100%', zIndex }}>
                         <PinchGestureHandler
                             onGestureEvent={pinchGestureHandler}
@@ -135,7 +148,8 @@ export const CreateNewReticleFileModal: React.FC<CreateNewReticleFileModalProps>
                             <Animated.View style={{ flex: 1 }}>
                                 <Animated.Image
                                     source={{
-                                        uri: `data:image/jpeg;base64,${localState.base64Str}`,
+                                        uri: localState.url,
+                                        cache: 'only-if-cached',
                                     }}
                                     style={[{ flex: 1, resizeMode: 'contain' }, animatedStyle]}
                                 />
@@ -144,16 +158,13 @@ export const CreateNewReticleFileModal: React.FC<CreateNewReticleFileModalProps>
                     </GestureHandlerRootView>
                 )}
 
-                {localState.base64Str !== '' && (
+                {localState.url !== '' && (
                     <>
                         <PixelEditorModal
-                            setNewImg={data => {
-                                setLocalState(prevState => ({ fileName: prevState.fileName, base64Str: data }));
-                                setIsPixelEditorOpen(false);
-                            }}
+                            setNewImg={setNewImg}
                             backButtonHandler={() => setIsPixelEditorOpen(false)}
                             isVisible={isPixelEditorOpen}
-                            image={localState.base64Str}
+                            image={localState.url}
                         />
                         <DefaultButton onPress={() => setIsPixelEditorOpen(true)}>
                             <GoBackButtonText>{t('reticles_pixel_editor')}</GoBackButtonText>
@@ -161,7 +172,7 @@ export const CreateNewReticleFileModal: React.FC<CreateNewReticleFileModalProps>
                     </>
                 )}
 
-                {localState.base64Str !== '' && (
+                {localState.url !== '' && (
                     <AcceptButton onPress={createNew}>
                         <GoBackButtonText>{t('default_save')}</GoBackButtonText>
                     </AcceptButton>

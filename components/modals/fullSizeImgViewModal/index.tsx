@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GestureHandlerRootView, PinchGestureHandler } from 'react-native-gesture-handler';
 import Animated, {
@@ -16,24 +16,25 @@ import { FILE_NAMES, IReticle } from '@/interface/reticles';
 import { SelectInput } from '@/components/Inputs/select/select';
 import { DeleteButtonWithConfirm } from '@/components/button/deleteButtonWithConfirm';
 import { PixelEditorModal } from '@/components/modals/pixelEditor';
+import { convertBase64ToBmpFile } from '@/helpers/createUrlFromBase64';
 
 interface FullSizeImgViewModalProps extends DefaultModalWithBackBtnProps, IReticle {
-    saveAction: (data: IReticle) => void;
+    saveAction: (prevState: IReticle, newState: IReticle) => void;
     selectedList: FILE_NAMES[];
-    deleteAction: () => void;
+    deleteAction: (filePath: string, fileName: FILE_NAMES) => void;
 }
 export const FullSizeImgViewModal: React.FC<FullSizeImgViewModalProps> = ({
     isVisible,
     backButtonHandler,
     fileName,
     saveAction,
-    base64Str,
+    url,
     deleteAction,
     selectedList,
 }) => {
     const { t } = useTranslation();
     const [localState, setLocalState] = useState<IReticle>({
-        base64Str,
+        url,
         fileName,
     });
 
@@ -74,44 +75,50 @@ export const FullSizeImgViewModal: React.FC<FullSizeImgViewModalProps> = ({
 
     const goBack = () => {
         setLocalState({
-            base64Str,
+            url,
             fileName,
         });
         backButtonHandler();
     };
     const handleSave = () => {
-        saveAction(localState);
+        saveAction({ url, fileName }, localState);
     };
 
     useEffect(() => {
-        setLocalState({ base64Str, fileName });
-    }, [base64Str, fileName]);
+        setLocalState({ url, fileName });
+    }, [url, fileName]);
 
     const setFileName = (val: number) => {
-        setLocalState(prev => ({ base64Str: prev.base64Str, fileName: val }));
+        setLocalState(prev => ({ url: prev.url, fileName: val }));
     };
     const chooseImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             quality: 1,
             aspect: [4, 3],
-            base64: true,
         });
         if (result.canceled) {
             return;
         }
 
-        const newBase64Str = result.assets[0].base64;
-        if (!newBase64Str) {
+        const newUrl = result.assets[0].uri;
+        if (!newUrl) {
             return;
         }
-        setLocalState(prevState => ({ fileName: prevState.fileName, base64Str: newBase64Str }));
+        setLocalState(prevState => ({ fileName: prevState.fileName, url: newUrl }));
     };
 
     const acceptDeleteHandler = async () => {
-        deleteAction();
+        deleteAction(url, fileName);
     };
+
+    const setNewImg = useCallback(async (base64Str: string) => {
+        const temporaryUrl = await convertBase64ToBmpFile(base64Str);
+
+        setLocalState(prevState => ({ fileName: prevState.fileName, url: temporaryUrl }));
+        setIsPixelEditorOpen(false);
+    }, []);
 
     return (
         <DefaultModal isVisible={isVisible}>
@@ -141,11 +148,11 @@ export const FullSizeImgViewModal: React.FC<FullSizeImgViewModalProps> = ({
 
                 <DefaultButton onPress={chooseImage}>
                     <GoBackButtonText>
-                        {localState.base64Str === '' ? t('reticles_add_bmp') : t('reticles_change_bmp')}
+                        {localState.url === '' ? t('reticles_add_bmp') : t('reticles_change_bmp')}
                     </GoBackButtonText>
                 </DefaultButton>
 
-                {localState.base64Str !== '' && (
+                {localState.url !== '' && (
                     <GestureHandlerRootView
                         style={{
                             flex: 0.45,
@@ -158,8 +165,13 @@ export const FullSizeImgViewModal: React.FC<FullSizeImgViewModalProps> = ({
                             onEnded={() => setZIndex(1)}>
                             <Animated.View style={{ flex: 1 }}>
                                 <Animated.Image
+                                    key={Math.random()}
                                     source={{
-                                        uri: `data:image/jpeg;base64,${localState.base64Str}`,
+                                        uri: localState.url,
+                                        cache: 'reload',
+                                        headers: {
+                                            Pragma: 'no-cache',
+                                        },
                                     }}
                                     style={[{ flex: 1, resizeMode: 'contain' }, animatedStyle]}
                                 />
@@ -168,16 +180,13 @@ export const FullSizeImgViewModal: React.FC<FullSizeImgViewModalProps> = ({
                     </GestureHandlerRootView>
                 )}
 
-                {localState.base64Str !== '' && (
+                {localState.url !== '' && (
                     <>
                         <PixelEditorModal
-                            setNewImg={data => {
-                                setLocalState(prevState => ({ fileName: prevState.fileName, base64Str: data }));
-                                setIsPixelEditorOpen(false);
-                            }}
+                            setNewImg={setNewImg}
                             backButtonHandler={() => setIsPixelEditorOpen(false)}
                             isVisible={isPixelEditorOpen}
-                            image={localState.base64Str}
+                            image={localState.url}
                         />
                         <DefaultButton onPress={() => setIsPixelEditorOpen(true)}>
                             <GoBackButtonText>{t('reticles_pixel_editor')}</GoBackButtonText>
@@ -185,7 +194,7 @@ export const FullSizeImgViewModal: React.FC<FullSizeImgViewModalProps> = ({
                     </>
                 )}
 
-                {(localState.base64Str !== base64Str || localState.fileName !== fileName) && (
+                {(localState.url !== url || localState.fileName !== fileName) && (
                     <AcceptButton onPress={handleSave}>
                         <GoBackButtonText>{t('default_save_changes')}</GoBackButtonText>
                     </AcceptButton>

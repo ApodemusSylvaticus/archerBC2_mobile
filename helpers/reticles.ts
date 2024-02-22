@@ -2,16 +2,17 @@ import { FILE_NAMES } from '@/interface/reticles';
 
 export const convertFromDb = (data: string): FILE_NAMES => {
     switch (data) {
-        case '1.bmp':
+        case '1':
             return FILE_NAMES.FIRST;
-        case '2.bmp':
+        case '2':
             return FILE_NAMES.SECOND;
-        case '3.bmp':
+        case '3':
             return FILE_NAMES.THIRD;
-        case '4.bmp':
+        case '4':
             return FILE_NAMES.FOURTH;
-        case '6.bmp':
+        case '6':
             return FILE_NAMES.SIXTH;
+
         default:
             throw new Error('convertFromDb error');
     }

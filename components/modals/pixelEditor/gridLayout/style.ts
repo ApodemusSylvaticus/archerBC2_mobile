@@ -11,11 +11,3 @@ export const Container = styled.View`
     top: 0;
     left: 0;
 `;
-
-interface CeilProps {
-    size: number;
-    totalWidth: number;
-}
-export const Cell = styled.View<CeilProps>`
-    border-color: ${props => props.theme.colors.l1ActiveEl};
-`;

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTheme } from 'styled-components/native';
 import { Formik } from 'formik';
 import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
@@ -26,7 +26,7 @@ import { degreesFromNumber } from '@/helpers/fromNumberToDeg';
 import { BulletSpeedSVG } from '@/components/svg/bulletSpeed';
 import { UintText } from '@/components/Inputs/style';
 
-export const WindParamColumn: React.FC = () => {
+export const WindParamColumn: React.FC = React.memo(() => {
     const { setWindParam, devStatus } = useDevStatusStore(state => ({
         devStatus: state.devStatus,
         setWindParam: state.setWindParam,
@@ -35,17 +35,17 @@ export const WindParamColumn: React.FC = () => {
         throw new Error('Missing devStatus');
     }
 
+    const [initialValue, setInitialValue] = useState({
+        windSpeed: devStatus.pitch.toString(),
+        windDir: devStatus.windDir.toString(),
+    });
+
     const { colors, rem } = useTheme();
     const { windParamSchema } = useValidationSchema();
     const { t } = useTranslation();
 
     const coreProtobuf = useMemo(() => new CoreProtobuf(), []);
     const rotationParam = useSharedValue(devStatus.windDir);
-
-    const initialValue = {
-        windSpeed: devStatus.pitch.toString(),
-        windDir: devStatus.windDir.toString(),
-    };
 
     const isChanged = (value: typeof initialValue) => {
         if (initialValue.windSpeed !== value.windSpeed) {
@@ -77,10 +77,32 @@ export const WindParamColumn: React.FC = () => {
         });
     };
 
+    useEffect(() => {
+        if (
+            devStatus.windDir.toString() !== initialValue.windDir ||
+            devStatus.pitch.toString() !== initialValue.windSpeed
+        ) {
+            setInitialValue({
+                windSpeed: devStatus.pitch.toString(),
+                windDir: devStatus.windDir.toString(),
+            });
+        }
+
+        if (devStatus.windDir !== rotationParam.value) {
+            const realValue = degreesFromNumber(devStatus.windDir);
+
+            rotationParam.value = withTiming(realValue, {
+                duration: 200,
+                easing: Easing.linear,
+            });
+        }
+    }, [devStatus]);
+
     return (
         <Formik
             validationSchema={windParamSchema}
             initialValues={initialValue}
+            enableReinitialize
             onSubmit={value => {
                 if (!isChanged(value)) {
                     return;
@@ -158,9 +180,9 @@ export const WindParamColumn: React.FC = () => {
             )}
         </Formik>
     );
-};
+});
 
-export const EnvironmentParam: React.FC = () => {
+export const EnvironmentParam: React.FC = React.memo(() => {
     const { setEnvironmentParam, devStatus } = useDevStatusStore(state => ({
         devStatus: state.devStatus,
         setEnvironmentParam: state.setEnvironmentParam,
@@ -179,19 +201,27 @@ export const EnvironmentParam: React.FC = () => {
 
     const [isChained, setIsChained] = useState<boolean>(airTemp === powderTemp);
 
+    const [initialValue, setInitialValue] = useState({
+        pressure: airPress.toString(),
+        humidity: airHum.toString(),
+        temperature: airTemp.toString(),
+        powderTemperature: powderTemp.toString(),
+    });
+
+    useEffect(() => {
+        setInitialValue({
+            pressure: airPress.toString(),
+            humidity: airHum.toString(),
+            temperature: airTemp.toString(),
+            powderTemperature: powderTemp.toString(),
+        });
+    }, [airPress, airHum, airTemp, powderTemp]);
     const handleChain = () => {
         setIsChained(true);
     };
 
     const handleUnChain = () => {
         setIsChained(false);
-    };
-
-    const initialValue = {
-        pressure: airPress.toString(),
-        humidity: airHum.toString(),
-        temperature: airTemp.toString(),
-        powderTemperature: powderTemp.toString(),
     };
 
     const isChanged = (value: typeof initialValue) => {
@@ -217,15 +247,28 @@ export const EnvironmentParam: React.FC = () => {
         <Formik
             validationSchema={environmentParamColumnSchema}
             initialValues={initialValue}
+            enableReinitialize
             onSubmit={value => {
                 if (!isChanged(value)) {
                     return;
                 }
 
-                coreProtobuf.setAirPressureToServer(+value.pressure);
-                coreProtobuf.setPowderTemperatureToServer(+value.powderTemperature);
-                coreProtobuf.setAirHumidityToServer(+value.humidity);
-                coreProtobuf.setAirTempToServer(+value.temperature);
+                if (initialValue.pressure !== value.pressure) {
+                    coreProtobuf.setAirPressureToServer(+value.pressure);
+                }
+
+                if (initialValue.powderTemperature !== value.powderTemperature) {
+                    coreProtobuf.setPowderTemperatureToServer(+value.powderTemperature);
+                }
+
+                if (initialValue.humidity !== value.humidity) {
+                    coreProtobuf.setAirHumidityToServer(+value.humidity);
+                }
+
+                if (initialValue.temperature !== value.temperature) {
+                    coreProtobuf.setAirTempToServer(+value.temperature);
+                }
+
                 setEnvironmentParam({
                     airPress: +value.pressure,
                     powderTemp: +value.powderTemperature,
@@ -352,4 +395,4 @@ export const EnvironmentParam: React.FC = () => {
             )}
         </Formik>
     );
-};
+});

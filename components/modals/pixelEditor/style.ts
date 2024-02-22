@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 import { rem } from '@/helpers/rem';
+import { DefaultButton } from '@/components/button/style';
 
 export const ToolsContainer = styled.View`
     margin-top: ${props => rem(props, 1.6)};
@@ -8,6 +9,20 @@ export const ToolsContainer = styled.View`
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+`;
+
+export const CenterControllerContainer = styled.View`
+    margin-top: ${props => rem(props, 0.8)};
+    padding: 0 ${props => rem(props, 1)};
+    gap: ${props => rem(props, 0.8)};
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+`;
+
+export const CenterControllerButton = styled(DefaultButton)`
+    flex: 1;
 `;
 
 export const PressableTool = styled.Pressable`

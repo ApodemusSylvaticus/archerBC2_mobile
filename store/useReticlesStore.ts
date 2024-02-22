@@ -21,6 +21,18 @@ interface IUseReticlesStore {
     changeFile: (params: { folderName: string; prevState: IReticle; newState: IReticle }) => void;
 }
 
+interface IUseReticlesStore {
+    isTesting: boolean;
+    setIsTestMode: (data: boolean) => void;
+    reticles: ReticlesFolders;
+    setDbData: (data: ReticlesFolders) => void;
+    deleteFile: (params: { folderName: string; fileName: FILE_NAMES }) => void;
+    addNewFile: (params: { folderName: string; reticle: IReticle }) => void;
+    deleteFolder: (folderName: string) => void;
+    addNewFolder: (data: { folderName: string; newReticles: IReticle[] }) => void;
+    changeFile: (params: { folderName: string; prevState: IReticle; newState: IReticle }) => void;
+}
+
 export const useReticlesStore = create<IUseReticlesStore>(set => ({
     reticles: {
         folderList: [],

@@ -54,12 +54,11 @@ export default function RootLayout() {
         setIsTestModReticles(isDevMode);
     }, [isDevMode]);
 
+    // TODO isNecessary?
     useEffect(() => {
         // Initialization
         const reticleCore = new ReticlesCore();
         reticleCore.setHrefBase(serverHost);
-        const profileWorker = new ProfileWorker();
-        profileWorker.setHrefBase(serverHost);
     }, []);
 
     const { i18n } = useTranslation();
@@ -79,9 +78,7 @@ export default function RootLayout() {
 
     useEffect(() => {
         const unsubscribe = NetInfo.addEventListener(state => {
-            console.log(state);
-            /* setIsWiFiConnected(state.type === 'wifi'); */
-            setIsWiFiConnected(true);
+            setIsWiFiConnected(state.type === 'wifi');
         });
         return unsubscribe;
     }, []);

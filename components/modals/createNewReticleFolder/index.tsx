@@ -44,14 +44,14 @@ export const CreateNewReticleFolderModal: React.FC<DefaultModalWithBackBtnProps>
 
     const [fullSizeModalState, setFullSizeModalState] = useState({
         isOpen: false,
-        base64Str: '',
+        url: '',
         fileName: FILE_NAMES.FIRST,
     });
 
     const addNewFile = (data: IReticle) => {
         setState(prevState => ({
             ...prevState,
-            list: [...prevState.list, { fileName: data.fileName, base64Str: data.base64Str }],
+            list: [...prevState.list, { fileName: data.fileName, url: data.url }],
         }));
     };
 
@@ -64,11 +64,11 @@ export const CreateNewReticleFolderModal: React.FC<DefaultModalWithBackBtnProps>
     };
 
     const openFullSizeModal = (data: IReticle) => {
-        setFullSizeModalState({ isOpen: true, fileName: data.fileName, base64Str: data.base64Str });
+        setFullSizeModalState({ isOpen: true, fileName: data.fileName, url: data.url });
     };
 
     const closeFullSizeModal = () => {
-        setFullSizeModalState({ isOpen: false, fileName: 0, base64Str: '' });
+        setFullSizeModalState({ isOpen: false, fileName: 0, url: '' });
     };
     const deleteAction = () => {
         setState(prevState => ({
@@ -88,10 +88,10 @@ export const CreateNewReticleFolderModal: React.FC<DefaultModalWithBackBtnProps>
             return;
         }
         reticlesCore
-            .sendFolderToServer(state.folderName, state.list)
-            .then(() => {
+            .createNewReticleFolder(state.folderName, state.list)
+            .then(newReticles => {
                 sendNotification({ type: NotificationEnum.SUCCESS, msg: t('reticles_folder_created') });
-                addNewFolder({ newReticles: state.list, folderName: state.folderName });
+                addNewFolder({ newReticles, folderName: state.folderName });
 
                 handleBackButtonHandler();
             })
@@ -117,15 +117,15 @@ export const CreateNewReticleFolderModal: React.FC<DefaultModalWithBackBtnProps>
         }
         setFileNameError('');
     };
-
-    const saveActionFullSize = (data: IReticle) => {
+    // TODOOOOO CHECK
+    const saveActionFullSize = async (data: IReticle) => {
         setState(prev => {
             if (fullSizeModalState.fileName === data.fileName) {
                 return {
                     folderName: prev.folderName,
                     list: prev.list.map(el => ({
                         fileName: el.fileName,
-                        base64Str: el.fileName === data.fileName ? data.base64Str : el.base64Str,
+                        url: el.fileName === data.fileName ? data.url : el.url,
                     })),
                 };
             }
@@ -135,12 +135,14 @@ export const CreateNewReticleFolderModal: React.FC<DefaultModalWithBackBtnProps>
                     folderName: prev.folderName,
                     list: prev.list
                         .filter(el => el.fileName !== fullSizeModalState.fileName)
-                        .map(el => (el.fileName === data.fileName ? data : el)),
+                        .map(el => (el.fileName === data.fileName ? { fileName: data.fileName, url: data.url } : el)),
                 };
             }
             return {
                 folderName: prev.folderName,
-                list: prev.list.map(el => (el.fileName === fullSizeModalState.fileName ? data : el)),
+                list: prev.list.map(el =>
+                    el.fileName === fullSizeModalState.fileName ? { fileName: data.fileName, url: data.url } : el,
+                ),
             };
         });
         closeFullSizeModal();
@@ -164,9 +166,9 @@ export const CreateNewReticleFolderModal: React.FC<DefaultModalWithBackBtnProps>
             {state.list.map(el => (
                 <ReticleTab
                     name={convertFromFileNameToString(el.fileName)}
-                    onPress={() => openFullSizeModal({ fileName: el.fileName, base64Str: el.base64Str })}
+                    onPress={() => openFullSizeModal({ fileName: el.fileName, url: el.url })}
                     key={`${state.folderName}_${el.fileName}`}
-                    bmpImage={el.base64Str}
+                    bmpImageUrl={el.url}
                 />
             ))}
 
@@ -189,7 +191,7 @@ export const CreateNewReticleFolderModal: React.FC<DefaultModalWithBackBtnProps>
                 saveAction={saveActionFullSize}
                 deleteAction={deleteAction}
                 fileName={fullSizeModalState.fileName}
-                base64Str={fullSizeModalState.base64Str}
+                url={fullSizeModalState.url}
             />
 
             <CreateNewReticleFileModal

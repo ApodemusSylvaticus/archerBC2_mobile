@@ -13,15 +13,17 @@ export const VisibleContentContainer = styled.View`
     background: ${props => props.theme.colors.appBg};
 `;
 
-interface RealImgContainerProps {
+interface CenterImgContainerProps {
     width: number;
     height: number;
 }
-export const RealImgContainer = styled.View<RealImgContainerProps>`
+export const CenterImgContainer = styled.View<CenterImgContainerProps>`
+    position: absolute;
+    top: 0;
+    left: 0;
     width: ${props => props.width}px;
     height: ${props => props.height}px;
-    position: absolute;
-    z-index: -1;
+    z-index: 3;
 `;
 
 export const SetRadiusContainer = styled.View`

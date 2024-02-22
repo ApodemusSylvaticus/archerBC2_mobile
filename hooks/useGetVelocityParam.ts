@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDevStatusStore } from '@/store/useDevStatusStore';
 import { useActiveProfileStore } from '@/store/useActiveProfileStore';
-import { CoreProtobuf } from '@/core/coreProtobuf';
 import { useSettingStore } from '@/store/useSettingStore';
 import { ProfileWorker } from '@/core/profileWorker';
 import { useCheckWiFiStatus } from '@/hooks/useCheckWiFiStatus';
@@ -52,18 +51,16 @@ export const useA = () => {
             helper(serverApi, shouldRetry);
             return;
         }
-        helper(serverApi, false);
 
-        /*  if (profileWorker.getServerApi() !== serverApi) {
+        if (profileWorker.getServerApi() !== serverApi) {
             helper(serverApi, false);
-        } */
+        }
     }, [serverApi, shouldRetry]);
 
     return { isLoading, errorMsg, retryHandler: () => setShouldRetry(true) };
 };
 
 export const useGetVelocityParam = () => {
-    const coreProtobuf = useMemo(() => new CoreProtobuf(), []);
     const { isLoading, errorMsg } = useA();
     const profileWorker = useMemo(() => new ProfileWorker(), []);
     const [isProfileLoading, setIsProfileLoading] = useState(false);
@@ -77,12 +74,6 @@ export const useGetVelocityParam = () => {
         fileList: state.fileList,
         activeProfilesMap: state.activeProfilesMap,
     }));
-
-    useEffect(() => {
-        if (activeProfile === null) {
-            coreProtobuf.getHostProfile();
-        }
-    }, [coreProtobuf]);
 
     useEffect(() => {
         if (activeProfile === null) {
