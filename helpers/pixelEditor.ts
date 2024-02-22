@@ -19,7 +19,6 @@ export const removeDuplicatesFromPixels = (pixels: IPixel[]) => {
     const seen = new Set();
 
     pixels.forEach(pixel => {
-        // Create a unique string identifier for each pixel based on its coordinates
         const identifier = `${pixel.x}:${pixel.y}`;
         if (!seen.has(identifier)) {
             uniquePixels.push(pixel);

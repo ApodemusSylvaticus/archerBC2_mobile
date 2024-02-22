@@ -88,20 +88,17 @@ export class DrawingManager {
             error = 2 * (delta + y) - 1;
 
             if (delta < 0 && error <= 0) {
-                // eslint-disable-next-line no-plusplus
                 delta += 2 * ++x + 1;
                 // eslint-disable-next-line no-continue
                 continue;
             }
 
             if (delta > 0 && error > 0) {
-                // eslint-disable-next-line no-plusplus
                 delta -= 2 * --y + 1;
                 // eslint-disable-next-line no-continue
                 continue;
             }
 
-            // eslint-disable-next-line no-plusplus
             delta += 2 * (++x - --y);
         }
 

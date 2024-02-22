@@ -78,9 +78,7 @@ export default function RootLayout() {
 
     useEffect(() => {
         const unsubscribe = NetInfo.addEventListener(state => {
-            /* setIsWiFiConnected(state.type === 'wifi'); */
-            console.log(state);
-            setIsWiFiConnected(true);
+            setIsWiFiConnected(state.type === 'wifi');
         });
         return unsubscribe;
     }, []);
