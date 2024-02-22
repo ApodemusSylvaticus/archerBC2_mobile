@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from 'styled-components/native';
 import { AppContainer } from '@/components/container/appContainer';
 import { Loader } from '@/components/loader';
 import { ReticleTab } from '@/components/reticles/reticleTab';
@@ -11,19 +12,20 @@ import { Text20 } from '@/components/text/styled';
 import { useSettingStore } from '@/store/useSettingStore';
 import { RetryWithErrorMsg } from '@/components/retry';
 import { Container } from '@/components/reticles/style';
-import { ReticlesCoreV2 } from '@/core/reticlesCore';
+import { ReticlesCore } from '@/core/reticlesCore';
 import { useCheckWiFiStatus } from '@/hooks/useCheckWiFiStatus';
 
 export const Reticles: React.FC = () => {
     const openReticlesListModal = useModalControllerStore(state => state.openReticlesListModal);
     const serverApi = useSettingStore(state => state.serverHost);
     const { t } = useTranslation();
+    const { rem } = useTheme();
 
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const [shouldRetry, setShouldRetry] = useState(false);
     const [isNewFolderOpen, setIsNewFolderOpen] = useState(false);
-    const reticleCore = useMemo(() => new ReticlesCoreV2(), []);
+    const reticleCore = useMemo(() => new ReticlesCore(), []);
     const checkWifi = useCheckWiFiStatus();
     const { setDbData, reticles } = useReticlesStore(state => ({
         setDbData: state.setDbData,
@@ -81,7 +83,7 @@ export const Reticles: React.FC = () => {
     if (isLoading) {
         return (
             <AppContainer>
-                <Loader size={20} />
+                <Loader size={rem * 3.2} />
             </AppContainer>
         );
     }

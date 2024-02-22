@@ -47,6 +47,8 @@
         "react/require-default-props": "warn",
         "no-shadow": "off",
         "@typescript-eslint/no-shadow": ["error"],
-        "react/jsx-props-no-spreading": "warn"
+        "react/jsx-props-no-spreading": "warn",
+        "no-plusplus": "warn",
+        "react/style-prop-object": "warn"
     }
 }

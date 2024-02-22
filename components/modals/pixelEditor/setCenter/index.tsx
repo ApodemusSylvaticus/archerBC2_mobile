@@ -1,197 +1,195 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { SkImage, useCanvasRef, Canvas, Image, Rect } from '@shopify/react-native-skia';
-import Animated, { useSharedValue } from 'react-native-reanimated';
-import { PixelRatio, ScrollView } from 'react-native';
-import { useTheme } from 'styled-components/native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Canvas, Image, Group, SkImage, Paint, ColorMatrix, OpacityMatrix } from '@shopify/react-native-skia';
+import Animated, { useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
+import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Nullable } from '@/interface/helper';
-import { LongPressButton } from '@/components/button/longPressButton';
-import {
-    Container,
-    ControlPadContainer,
-    CrossContainer,
-    HorizontalLine,
-    VerticalLine,
-} from '@/components/modals/pixelEditor/setCenter/style';
-import { PureArrow } from '@/components/svg/pureArrow';
-import { SeparateRow } from '@/components/container/defaultBox';
-import { ANIMATION_TIMEOUT, FUNC_TIME_DELAY, ICON_SIZE, NUMBER_OF_CENTER_CELL } from '@/constant/pixelEditor';
-import { PixelEditorCrossColor } from '@/constant/theme';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { ButtonsContainer, Container } from '@/components/modals/pixelEditor/setCenter/style';
+import { MemoGridLayout } from '@/components/modals/pixelEditor/gridLayout';
+import { DefaultModal, DefaultModalWithBackBtnProps, ModalHeader } from '@/components/modals/DefaultModal';
+import { GoBackButton, GoBackButtonText } from '@/components/modals/style';
+import { PixelEditorCore } from '@/core/pixelEditor';
+import { TextSemiBold20, TextSemiBold24 } from '@/components/text/styled';
+import { DefaultButton } from '@/components/button/style';
 
-function findClosestWidth(inputNumber: number): number {
-    let result = inputNumber;
-    const pixelRatio = PixelRatio.get();
-
-    while (result % pixelRatio !== 0 || (result * 3) % 4 !== 0) {
-        result += 1;
-    }
-
-    return result;
+interface ISetCenterModal extends DefaultModalWithBackBtnProps {
+    img: SkImage;
+    acceptAction: (skImg: SkImage) => void;
 }
-export const SetCenterComponent: React.FC<{ img: SkImage; centerSelectedAction: (img: SkImage) => void }> = ({
-    img,
-    centerSelectedAction,
-}) => {
-    const { t } = useTranslation();
-    const { colors } = useTheme();
-    const translateX = useSharedValue(0);
-    const translateY = useSharedValue(0);
-    const ref = useCanvasRef();
-    const [secondImg, setSecondImg] = useState<Nullable<SkImage>>(null);
-    const pixelRatio = useMemo(() => PixelRatio.get(), []);
-    const { rem } = useTheme();
 
-    const { containerWidth, imgWidth, containerHeight, imgHeight } = useMemo(() => {
-        const rImgWidth = img.width();
+export const SetCenterModal: React.FC<ISetCenterModal> = React.memo(
+    ({ img, isVisible, backButtonHandler, acceptAction }) => {
+        const [core, setCore] = useState<PixelEditorCore>(new PixelEditorCore(img));
+        const [tempImg, setTempImg] = useState<SkImage>(img);
+        const [isChanged, setIsChanged] = useState(false);
+        const centerImg = useMemo(() => core.centerManager.getTemporaryCenter(), [core]);
+        const { width, height } = useMemo(() => core.envSetup.getContentContainer, [core]);
 
-        const rImgHeight = img.height();
+        useEffect(() => {
+            if (isVisible) {
+                setCore(new PixelEditorCore(img));
+                setTempImg(img);
+            }
+        }, [isVisible, img]);
 
-        const findedWidth = findClosestWidth(rImgWidth);
+        const customBackButtonHandler = useCallback(() => {
+            setIsChanged(false);
+            backButtonHandler();
+        }, [backButtonHandler]);
 
-        return {
-            containerWidth: findedWidth / pixelRatio,
-            containerHeight: ((findedWidth / pixelRatio) * 3) / 4,
-            imgWidth: rImgWidth / pixelRatio,
-            imgHeight: rImgHeight / pixelRatio,
-        };
-    }, [img]);
+        const { t } = useTranslation();
+        const translateX = useSharedValue(0);
+        const translateY = useSharedValue(0);
+        const viewScale = useSharedValue(1);
 
-    const setSecondImgHandler = useCallback(() => {
-        if (ref.current) {
-            setTimeout(() => {
-                const a = ref.current!.makeImageSnapshot({
-                    width: 21,
-                    height: 21,
-                    x: (containerWidth * pixelRatio) / 2 - 10,
-                    y: (containerHeight * pixelRatio) / 2 - 10,
+        const { gridWidth, gridHeight } = useMemo(() => core.gridManager.getGridParam, [core]);
+
+        const [gridParam, setGridParam] = useState({ isVisible: false, gridWidth, gridHeight });
+
+        const panOneG = Gesture.Pan()
+            .maxPointers(1)
+            .runOnJS(true)
+            .onStart(() => {
+                core.gestureManager.panGStart();
+            })
+            .onChange(event => {
+                const value = core.gestureManager.panAction(event);
+                if (value === null) {
+                    return;
+                }
+
+                translateX.value = value.translateX;
+                translateY.value = value.translateY;
+            });
+
+        const pinchGestureEvent = Gesture.Pinch()
+            .runOnJS(true)
+            .onStart(() => {
+                core.gestureManager.pinchStart();
+            })
+            .onChange(event => {
+                const value = core.gestureManager.pinchAction(event);
+                if (!value) {
+                    return;
+                }
+                translateX.value = withTiming(value.translateX);
+                translateY.value = withTiming(value.translateY);
+
+                viewScale.value = withTiming(value.viewScale);
+                setGridParam({
+                    gridWidth: value.gridParam.width,
+                    gridHeight: value.gridParam.height,
+                    isVisible: value.gridParam.isVisible,
                 });
+            });
 
-                setSecondImg(a);
-            }, ANIMATION_TIMEOUT);
-        }
-    }, [ref.current, containerWidth, containerHeight]);
+        const tap = Gesture.Tap()
+            .runOnJS(true)
+            .onEnd(e => {
+                if (isChanged === false) {
+                    const value = core.centerManager.setCenter(e);
+                    core.gestureManager.resetAllValue();
+                    const zeroGridParam = core.gridManager.getGridLineParam[0];
+                    setGridParam({
+                        gridWidth: zeroGridParam.width,
+                        gridHeight: zeroGridParam.height,
+                        isVisible: zeroGridParam.isVisible,
+                    });
+                    setTempImg(value);
+                    setIsChanged(true);
 
-    const handleFinish = useCallback(() => {
-        if (ref.current) {
-            const imageSnapshot = ref.current.makeImageSnapshot();
-            centerSelectedAction(imageSnapshot);
-        }
-    }, []);
-    const moveHorizontally = (dx: number) => {
-        translateX.value += dx;
-        setSecondImgHandler();
-    };
+                    translateX.value = withTiming(0);
+                    translateY.value = withTiming(0);
+                    viewScale.value = withTiming(1);
+                }
+            });
+        const gesture = Gesture.Race(pinchGestureEvent, panOneG, tap);
 
-    const moveVertically = (dy: number) => {
-        translateY.value += dy;
-        setSecondImgHandler();
-    };
+        const transformParams = useDerivedValue(
+            () => [{ translateX: translateX.value }, { translateY: translateY.value }, { scale: viewScale.value }],
+            [viewScale, translateY, translateX],
+        );
 
-    return (
-        <ScrollView>
-            <Container>
-                <Animated.View
-                    style={{
-                        width: containerWidth,
-                        height: containerHeight,
-                        position: 'relative',
-                    }}>
-                    <Canvas
-                        onLayout={() => setSecondImgHandler()}
-                        ref={ref}
-                        style={{
-                            width: containerWidth,
-                            height: containerHeight,
-                            flex: 1,
-                        }}>
-                        <Rect width={containerWidth} height={containerHeight} x={0} y={0} color="white" />
-                        <Image image={img} x={translateX} y={translateY} width={imgWidth} height={imgHeight} />
-                    </Canvas>
+        return (
+            <DefaultModal isVisible={isVisible}>
+                <ModalHeader>
+                    <GoBackButton onPress={customBackButtonHandler}>
+                        <GoBackButtonText>{t('default_go_back')}</GoBackButtonText>
+                    </GoBackButton>
+                </ModalHeader>
 
-                    <CrossContainer>
-                        <VerticalLine
-                            containerHeight={containerHeight}
-                            containerWidth={containerWidth}
-                            pixelRatio={pixelRatio}
-                        />
-                        <HorizontalLine
-                            containerHeight={containerHeight}
-                            containerWidth={containerWidth}
-                            pixelRatio={pixelRatio}
-                        />
-                    </CrossContainer>
-                </Animated.View>
-
-                {secondImg !== null && (
-                    <>
-                        <Animated.View
-                            style={{
-                                width: containerWidth,
-                                height: containerWidth,
-                            }}>
-                            <Canvas
+                <Container>
+                    <TextSemiBold24>Set center</TextSemiBold24>
+                    <GestureHandlerRootView>
+                        <GestureDetector gesture={gesture}>
+                            <Animated.View
                                 style={{
-                                    width: containerWidth,
-                                    height: containerWidth,
-                                    flex: 1,
+                                    width,
+                                    height,
+                                    position: 'relative',
                                 }}>
-                                <Image image={secondImg} x={0} y={0} width={containerWidth} height={containerWidth} />
-                                <Rect
-                                    width={containerWidth / NUMBER_OF_CENTER_CELL}
-                                    height={containerWidth}
-                                    x={(containerWidth / NUMBER_OF_CENTER_CELL) * 10}
-                                    y={0}
-                                    color={PixelEditorCrossColor}
-                                />
-                                <Rect
-                                    width={containerWidth}
-                                    height={containerWidth / NUMBER_OF_CENTER_CELL}
-                                    x={0}
-                                    y={(containerWidth / NUMBER_OF_CENTER_CELL) * 10}
-                                    color={PixelEditorCrossColor}
-                                />
-                            </Canvas>
-                        </Animated.View>
+                                <Canvas
+                                    style={{
+                                        width,
+                                        height,
+                                        flex: 1,
+                                    }}>
+                                    <Group transform={transformParams}>
+                                        <Image image={tempImg} x={0} y={0} width={width} height={height} />
+                                    </Group>
+                                </Canvas>
 
-                        <ControlPadContainer>
-                            <PureArrow
-                                width={ICON_SIZE * rem}
-                                height={ICON_SIZE * rem}
-                                fillColor={colors.l1ActiveEl}
-                                orientation="top"
-                                onPress={() => moveVertically(-1 / pixelRatio)}
-                            />
-                            <SeparateRow>
-                                <PureArrow
-                                    width={ICON_SIZE * rem}
-                                    height={ICON_SIZE * rem}
-                                    fillColor={colors.l1ActiveEl}
-                                    orientation="left"
-                                    onPress={() => moveHorizontally(-1 / pixelRatio)}
-                                />
-                                <PureArrow
-                                    width={ICON_SIZE * rem}
-                                    height={ICON_SIZE * rem}
-                                    fillColor={colors.l1ActiveEl}
-                                    orientation="right"
-                                    onPress={() => moveHorizontally(1 / pixelRatio)}
-                                />
-                            </SeparateRow>
-                            <PureArrow
-                                width={ICON_SIZE * rem}
-                                height={ICON_SIZE * rem}
-                                fillColor={colors.l1ActiveEl}
-                                orientation="bottom"
-                                onPress={() => moveVertically(1 / pixelRatio)}
-                            />
-                        </ControlPadContainer>
+                                <View style={{ position: 'absolute', top: 0, left: 0 }} pointerEvents="none">
+                                    <Canvas
+                                        style={{
+                                            width,
+                                            height,
+                                            flex: 1,
+                                        }}>
+                                        <Group
+                                            transform={transformParams}
+                                            layer={
+                                                <Paint>
+                                                    <ColorMatrix matrix={OpacityMatrix(0.5)} />
+                                                </Paint>
+                                            }>
+                                            <Image image={centerImg} x={0} y={0} width={width} height={height} />
+                                        </Group>
+                                    </Canvas>
+                                </View>
+                                {gridParam.isVisible && (
+                                    <MemoGridLayout
+                                        width={gridParam.gridWidth}
+                                        height={gridParam.gridHeight}
+                                        totalWidth={width}
+                                        totalHeight={height}
+                                    />
+                                )}
+                            </Animated.View>
+                        </GestureDetector>
+                    </GestureHandlerRootView>
 
-                        <LongPressButton time={FUNC_TIME_DELAY} handleLongPress={handleFinish}>
-                            {t('reticles_next_stage')}
-                        </LongPressButton>
-                    </>
-                )}
-            </Container>
-        </ScrollView>
-    );
-};
+                    {isChanged && (
+                        <ButtonsContainer>
+                            <DefaultButton
+                                style={{ flex: 1 }}
+                                onPress={() => {
+                                    setIsChanged(false);
+                                    setTempImg(img);
+                                }}>
+                                <TextSemiBold20>Undo</TextSemiBold20>
+                            </DefaultButton>
+                            <DefaultButton
+                                style={{ flex: 1 }}
+                                onPress={() => {
+                                    acceptAction(tempImg);
+                                }}>
+                                <TextSemiBold20>Accept</TextSemiBold20>
+                            </DefaultButton>
+                        </ButtonsContainer>
+                    )}
+                </Container>
+            </DefaultModal>
+        );
+    },
+);

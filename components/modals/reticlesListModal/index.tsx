@@ -12,7 +12,7 @@ import { DefaultButton, DeleteButton } from '@/components/button/style';
 import { Text20 } from '@/components/text/styled';
 import { CreateNewReticleFileModal } from '@/components/modals/fullSizeImgViewModal/createNewReticleFile';
 import { AreYouSureModal } from '@/components/modals/specificModal/alertModal/areYouSure';
-import { ReticlesCoreV2 } from '@/core/reticlesCore';
+import { ReticlesCore } from '@/core/reticlesCore';
 import { useCheckWiFiStatus } from '@/hooks/useCheckWiFiStatus';
 
 export const ReticlesListModal: React.FC = () => {
@@ -34,7 +34,7 @@ export const ReticlesListModal: React.FC = () => {
         deleteFolder: state.deleteFolder,
     }));
 
-    const reticlesCore = useMemo(() => new ReticlesCoreV2(), []);
+    const reticlesCore = useMemo(() => new ReticlesCore(), []);
 
     const [fullSizeState, setFullSizeState] = useState({
         isVisible: false,

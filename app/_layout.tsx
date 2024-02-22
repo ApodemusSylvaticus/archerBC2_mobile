@@ -18,7 +18,7 @@ import { ProfileWorker } from '@/core/profileWorker';
 import { ErrorBoundary } from '@/components/errorBoundary';
 // eslint-disable-next-line import/no-extraneous-dependencies,import/order
 import NetInfo from '@react-native-community/netinfo';
-import { ReticlesCoreV2 } from '@/core/reticlesCore';
+import { ReticlesCore } from '@/core/reticlesCore';
 import { useActiveProfileStore } from '@/store/useActiveProfileStore';
 import { useDevStatusStore } from '@/store/useDevStatusStore';
 import { useReticlesStore } from '@/store/useReticlesStore';
@@ -57,7 +57,7 @@ export default function RootLayout() {
     // TODO isNecessary?
     useEffect(() => {
         // Initialization
-        const reticleCore = new ReticlesCoreV2();
+        const reticleCore = new ReticlesCore();
         reticleCore.setHrefBase(serverHost);
     }, []);
 

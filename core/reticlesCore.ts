@@ -1,23 +1,21 @@
 import * as ExpoFileSystem from 'expo-file-system';
 import { unzip, zip } from 'react-native-zip-archive';
 import axios from 'axios';
-import { IReticle } from '@/interface/reticles';
+import { FILE_NAMES, IReticle } from '@/interface/reticles';
 import { convertFromDb, convertToDB } from '@/helpers/reticles';
 
-export class ReticlesCoreV2 {
-    private static instance: ReticlesCoreV2;
+export class ReticlesCore {
+    private static instance: ReticlesCore;
 
     temporaryChangingFilePath = `${ExpoFileSystem.cacheDirectory}tempChangingReticles/`;
 
     allReticles = 'allReticles';
 
+    separator = '_separator_';
+
     private hrefBase: string = '';
 
     private serverApi: string = '';
-
-    getHrefBase = () => {
-        return this.hrefBase;
-    };
 
     getServerApi = () => {
         return this.serverApi;
@@ -29,11 +27,11 @@ export class ReticlesCoreV2 {
     };
 
     constructor() {
-        if (typeof ReticlesCoreV2.instance === 'object') {
+        if (typeof ReticlesCore.instance === 'object') {
             // eslint-disable-next-line no-constructor-return
-            return ReticlesCoreV2.instance;
+            return ReticlesCore.instance;
         }
-        ReticlesCoreV2.instance = this;
+        ReticlesCore.instance = this;
         // eslint-disable-next-line no-constructor-return
         return this;
     }
@@ -44,16 +42,41 @@ export class ReticlesCoreV2 {
         return reticlesList;
     };
 
+    createUrlFromFileName(folderName: string, fileName: FILE_NAMES) {
+        return `${this.getFolderPath(folderName)}/${convertToDB(fileName)}${this.separator}${new Date().getTime()}.bmp`;
+    }
+
+    getFolderPath(folderName: string) {
+        return `${ExpoFileSystem.documentDirectory}${this.allReticles}/${folderName}`;
+    }
+
+    extractOriginalFilePath(str: string) {
+        const parts = str.split(this.separator);
+
+        if (parts.length === 2) {
+            const secondPart = parts[1].split('.');
+            if (secondPart.length > 1) {
+                return `${parts[0]}.${secondPart.pop()}`;
+            }
+        }
+
+        return str;
+    }
+
+    extractOriginalReticleName(str: string) {
+        const parts = str.split(this.separator);
+
+        return convertFromDb(parts[0].slice(-1));
+    }
+
     getReticleImages = async (reticleFileName: string) => {
         const url = `http://192.168.1.128:8080/getReticle?name=${reticleFileName}`;
         const localUri = `${ExpoFileSystem.documentDirectory}${reticleFileName}`;
-        const state = await ExpoFileSystem.getInfoAsync(
-            'file:///data/user/0/com.apodemusagrarius.archerBC2_mobile/files/allReticles/Gjgf.zip/2.bmp',
-        );
-        console.log('state', state);
+
         const downloadResumable = ExpoFileSystem.createDownloadResumable(url, localUri, { cache: false });
 
-        const { uri } = await downloadResumable.downloadAsync();
+        // TODO  CHECK
+        const { uri } = (await downloadResumable.downloadAsync()) as ExpoFileSystem.FileSystemDownloadResult;
 
         // Unzip the file
         const unzipTargetPath = `${ExpoFileSystem.documentDirectory}${this.allReticles}/${reticleFileName}/`;
@@ -71,10 +94,24 @@ export class ReticlesCoreV2 {
         // Read the contents of the unzipped folder
         const files = await ExpoFileSystem.readDirectoryAsync(unzipTargetPath);
 
-        // Filter and set image URIs
-        const imageFiles = files
-            .filter(file => file.endsWith('.png') || file.endsWith('.jpg') || file.endsWith('.bmp'))
-            .map(file => `${unzipTargetPath}${file}`);
+        // Generate a timestamp
+        const timestamp = new Date().getTime();
+
+        // Filter, rename and set image URIs
+        const imageFiles = [];
+        // eslint-disable-next-line no-restricted-syntax
+        for (const file of files) {
+            if (file.endsWith('.png') || file.endsWith('.jpg') || file.endsWith('.bmp')) {
+                const fileExtension = file.split('.');
+                const newFileName = `${fileExtension[0]}${this.separator}${timestamp}.${fileExtension[1]}`;
+                // eslint-disable-next-line no-await-in-loop
+                await ExpoFileSystem.moveAsync({
+                    from: `${unzipTargetPath}${file}`,
+                    to: `${unzipTargetPath}${newFileName}`,
+                });
+                imageFiles.push(`${unzipTargetPath}${newFileName}`);
+            }
+        }
 
         return { reticleFileName, data: imageFiles };
     };
@@ -84,32 +121,21 @@ export class ReticlesCoreV2 {
             `${ExpoFileSystem.documentDirectory}${this.allReticles}`,
         );
 
-        const files = await ExpoFileSystem.readDirectoryAsync(`${ExpoFileSystem.documentDirectory}`);
-        console.log('directoryInfo', directoryInfo);
-        console.log('1 files', files);
         if (directoryInfo.exists && directoryInfo.isDirectory) {
-            // Delete the directory if it exists
             await ExpoFileSystem.deleteAsync(`${ExpoFileSystem.documentDirectory}${this.allReticles}`);
         }
 
-        // Create the directory
         await ExpoFileSystem.makeDirectoryAsync(`${ExpoFileSystem.documentDirectory}${this.allReticles}`, {
             intermediates: true,
         });
 
-        const files2 = await ExpoFileSystem.readDirectoryAsync(
-            `${ExpoFileSystem.documentDirectory}${this.allReticles}`,
-        );
-
-        console.log('2 files', files2);
         const promises = list.map(el => this.getReticleImages(el));
         const reticleData = await Promise.all(promises);
-        console.log('reticleData', reticleData);
 
         const folders: { [folderName: string]: IReticle[] } = {};
         reticleData.forEach(el => {
             folders[el.reticleFileName] = el.data.map(url => ({
-                fileName: convertFromDb(url.slice(-5)),
+                fileName: this.extractOriginalReticleName(url),
                 url,
             }));
         });
@@ -117,20 +143,29 @@ export class ReticlesCoreV2 {
         return folders;
     };
 
-    /*    convertBase64ToFile = async (base64: string, filePath: string) => {
-        await ExpoFileSystem.writeAsStringAsync(filePath, base64, { encoding: ExpoFileSystem.EncodingType.Base64 });
-    }; */
-
     async sendZipToServer(folderName: string, path: string) {
-        const tempDir = `${ExpoFileSystem.cacheDirectory}tempReticles/`;
+        const tempDir = `${ExpoFileSystem.cacheDirectory}tempReticles/${folderName}`;
         const dirInfo = await ExpoFileSystem.getInfoAsync(tempDir);
 
         if (!dirInfo.exists) {
             await ExpoFileSystem.makeDirectoryAsync(tempDir, { intermediates: true });
         }
 
-        const zipFilePath = `${tempDir}${folderName}`;
-        await zip(path, zipFilePath);
+        const files = await ExpoFileSystem.readDirectoryAsync(path);
+        // eslint-disable-next-line no-restricted-syntax
+        for (const file of files) {
+            const sourceFileUri = `${path}/${file}`;
+            const destinationFileUri = `${tempDir}/${file[0]}.bmp`;
+
+            // eslint-disable-next-line no-await-in-loop
+            await ExpoFileSystem.copyAsync({
+                from: sourceFileUri,
+                to: destinationFileUri,
+            });
+        }
+
+        const zipFilePath = `${tempDir}/zip`;
+        await zip(tempDir, zipFilePath);
 
         const formData = new FormData();
         formData.append('file', {
@@ -160,8 +195,7 @@ export class ReticlesCoreV2 {
     }
 
     async firstV(folderName: string, prev: IReticle, curr: IReticle) {
-        const folderPath = prev.url.slice(0, -6);
-        const newUrl = prev.url.slice(0, -5) + convertToDB(curr.fileName);
+        const newUrl = this.createUrlFromFileName(folderName, curr.fileName);
         try {
             await ExpoFileSystem.moveAsync({
                 from: prev.url,
@@ -173,7 +207,7 @@ export class ReticlesCoreV2 {
         }
 
         try {
-            await this.sendZipToServer(folderName, folderPath);
+            await this.sendZipToServer(folderName, this.getFolderPath(folderName));
         } catch (e) {
             await ExpoFileSystem.moveAsync({
                 from: newUrl,
@@ -185,8 +219,7 @@ export class ReticlesCoreV2 {
     }
 
     async secondV(folderName: string, prev: IReticle, curr: IReticle) {
-        const folderPath = prev.url.slice(0, -6);
-        const newUrl = prev.url.slice(0, -5) + convertToDB(curr.fileName);
+        const newUrl = this.createUrlFromFileName(folderName, curr.fileName);
 
         try {
             await ExpoFileSystem.moveAsync({
@@ -203,7 +236,7 @@ export class ReticlesCoreV2 {
         }
 
         try {
-            await this.sendZipToServer(folderName, folderPath);
+            await this.sendZipToServer(folderName, this.getFolderPath(folderName));
         } catch (e) {
             await ExpoFileSystem.moveAsync({
                 from: this.temporaryChangingFilePath,
@@ -217,11 +250,10 @@ export class ReticlesCoreV2 {
     }
 
     async replaceReticles(folderName: string, prev: IReticle, curr: IReticle) {
-        console.log(folderName, prev, curr);
-
         if (prev.url === curr.url) {
             return this.firstV(folderName, prev, curr);
         }
+
         return this.secondV(folderName, prev, curr);
     }
 
@@ -230,7 +262,7 @@ export class ReticlesCoreV2 {
             from: filePath,
             to: this.temporaryChangingFilePath,
         });
-        const folderPath = filePath.slice(0, -6);
+        const folderPath = this.getFolderPath(folderName);
 
         try {
             await this.sendZipToServer(folderName, folderPath);
@@ -255,24 +287,30 @@ export class ReticlesCoreV2 {
             console.log('Failed to delete reticles');
             throw e;
         }
-        const folderPath = `${ExpoFileSystem.documentDirectory}${this.allReticles}/${folderName}`;
+        const folderPath = this.getFolderPath(folderName);
 
         await ExpoFileSystem.deleteAsync(folderPath);
     };
 
     async saveActionCreateNewReticalFile(folderName: string, newReticle: IReticle) {
-        const folderPath = `${ExpoFileSystem.documentDirectory}${this.allReticles}/${folderName}`;
-        const info = await ExpoFileSystem.getInfoAsync(`${folderPath}/${convertToDB(newReticle.fileName)}`);
+        const folderPath = this.getFolderPath(folderName);
+        const info = await ExpoFileSystem.readDirectoryAsync(folderPath);
 
-        if (info.exists) {
+        const filteredInfo = info.filter(el => el[0] === convertToDB(newReticle.fileName));
+
+        const newUrl = this.createUrlFromFileName(folderName, newReticle.fileName);
+        let prev: undefined | string;
+        if (filteredInfo.length > 0) {
+            prev = `${folderPath}/${filteredInfo[0]}`;
             await ExpoFileSystem.moveAsync({
-                from: `${folderPath}/${convertToDB(newReticle.fileName)}`,
-                to: this.temporaryChangingFilePath,
+                from: `${folderPath}/${filteredInfo[0]}`,
+                to: prev,
             });
         }
+
         await ExpoFileSystem.moveAsync({
             from: newReticle.url,
-            to: `${folderPath}/${convertToDB(newReticle.fileName)}`,
+            to: newUrl,
         });
 
         try {
@@ -280,28 +318,37 @@ export class ReticlesCoreV2 {
         } catch (e) {
             console.log('Failed to create new', e);
 
-            if (info.exists) {
+            if (filteredInfo.length > 0) {
                 await ExpoFileSystem.moveAsync({
                     from: this.temporaryChangingFilePath,
-                    to: `${folderPath}/${convertToDB(newReticle.fileName)}`,
+                    to: prev!,
                 });
             }
             throw e;
         }
     }
 
-    // TODO: folderEXist
     async createNewReticleFolder(folderName: string, newReticles: IReticle[]) {
-        const folderPath = `${ExpoFileSystem.documentDirectory}${this.allReticles}/${folderName}`;
+        const realFolderName = `${folderName}.zip`;
+        const folderPath = this.getFolderPath(realFolderName);
         await ExpoFileSystem.makeDirectoryAsync(folderPath);
+        const returnedValue: IReticle[] = [];
         const moveFilePromises = newReticles.map(el => {
-            return ExpoFileSystem.moveAsync({ from: el.url, to: `${folderPath}/${convertToDB(el.fileName)}` });
+            const value: IReticle = {
+                fileName: el.fileName,
+                url: this.createUrlFromFileName(realFolderName, el.fileName),
+            };
+            returnedValue.push(value);
+            return ExpoFileSystem.moveAsync({ from: el.url, to: value.url });
         });
         await Promise.all(moveFilePromises);
-        /*
-        const files = await ExpoFileSystem.readDirectoryAsync(folderPath);
-*/
-        await this.sendZipToServer(folderName, folderPath);
-        await ExpoFileSystem.deleteAsync(folderPath);
+
+        try {
+            await this.sendZipToServer(realFolderName, folderPath);
+            return returnedValue;
+        } catch (e) {
+            await ExpoFileSystem.deleteAsync(folderPath);
+            throw e;
+        }
     }
 }

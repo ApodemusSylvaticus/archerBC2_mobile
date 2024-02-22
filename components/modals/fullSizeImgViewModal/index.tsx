@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GestureHandlerRootView, PinchGestureHandler } from 'react-native-gesture-handler';
 import Animated, {
@@ -16,6 +16,7 @@ import { FILE_NAMES, IReticle } from '@/interface/reticles';
 import { SelectInput } from '@/components/Inputs/select/select';
 import { DeleteButtonWithConfirm } from '@/components/button/deleteButtonWithConfirm';
 import { PixelEditorModal } from '@/components/modals/pixelEditor';
+import { convertBase64ToBmpFile } from '@/helpers/createUrlFromBase64';
 
 interface FullSizeImgViewModalProps extends DefaultModalWithBackBtnProps, IReticle {
     saveAction: (prevState: IReticle, newState: IReticle) => void;
@@ -112,6 +113,13 @@ export const FullSizeImgViewModal: React.FC<FullSizeImgViewModalProps> = ({
         deleteAction(url, fileName);
     };
 
+    const setNewImg = useCallback(async (base64Str: string) => {
+        const temporaryUrl = await convertBase64ToBmpFile(base64Str);
+
+        setLocalState(prevState => ({ fileName: prevState.fileName, url: temporaryUrl }));
+        setIsPixelEditorOpen(false);
+    }, []);
+
     return (
         <DefaultModal isVisible={isVisible}>
             <ModalHeader>
@@ -175,10 +183,7 @@ export const FullSizeImgViewModal: React.FC<FullSizeImgViewModalProps> = ({
                 {localState.url !== '' && (
                     <>
                         <PixelEditorModal
-                            setNewImg={data => {
-                                setLocalState(prevState => ({ fileName: prevState.fileName, url: data }));
-                                setIsPixelEditorOpen(false);
-                            }}
+                            setNewImg={setNewImg}
                             backButtonHandler={() => setIsPixelEditorOpen(false)}
                             isVisible={isPixelEditorOpen}
                             image={localState.url}

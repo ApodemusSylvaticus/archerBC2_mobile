@@ -3,15 +3,9 @@ import { DefaultModalWithBackBtnProps } from '@/components/modals/DefaultModal';
 
 export enum TOOLS {
     PEN,
-    RUBBER,
     CIRCLE,
     RECTANGLE,
-}
-export interface IRect {
-    x: number;
-    y: number;
-    size: number;
-    color: string;
+    LINE,
 }
 
 export interface EditorProps {
@@ -21,5 +15,5 @@ export interface EditorProps {
 
 export interface PixelEditorModalProps extends DefaultModalWithBackBtnProps {
     image: string;
-    setNewImg: (data: string) => void;
+    setNewImg: (base64Str: string) => Promise<void>;
 }

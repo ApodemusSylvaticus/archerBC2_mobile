@@ -2,38 +2,17 @@ import { FILE_NAMES } from '@/interface/reticles';
 
 export const convertFromDb = (data: string): FILE_NAMES => {
     switch (data) {
-        case '1.bmp':
+        case '1':
             return FILE_NAMES.FIRST;
-        case '2.bmp':
+        case '2':
             return FILE_NAMES.SECOND;
-        case '3.bmp':
+        case '3':
             return FILE_NAMES.THIRD;
-        case '4.bmp':
+        case '4':
             return FILE_NAMES.FOURTH;
-        case '6.bmp':
+        case '6':
             return FILE_NAMES.SIXTH;
 
-        case '1.png':
-            return FILE_NAMES.FIRST;
-        case '2.png':
-            return FILE_NAMES.SECOND;
-        case '3.png':
-            return FILE_NAMES.THIRD;
-        case '4.png':
-            return FILE_NAMES.FOURTH;
-        case '6.png':
-            return FILE_NAMES.SIXTH;
-
-        case '1.jpg':
-            return FILE_NAMES.FIRST;
-        case '2.jpg':
-            return FILE_NAMES.SECOND;
-        case '3.jpg':
-            return FILE_NAMES.THIRD;
-        case '4.jpg':
-            return FILE_NAMES.FOURTH;
-        case '6.jpg':
-            return FILE_NAMES.SIXTH;
         default:
             throw new Error('convertFromDb error');
     }
@@ -42,15 +21,15 @@ export const convertFromDb = (data: string): FILE_NAMES => {
 export const convertToDB = (data: FILE_NAMES): string => {
     switch (data) {
         case FILE_NAMES.FIRST:
-            return '1.bmp';
+            return '1';
         case FILE_NAMES.SECOND:
-            return '2.bmp';
+            return '2';
         case FILE_NAMES.THIRD:
-            return '3.bmp';
+            return '3';
         case FILE_NAMES.FOURTH:
-            return '4.bmp';
+            return '4';
         case FILE_NAMES.SIXTH:
-            return '6.bmp';
+            return '6';
         default:
             throw new Error('convertToDB error');
     }

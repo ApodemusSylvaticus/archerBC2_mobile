@@ -14,7 +14,7 @@ import { NotificationEnum, useNotificationStore } from '@/store/useNotificationS
 import { useReticlesStore } from '@/store/useReticlesStore';
 import { convertFromFileNameToString } from '@/helpers/reticles';
 import { ErrorText } from '@/components/modals/createNewReticleFolder/style';
-import { ReticlesCoreV2 } from '@/core/reticlesCore';
+import { ReticlesCore } from '@/core/reticlesCore';
 import { useCheckWiFiStatus } from '@/hooks/useCheckWiFiStatus';
 
 export const CreateNewReticleFolderModal: React.FC<DefaultModalWithBackBtnProps> = ({
@@ -31,7 +31,7 @@ export const CreateNewReticleFolderModal: React.FC<DefaultModalWithBackBtnProps>
 
     const checkWifi = useCheckWiFiStatus();
 
-    const reticlesCore = useMemo(() => new ReticlesCoreV2(), []);
+    const reticlesCore = useMemo(() => new ReticlesCore(), []);
 
     const { addNewFolder, existReticles } = useReticlesStore(retStore => ({
         addNewFolder: retStore.addNewFolder,
@@ -89,9 +89,9 @@ export const CreateNewReticleFolderModal: React.FC<DefaultModalWithBackBtnProps>
         }
         reticlesCore
             .createNewReticleFolder(state.folderName, state.list)
-            .then(() => {
+            .then(newReticles => {
                 sendNotification({ type: NotificationEnum.SUCCESS, msg: t('reticles_folder_created') });
-                addNewFolder({ newReticles: state.list, folderName: state.folderName });
+                addNewFolder({ newReticles, folderName: state.folderName });
 
                 handleBackButtonHandler();
             })
@@ -117,8 +117,8 @@ export const CreateNewReticleFolderModal: React.FC<DefaultModalWithBackBtnProps>
         }
         setFileNameError('');
     };
-
-    const saveActionFullSize = (data: IReticle) => {
+    // TODOOOOO CHECK
+    const saveActionFullSize = async (data: IReticle) => {
         setState(prev => {
             if (fullSizeModalState.fileName === data.fileName) {
                 return {
@@ -135,12 +135,14 @@ export const CreateNewReticleFolderModal: React.FC<DefaultModalWithBackBtnProps>
                     folderName: prev.folderName,
                     list: prev.list
                         .filter(el => el.fileName !== fullSizeModalState.fileName)
-                        .map(el => (el.fileName === data.fileName ? data : el)),
+                        .map(el => (el.fileName === data.fileName ? { fileName: data.fileName, url: data.url } : el)),
                 };
             }
             return {
                 folderName: prev.folderName,
-                list: prev.list.map(el => (el.fileName === fullSizeModalState.fileName ? data : el)),
+                list: prev.list.map(el =>
+                    el.fileName === fullSizeModalState.fileName ? { fileName: data.fileName, url: data.url } : el,
+                ),
             };
         });
         closeFullSizeModal();

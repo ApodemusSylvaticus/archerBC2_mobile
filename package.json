@@ -3,11 +3,12 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start --dev-client",
+    "start": "expo start",
+    "start:dev": "expo start --dev-client",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "test": "jest --watchAll",
+    "test": "jest --watc hAll",
     "prepare": "husky install"
   },
   "jest": {
@@ -19,7 +20,7 @@
     "@react-native-community/netinfo": "9.3.10",
     "@react-native-community/slider": "4.4.2",
     "@react-navigation/native": "^6.0.2",
-    "@shopify/react-native-skia": "0.1.196",
+    "@shopify/react-native-skia": "0.1.237",
     "@types/styled-components": "^5.1.26",
     "@types/styled-components-react-native": "^5.2.1",
     "archiver": "^6.0.1",

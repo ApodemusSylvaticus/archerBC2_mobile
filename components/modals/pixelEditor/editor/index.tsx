@@ -1,81 +1,79 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     Canvas,
+    ColorMatrix,
     DiffRect,
     Group,
     Image,
     ImageFormat,
-    Rect,
+    Line,
+    OpacityMatrix,
+    Paint,
     SkImage,
     SkRRect,
-    useCanvasRef,
+    vec,
 } from '@shopify/react-native-skia';
 import {
     Gesture,
     GestureDetector,
     GestureHandlerRootView,
     GestureStateChangeEvent,
+    GestureUpdateEvent,
+    PanGestureChangeEventPayload,
+    PanGestureHandlerEventPayload,
     TapGestureHandlerEventPayload,
 } from 'react-native-gesture-handler';
 import { throttle } from 'lodash';
 import { useTheme } from 'styled-components/native';
-import Animated, { useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { Nullable } from '@/interface/helper';
 import { MemoGridLayout } from '@/components/modals/pixelEditor/gridLayout';
-import { PixelEditorCore } from '@/components/modals/pixelEditor/core';
 import { CircleSvg } from '@/components/svg/pixelEditor/circle';
 import { PenSvg } from '@/components/svg/pixelEditor/pen';
-import { RubberSvg } from '@/components/svg/pixelEditor/rubber';
 import { RectangleSvg } from '@/components/svg/pixelEditor/rectangle';
-import { HistoryContainer, PressableTool, ToolsContainer } from '@/components/modals/pixelEditor/style';
+import {
+    CenterControllerButton,
+    CenterControllerContainer,
+    HistoryContainer,
+    PressableTool,
+    ToolsContainer,
+} from '@/components/modals/pixelEditor/style';
 import { AlertModalContainer } from '@/components/modals/specificModal/alertModal';
 import { NumericInput } from '@/components/Inputs/numericInput';
 import { DefaultRow } from '@/components/container/defaultBox';
 import { GoBackSvg, GoForwardSvg } from '@/components/svg/pixelEditor/historyManipulations';
 import { LongPressButton } from '@/components/button/longPressButton';
-import { ANIMATION_TIMEOUT, FUNC_TIME_DELAY, ICON_SIZE } from '@/constant/pixelEditor';
-import { EditorProps, IRect, TOOLS } from '@/interface/components/pixelEditor';
+import { ANIMATION_TIMEOUT_THROTTLE, FUNC_TIME_DELAY, ICON_SIZE } from '@/constant/pixelEditor';
+import { EditorProps, TOOLS } from '@/interface/components/pixelEditor';
 import {
+    CenterImgContainer,
     Container,
-    RealImgContainer,
     SaveButtonContainer,
     SetRadiusContainer,
     VisibleContentContainer,
 } from '@/components/modals/pixelEditor/editor/style';
 import { DefaultButton } from '@/components/button/style';
 import { TextSemiBold20 } from '@/components/text/styled';
-
-function useRerenderEvery50ms() {
-    const [rerenderCount, setRerenderCount] = useState(0);
-
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            setRerenderCount(prevCount => prevCount + 1);
-        }, ANIMATION_TIMEOUT);
-
-        return () => {
-            clearInterval(intervalId);
-        };
-    }, []);
-
-    return rerenderCount;
-}
+import { LineSvg } from '@/components/svg/pixelEditor/line';
+import { PixelEditorCore } from '@/core/pixelEditor';
+import { SetCenterModal } from '@/components/modals/pixelEditor/setCenter';
 
 export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
     const { t } = useTranslation();
     const core = useMemo(() => new PixelEditorCore(img), [img]);
 
-    useEffect(() => {
-        core.setImgToHistory(img);
-    }, []);
+    const [isCenterShown, setIsCenterShown] = useState(true);
 
-    const ref = useCanvasRef();
+    const toggleIsCenterShown = useCallback(() => setIsCenterShown(prev => !prev), []);
+
+    const centerImg = useMemo(() => core.centerManager.getTemporaryCenter(), []);
+
     const { colors, rem } = useTheme();
-    useRerenderEvery50ms();
-    const [newPixels, setPixels] = useState<IRect[]>([]);
-    const [isHistoryAvailable, setIsHistoryAvailable] = useState({ back: false, forward: false });
+    const [isChangeCenterOpen, setIsChangeCenterOpen] = useState(false);
+    const toggleIsChangeCenterOpen = useCallback(() => setIsChangeCenterOpen(prev => !prev), []);
 
+    const [isHistoryAvailable, setIsHistoryAvailable] = useState({ back: false, forward: false });
     const [radius, setRadius] = useState(1);
     const [penCircleEventValue, setPenCircleEventValue] =
         useState<Nullable<GestureStateChangeEvent<TapGestureHandlerEventPayload>>>(null);
@@ -85,41 +83,31 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
     const [activeTool, setActiveTool] = useState<TOOLS>(TOOLS.PEN);
 
     const [temporaryRectangle, setTemporaryRectangle] = useState<Nullable<{ outer: SkRRect; inner: SkRRect }>>(null);
-    const [realRectanle, setRealRectangle] = useState<Nullable<{ outer: SkRRect; inner: SkRRect }>>(null);
+    const [temporaryLine, setTemporaryLine] =
+        useState<Nullable<{ start: { x: number; y: number }; end: { x: number; y: number }; cellSize: number }>>(null);
 
     const pressTool = useCallback((data: TOOLS) => setActiveTool(data), []);
-    // shared
 
+    // shared
     const translateX = useSharedValue(0);
     const translateY = useSharedValue(0);
     const viewScale = useSharedValue(1);
 
-    //------------------
-
     // const
-    const { width, height } = useMemo(() => core.getContentContainer, []);
+    const { width, height } = useMemo(() => core.envSetup.getContentContainer, []);
 
-    const { width: realImgWidth, height: realImgHeight } = useMemo(() => core.getRealImgParam, []);
-    const { gridWidth, gridHeight } = useMemo(() => core.getGridParam, []);
+    const { gridWidth, gridHeight } = useMemo(() => core.gridManager.getGridParam, []);
 
     const [gridParam, setGridParam] = useState({ isVisible: false, gridWidth, gridHeight });
 
     useEffect(() => {
-        core.setActiveTool = activeTool;
-    }, [activeTool]);
+        core.drawingManager.setActiveTool = activeTool;
+    }, [activeTool, core]);
 
-    const createSnapshot = () => {
-        if (!ref.current) {
-            return;
-        }
-
-        const imageSnapshot = ref.current.makeImageSnapshot();
-        setRealImg(imageSnapshot);
-        core.setImgToHistory(imageSnapshot);
-        setIsHistoryAvailable({ back: true, forward: false });
-        setPixels([]);
-        setRealRectangle(null);
-    };
+    const handleCloseRadiusModal = useCallback(() => {
+        setRadius(1);
+        setPenCircleEventValue(null);
+    }, []);
 
     const tap = Gesture.Tap()
         .runOnJS(true)
@@ -128,32 +116,58 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
                 setPenCircleEventValue(e);
                 return;
             }
-            const value = core.tapAction(e);
-            setPixels(prev => [...prev, ...value]);
-            setTimeout(() => {
-                createSnapshot();
-            }, ANIMATION_TIMEOUT);
+            const value = core.drawingManager.tapAction(e);
+
+            setRealImg(value);
+
+            setIsHistoryAvailable({ back: true, forward: false });
         });
 
-    const handlePan = useCallback(event => {
-        const val = core.visualizationDrawingRectangle(event);
+    const handlePan = useCallback(
+        (event: GestureUpdateEvent<PanGestureHandlerEventPayload & PanGestureChangeEventPayload>) => {
+            const val = core.gestureManager.visualizationDrawingRectangle(event);
 
-        if (val === null) {
-            return;
-        }
+            if (val === null) {
+                return;
+            }
 
-        setTemporaryRectangle(val);
-    }, []);
+            setTemporaryRectangle(val);
+        },
+        [core],
+    );
 
-    const throttledPanHandler = useCallback(throttle(handlePan, (ANIMATION_TIMEOUT / 3) * 2), [handlePan]);
+    const handlePanLine = useCallback(
+        (event: GestureUpdateEvent<PanGestureHandlerEventPayload & PanGestureChangeEventPayload>) => {
+            const val = core.gestureManager.visualizationDrawingLine(event);
+
+            if (val === null) {
+                return;
+            }
+
+            setTemporaryLine(val);
+        },
+        [core],
+    );
+
+    const setNewImgByChangeCenter = useCallback(
+        (newImg: SkImage) => {
+            setIsChangeCenterOpen(false);
+            core.imageManager.setNewImg(newImg);
+            setRealImg(newImg);
+        },
+        [core],
+    );
+
+    const throttledPanHandler = useMemo(() => throttle(handlePan, ANIMATION_TIMEOUT_THROTTLE), [handlePan]);
+    const throttledPanLineHandler = useMemo(() => throttle(handlePanLine, ANIMATION_TIMEOUT_THROTTLE), [handlePanLine]);
 
     const pinchGestureEvent = Gesture.Pinch()
         .runOnJS(true)
         .onStart(() => {
-            core.pinchStart();
+            core.gestureManager.pinchStart();
         })
         .onChange(event => {
-            const value = core.pinchAction(event);
+            const value = core.gestureManager.pinchAction(event);
             if (!value) {
                 return;
             }
@@ -170,24 +184,27 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
 
     const circleTap = useCallback(() => {
         if (penCircleEventValue) {
-            const value = core.circleTapAction(penCircleEventValue, Math.floor(radius));
-            setPixels(prev => [...prev, ...value]);
-            setTimeout(() => {
-                createSnapshot();
-                setPenCircleEventValue(null);
-            }, ANIMATION_TIMEOUT);
+            const value = core.drawingManager.circleTapAction(penCircleEventValue, Math.floor(radius));
+            handleCloseRadiusModal();
+            setRealImg(value);
+
+            setIsHistoryAvailable({ back: true, forward: false });
         }
-    }, [radius, core, createSnapshot, penCircleEventValue]);
+    }, [penCircleEventValue, core, radius, handleCloseRadiusModal]);
 
     const panOneG = Gesture.Pan()
         .maxPointers(1)
         .runOnJS(true)
         .onStart(e => {
             if (activeTool === TOOLS.RECTANGLE) {
-                core.startDrawRectangle(e);
+                core.gestureManager.startDrawRectangle(e);
                 return;
             }
-            core.panGStart();
+            if (activeTool === TOOLS.LINE) {
+                core.gestureManager.startDrawLine(e);
+                return;
+            }
+            core.gestureManager.panGStart();
         })
         .onChange(event => {
             if (activeTool === TOOLS.RECTANGLE) {
@@ -195,7 +212,12 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
                 return;
             }
 
-            const value = core.panAction(event);
+            if (activeTool === TOOLS.LINE) {
+                throttledPanLineHandler(event);
+                return;
+            }
+
+            const value = core.gestureManager.panAction(event);
             if (value === null) {
                 return;
             }
@@ -205,19 +227,26 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
         })
         .onEnd(e => {
             if (activeTool === TOOLS.RECTANGLE) {
-                const val = core.endDrawingRectangle(e);
-                setRealRectangle(val);
                 setTemporaryRectangle(null);
-                setTimeout(() => {
-                    createSnapshot();
-                }, ANIMATION_TIMEOUT);
+                core.drawingManager.finishTempRectDraw();
 
-                setTimeout(
-                    () => {
-                        setTemporaryRectangle(null);
-                    },
-                    (ANIMATION_TIMEOUT * 3) / 2,
-                );
+                if (e.numberOfPointers > 1) {
+                    return;
+                }
+                const value = core.drawingManager.endDrawingRectangle(e);
+                setRealImg(value);
+
+                setIsHistoryAvailable({ back: true, forward: false });
+            }
+            if (activeTool === TOOLS.LINE) {
+                setTemporaryLine(null);
+                core.drawingManager.finishTempLineDraw();
+                if (e.numberOfPointers > 1) {
+                    return;
+                }
+                const value = core.drawingManager.endDrawingLine(e);
+                setRealImg(value);
+                setIsHistoryAvailable({ back: true, forward: false });
             }
         });
 
@@ -226,10 +255,12 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
         .averageTouches(true)
         .runOnJS(true)
         .onStart(() => {
-            core.panGStart();
+            if (temporaryRectangle === null && temporaryLine === null) {
+                core.gestureManager.panGStart();
+            }
         })
         .onChange(event => {
-            const value = core.panAction(event);
+            const value = core.gestureManager.panAction(event);
             if (value === null) {
                 return;
             }
@@ -238,34 +269,33 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
             translateY.value = value.translateY;
         });
 
-    const gesture = Gesture.Race(pinchGestureEvent, panOneG, panG, tap);
-
     const goBackHistory = useCallback(() => {
-        const value = core.goBackHistory();
-        const { goBack, goForward } = core.isHistoryAvailable;
+        const value = core.imageManager.goBackHistory();
+        const { goBack, goForward } = core.imageManager.isHistoryAvailable;
         setIsHistoryAvailable({ back: goBack, forward: goForward });
         setRealImg(value);
-    }, []);
+    }, [core]);
     const goForwardHistory = useCallback(() => {
-        const value = core.goForwardHistory();
-        const { goBack, goForward } = core.isHistoryAvailable;
+        const value = core.imageManager.goForwardHistory();
+        const { goBack, goForward } = core.imageManager.isHistoryAvailable;
         setIsHistoryAvailable({ back: goBack, forward: goForward });
         setRealImg(value);
-    }, []);
+    }, [core]);
 
-    const handleFinish = useCallback(() => {
+    const handleFinish = useCallback(async () => {
         setNewImg(realImg.encodeToBase64(ImageFormat.PNG, 1));
     }, [realImg, setNewImg]);
 
-    const handleCloseRadiusModal = useCallback(() => {
-        setRadius(1);
-        setPenCircleEventValue(null);
-    }, []);
+    const gesture = Gesture.Race(pinchGestureEvent, panOneG, panG, tap);
+
+    const transformParams = useDerivedValue(
+        () => [{ translateX: translateX.value }, { translateY: translateY.value }, { scale: viewScale.value }],
+        [viewScale, translateY, translateX],
+    );
 
     return (
         <Container>
             <VisibleContentContainer>
-                {/* Content */}
                 <GestureHandlerRootView>
                     <GestureDetector gesture={gesture}>
                         <Animated.View
@@ -278,12 +308,7 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
                                     width,
                                     height,
                                 }}>
-                                <Group
-                                    transform={[
-                                        { translateY: translateY.value },
-                                        { translateX: translateX.value },
-                                        { scale: viewScale.value },
-                                    ]}>
+                                <Group transform={transformParams}>
                                     <Image image={realImg} x={0} y={0} width={width} height={height} />
                                 </Group>
 
@@ -294,13 +319,48 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
                                         color={colors.success}
                                     />
                                 )}
+                                {temporaryLine && (
+                                    <Line
+                                        style="stroke"
+                                        p1={vec(temporaryLine.start.x, temporaryLine.start.y)}
+                                        p2={vec(temporaryLine.end.x, temporaryLine.end.y)}
+                                        strokeWidth={temporaryLine.cellSize}
+                                        color={colors.success}
+                                    />
+                                )}
                             </Canvas>
                         </Animated.View>
                     </GestureDetector>
                 </GestureHandlerRootView>
-                {/* TODO Array length error */}
+                {isCenterShown && (
+                    <CenterImgContainer width={width} height={height} pointerEvents="none">
+                        <Canvas
+                            style={{
+                                width,
+                                height,
+                                flex: 1,
+                            }}>
+                            <Group
+                                transform={transformParams}
+                                // TODO set as const
+                                layer={
+                                    <Paint>
+                                        <ColorMatrix matrix={OpacityMatrix(0.5)} />
+                                    </Paint>
+                                }>
+                                <Image image={centerImg} x={0} y={0} width={width} height={height} />
+                            </Group>
+                        </Canvas>
+                    </CenterImgContainer>
+                )}
+
                 {gridParam.isVisible && (
-                    <MemoGridLayout width={gridParam.gridWidth} height={gridParam.gridHeight} totalWidth={width} />
+                    <MemoGridLayout
+                        width={gridParam.gridWidth}
+                        height={gridParam.gridHeight}
+                        totalWidth={width}
+                        totalHeight={height}
+                    />
                 )}
 
                 <ToolsContainer>
@@ -311,13 +371,7 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
                             fillColor={activeTool === TOOLS.PEN ? colors.success : colors.l1ActiveEl}
                         />
                     </PressableTool>
-                    <PressableTool onPress={() => pressTool(TOOLS.RUBBER)}>
-                        <RubberSvg
-                            width={ICON_SIZE * rem}
-                            height={ICON_SIZE * rem}
-                            fillColor={activeTool === TOOLS.RUBBER ? colors.success : colors.l1ActiveEl}
-                        />
-                    </PressableTool>
+
                     <PressableTool onPress={() => pressTool(TOOLS.CIRCLE)}>
                         <CircleSvg
                             width={ICON_SIZE * rem}
@@ -332,8 +386,15 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
                             fillColor={activeTool === TOOLS.RECTANGLE ? colors.success : colors.l1ActiveEl}
                         />
                     </PressableTool>
-                </ToolsContainer>
 
+                    <PressableTool onPress={() => pressTool(TOOLS.LINE)}>
+                        <LineSvg
+                            width={ICON_SIZE * rem}
+                            height={ICON_SIZE * rem}
+                            fillColor={activeTool === TOOLS.LINE ? colors.success : colors.l1ActiveEl}
+                        />
+                    </PressableTool>
+                </ToolsContainer>
                 <HistoryContainer>
                     <PressableTool disabled={!isHistoryAvailable.back} onPress={goBackHistory}>
                         <GoBackSvg
@@ -350,6 +411,14 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
                         />
                     </PressableTool>
                 </HistoryContainer>
+                <CenterControllerContainer>
+                    <CenterControllerButton onPress={toggleIsCenterShown}>
+                        <TextSemiBold20>{isCenterShown ? 'Hide center' : 'Show center'}</TextSemiBold20>
+                    </CenterControllerButton>
+                    <CenterControllerButton onPress={toggleIsChangeCenterOpen}>
+                        <TextSemiBold20>Set center</TextSemiBold20>
+                    </CenterControllerButton>
+                </CenterControllerContainer>
 
                 <SaveButtonContainer>
                     <LongPressButton time={FUNC_TIME_DELAY} handleLongPress={handleFinish}>
@@ -363,7 +432,7 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
                     <DefaultRow>
                         <NumericInput
                             value={radius.toString()}
-                            onChangeText={val => setRadius(val)}
+                            onChangeText={val => setRadius(+val)}
                             label="Set radius"
                             onBlur={() => undefined}
                             background={colors.cardBg}
@@ -374,22 +443,12 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
                     </DefaultButton>
                 </SetRadiusContainer>
             </AlertModalContainer>
-
-            <RealImgContainer width={realImgWidth} height={realImgHeight}>
-                <Canvas
-                    ref={ref}
-                    style={{
-                        width: realImgWidth,
-                        height: realImgHeight,
-                    }}>
-                    <Image image={realImg} x={0} y={0} width={realImgWidth} height={realImgHeight} />
-                    {newPixels.map(el => (
-                        <Rect x={el.x} y={el.y} height={el.size} width={el.size} color={el.color} strokeWidth={0} />
-                    ))}
-
-                    {realRectanle && <DiffRect inner={realRectanle.inner} outer={realRectanle.outer} color="black" />}
-                </Canvas>
-            </RealImgContainer>
+            <SetCenterModal
+                img={realImg}
+                isVisible={isChangeCenterOpen}
+                backButtonHandler={toggleIsChangeCenterOpen}
+                acceptAction={setNewImgByChangeCenter}
+            />
         </Container>
     );
 };

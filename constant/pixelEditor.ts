@@ -1,4 +1,5 @@
 export const ANIMATION_TIMEOUT = 35;
+export const ANIMATION_TIMEOUT_THROTTLE = 40;
 
 export const ICON_SIZE = 3.2;
 
