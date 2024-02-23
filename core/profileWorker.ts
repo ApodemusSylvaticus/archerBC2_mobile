@@ -21,6 +21,7 @@ export class ProfileWorker {
     setHrefBase = (data: string) => {
         this.serverApi = data;
         this.hrefBase = `http://${data}:8080/`;
+        console.log(this.hrefBase);
     };
 
     constructor() {
@@ -38,6 +39,7 @@ export class ProfileWorker {
     profileListPayload: protobuf.Type | undefined;
 
     loadProto = async () => {
+        console.log('loadProto');
         const profileProtobufRoot = protobuf.parse(
             'syntax = "proto3";\n' +
                 '\n' +
@@ -170,6 +172,7 @@ export class ProfileWorker {
     };
 
     async sendProfilesListData(data: IProfileListServerData) {
+        console.log('here33');
         if (this.profileListPayload === undefined) {
             throw new Error('Payload function === undefined');
         }
@@ -188,14 +191,31 @@ export class ProfileWorker {
     }
 
     getFileList = async (): Promise<string[]> => {
-        const response = await fetch(`${this.hrefBase}filelist`);
+        const response = await fetch(`http://172.23.90.153:8080/filelist`);
+        const response2 = await fetch(`${this.hrefBase}files?filename=ax_338_hornady_250.a7p}`);
+
+        console.log('getFileList', response.json());
+        console.log('getFileList', response.text());
+
+        const buffer = await response2.arrayBuffer();
+        console.log('buffer', buffer);
+
+        console.log('this.payload', this.payload);
+        const message = this.payload.decode(new Uint8Array(buffer));
+        console.log('message', message);
+        const data = this.payload.toObject(message, { enums: String, defaults: true }).profile;
+
+        console.log('response2', data.fields.profile);
+
         return response.json();
     };
 
     getProfile = async (fileName: string): Promise<ServerProfile> => {
+        console.log('try to get profile');
         if (this.payload === undefined) {
             throw new Error('Payload func isn`t load');
         }
+        console.log('here');
         const response = await fetch(`${this.hrefBase}files?filename=${fileName}`);
         const buffer = await response.arrayBuffer();
 

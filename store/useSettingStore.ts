@@ -23,7 +23,7 @@ interface IUseSettingStore {
 
 export const useSettingStore = create<IUseSettingStore>()(set => ({
     language: languageSimbolArray[0],
-    serverHost: `192.168.1.128`,
+    serverHost: `172.23.90.153`,
     isWiFiConnected: false,
     isDevMode: false,
     swapDevMode: () => set(prev => ({ isDevMode: !prev.isDevMode })),

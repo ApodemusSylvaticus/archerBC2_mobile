@@ -9,6 +9,7 @@ export const useCheckWiFiStatus = () => {
         if (!isWiFiConnected) {
             sendNotification({ type: NotificationEnum.ERROR, msg: 'error_failed_connect_to_wifi' });
         }
+        console.log('wifi work');
         return isWiFiConnected;
     }, [isWiFiConnected]);
 };

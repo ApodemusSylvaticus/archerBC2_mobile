@@ -38,6 +38,7 @@ export class ReticlesCore {
 
     getReticleList = async () => {
         const reticlesListResponse = await fetch(`${this.hrefBase}getReticlesList`);
+        console.log(await reticlesListResponse.json());
         const reticlesList: string[] = (await reticlesListResponse.json()) ?? [];
         return reticlesList;
     };
