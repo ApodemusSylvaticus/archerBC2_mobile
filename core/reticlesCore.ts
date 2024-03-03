@@ -70,7 +70,7 @@ export class ReticlesCore {
     }
 
     getReticleImages = async (reticleFileName: string) => {
-        const url = `http://192.168.1.128:8080/getReticle?name=${reticleFileName}`;
+        const url = `${this.hrefBase}getReticle?name=${reticleFileName}`;
         const localUri = `${ExpoFileSystem.documentDirectory}${reticleFileName}`;
 
         const downloadResumable = ExpoFileSystem.createDownloadResumable(url, localUri, { cache: false });

@@ -36,7 +36,7 @@ export const WindParamColumn: React.FC = React.memo(() => {
     }
 
     const [initialValue, setInitialValue] = useState({
-        windSpeed: devStatus.pitch.toString(),
+        windSpeed: devStatus.windSpeed.toString(),
         windDir: devStatus.windDir.toString(),
     });
 
@@ -80,10 +80,10 @@ export const WindParamColumn: React.FC = React.memo(() => {
     useEffect(() => {
         if (
             devStatus.windDir.toString() !== initialValue.windDir ||
-            devStatus.pitch.toString() !== initialValue.windSpeed
+            devStatus.windSpeed.toString() !== initialValue.windSpeed
         ) {
             setInitialValue({
-                windSpeed: devStatus.pitch.toString(),
+                windSpeed: devStatus.windSpeed.toString(),
                 windDir: devStatus.windDir.toString(),
             });
         }
@@ -109,7 +109,7 @@ export const WindParamColumn: React.FC = React.memo(() => {
                 }
                 const windDir = degreesFromNumber(+value.windDir);
                 coreProtobuf.sendWindToServer(windDir, +value.windSpeed);
-                setWindParam({ windDir, pitch: +value.windSpeed });
+                setWindParam({ windDir, windSpeed: +value.windSpeed });
             }}>
             {({ isValid, handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                 <Container>

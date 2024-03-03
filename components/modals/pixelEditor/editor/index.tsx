@@ -162,8 +162,10 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
     const throttledPanLineHandler = useMemo(() => throttle(handlePanLine, ANIMATION_TIMEOUT_THROTTLE), [handlePanLine]);
 
     const pinchGestureEvent = Gesture.Pinch()
+        .onBegin(e => console.log('onBegin', e))
         .runOnJS(true)
-        .onStart(() => {
+        .onStart(e => {
+            console.log('onStart', e);
             core.gestureManager.pinchStart();
         })
         .onChange(event => {
@@ -196,6 +198,7 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
         .maxPointers(1)
         .runOnJS(true)
         .onStart(e => {
+            console.log('panOneG start');
             if (activeTool === TOOLS.RECTANGLE) {
                 core.gestureManager.startDrawRectangle(e);
                 return;
@@ -228,7 +231,6 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
         .onEnd(e => {
             if (activeTool === TOOLS.RECTANGLE) {
                 setTemporaryRectangle(null);
-                core.drawingManager.finishTempRectDraw();
 
                 if (e.numberOfPointers > 1) {
                     return;
@@ -240,7 +242,6 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
             }
             if (activeTool === TOOLS.LINE) {
                 setTemporaryLine(null);
-                core.drawingManager.finishTempLineDraw();
                 if (e.numberOfPointers > 1) {
                     return;
                 }
@@ -251,6 +252,7 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
         });
 
     const panG = Gesture.Pan()
+        .enabled(activeTool === TOOLS.LINE || activeTool === TOOLS.RECTANGLE)
         .minPointers(2)
         .averageTouches(true)
         .runOnJS(true)
@@ -260,6 +262,9 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
             }
         })
         .onChange(event => {
+            if (activeTool !== TOOLS.LINE && activeTool !== TOOLS.RECTANGLE) {
+                return;
+            }
             const value = core.gestureManager.panAction(event);
             if (value === null) {
                 return;
@@ -286,7 +291,7 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
         setNewImg(realImg.encodeToBase64(ImageFormat.PNG, 1));
     }, [realImg, setNewImg]);
 
-    const gesture = Gesture.Race(pinchGestureEvent, panOneG, panG, tap);
+    const gesture = Gesture.Race(Gesture.Simultaneous(pinchGestureEvent, panOneG), tap, panG);
 
     const transformParams = useDerivedValue(
         () => [{ translateX: translateX.value }, { translateY: translateY.value }, { scale: viewScale.value }],

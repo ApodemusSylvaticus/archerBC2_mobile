@@ -31,7 +31,10 @@ export const useA = () => {
         profileWorker.setHrefBase(dataServerApi);
 
         try {
+            console.log('tyt2');
+
             const fileList = await profileWorker.getFileList();
+
             const profileList = await profileWorker.getProfilesList();
             if (hardReset) {
                 hardResetAllFileList(fileList, profileList);

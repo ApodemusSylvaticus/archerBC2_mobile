@@ -1,17 +1,15 @@
 import { create } from 'zustand/esm';
-import { ZOOM } from '@/interface/core/coreProtobuf';
 import { Nullable } from '@/interface/helper';
 import { testShotConditional } from '@/constant/testValue';
 
 export interface DevStatus {
     charge: number;
-    zoom: ZOOM;
     airTemp: number;
     airHum: number;
     airPress: number;
     powderTemp: number;
     windDir: number;
-    pitch: number;
+    windSpeed: number;
     cant: number;
     distance: number;
     currProfile: number;
@@ -24,7 +22,7 @@ interface IUseDevStatusStore {
     setDevStatus: (data: DevStatus) => void;
     activeProfile: Nullable<string>;
     setActiveProfile: (data: string) => void;
-    setWindParam: (data: { windDir: number; pitch: number }) => void;
+    setWindParam: (data: { windDir: number; windSpeed: number }) => void;
     setEnvironmentParam: (data: { airPress: number; airHum: number; airTemp: number; powderTemp: number }) => void;
 }
 

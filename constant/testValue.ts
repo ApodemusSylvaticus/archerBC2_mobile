@@ -210,7 +210,7 @@ export const testShotConditional: TestShotConditional = {
         airTemp: 2,
         airHum: 3,
         zoom: ZOOM.X1,
-        pitch: 0,
+        windSpeed: 0,
         cant: 0,
     },
     activeProfile: 'first.a7p',

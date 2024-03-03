@@ -23,6 +23,18 @@ export class GestureManager {
 
     private scaleLine: number[] = [];
 
+    private isTempRectShouldDraw: boolean = false;
+
+    private isTempLineShouldDraw: boolean = false;
+
+    finishDrawTempRect() {
+        this.isTempRectShouldDraw = false;
+    }
+
+    finishDrawTempLine() {
+        this.isTempLineShouldDraw = false;
+    }
+
     private startPositionDrawingRect: { x: number; y: number; realX: number; realY: number } = {
         x: 0,
         y: 0,
@@ -46,10 +58,6 @@ export class GestureManager {
     private actualScaleIndex = 0;
 
     private start = { x: 0, y: 0 };
-
-    private isTempRectShouldDraw = false;
-
-    private isTempLineShouldDraw = false;
 
     get getStartPositionDrawingRect() {
         return this.startPositionDrawingRect;

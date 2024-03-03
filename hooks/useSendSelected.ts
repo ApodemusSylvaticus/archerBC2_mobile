@@ -58,6 +58,7 @@ export const useSendSelected = () => {
 
             try {
                 await handleRefreshList();
+                console.log('tyt1');
 
                 const fileList = await profileWorker.getFileList();
                 const profileList = await profileWorker.getProfilesList();

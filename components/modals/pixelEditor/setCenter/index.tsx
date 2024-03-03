@@ -103,7 +103,7 @@ export const SetCenterModal: React.FC<ISetCenterModal> = React.memo(
                     viewScale.value = withTiming(1);
                 }
             });
-        const gesture = Gesture.Race(pinchGestureEvent, panOneG, tap);
+        const gesture = Gesture.Race(Gesture.Simultaneous(pinchGestureEvent, panOneG), tap);
 
         const transformParams = useDerivedValue(
             () => [{ translateX: translateX.value }, { translateY: translateY.value }, { scale: viewScale.value }],
