@@ -43,6 +43,8 @@ export const FixProfileCollision: React.FC<PropsWithChildren> = ({ children }) =
             return;
         }
         const list = profileListServerData.profileDesc.map(el => el.filePath);
+        console.log('fileList', fileList);
+        console.log('list', list);
 
         if (!areStringArraysEqual(list, fileList)) {
             setHasCollision(true);
@@ -76,7 +78,7 @@ export const FixProfileCollision: React.FC<PropsWithChildren> = ({ children }) =
         }
 
         handler();
-    }, [hasCollision, fileList, profileListServerData]);
+    }, [hasCollision, fileList, profileListServerData, handler]);
 
     return isLoading ? (
         <View>

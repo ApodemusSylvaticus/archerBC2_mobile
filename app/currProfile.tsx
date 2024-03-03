@@ -23,7 +23,7 @@ import { FixProfileCollision } from '@/components/fixProfileCollision';
 import { useCheckWiFiStatus } from '@/hooks/useCheckWiFiStatus';
 import { useUpdateActiveProfile } from '@/hooks/useUpdate';
 
-const Content: React.FC = () => {
+const Content: React.FC = React.memo(() => {
     useUpdateActiveProfile();
     const sendNotification = useNotificationStore(state => state.sendNotification);
     const importProfile = useProfileStore(state => state.importProfile);
@@ -47,6 +47,7 @@ const Content: React.FC = () => {
         updateProfile: state.updateProfile,
         chooseProfileListActiveProfile: state.chooseProfileListActiveProfile,
     }));
+
     const checkWifi = useCheckWiFiStatus();
 
     const { t } = useTranslation();
@@ -108,6 +109,7 @@ const Content: React.FC = () => {
             return;
         }
 
+        console.log('here1');
         setIsLoading(true);
         setErrorMsg('');
         profileWorker
@@ -127,6 +129,8 @@ const Content: React.FC = () => {
             return;
         }
         setShouldRetry(false);
+        console.log('here2');
+
         setIsLoading(true);
         setErrorMsg('');
         profileWorker
@@ -136,7 +140,7 @@ const Content: React.FC = () => {
             .finally(() => setIsLoading(false));
     }, [activeProfilesMap, activeProfile, profileWorker, setProfile, shouldRetry, t]);
 
-    const handleChange = (
+    const handleChange = async (
         data:
             | WithFileName<IZeroing>
             | WithFileName<IBullet>
@@ -215,7 +219,8 @@ const Content: React.FC = () => {
             coefRows: (data.bcType ?? bcType) === 'G1' ? data.coefG1 ?? coefG1 : data.coefG7 ?? coefG7,
         };
 
-        profileWorker.saveChanges(activeProfile, newProfile).then(res => {
+        try {
+            const res = await profileWorker.saveChanges(activeProfile, newProfile);
             if (res.ok) {
                 sendNotification({ type: NotificationEnum.SUCCESS, msg: t('default_profile_updated') });
                 updateProfile(activeProfile, newProfile);
@@ -226,33 +231,30 @@ const Content: React.FC = () => {
                     'shortNameBot' in data ||
                     'shortNameTop' in data
                 ) {
-                    profileWorker
-                        .sendProfilesListData({
-                            profileDesc: profileListServerData!.profileDesc.map(el =>
-                                el.filePath === data.fileName
-                                    ? {
-                                          profileName: newProfile.profileName,
-                                          filePath: newProfile.fileName,
-                                          shortNameTop: newProfile.shortNameTop,
-                                          cartridgeName: newProfile.cartridgeName,
-                                          shortNameBot: newProfile.shortNameBot,
-                                      }
-                                    : el,
-                            ),
-                            activeprofile: profileListServerData!.activeprofile,
-                        })
-                        .then(() => handleRefreshList())
-                        .catch(() =>
-                            sendNotification({
-                                msg: t('error_failed_to_update_profile_list'),
-                                type: NotificationEnum.ERROR,
-                            }),
-                        );
+                    const updatedProfileListData = profileListServerData!.profileDesc.map(el =>
+                        el.filePath === data.fileName
+                            ? {
+                                  profileName: newProfile.profileName,
+                                  filePath: newProfile.fileName,
+                                  shortNameTop: newProfile.shortNameTop,
+                                  cartridgeName: newProfile.cartridgeName,
+                                  shortNameBot: newProfile.shortNameBot,
+                              }
+                            : el,
+                    );
+                    await profileWorker.sendProfilesListData({
+                        profileDesc: updatedProfileListData,
+                        activeprofile: profileListServerData!.activeprofile,
+                    });
                 }
+
+                await handleRefreshList();
             } else {
                 sendNotification({ type: NotificationEnum.ERROR, msg: t('error_failed_to_update_profile_data') });
             }
-        });
+        } catch (error) {
+            sendNotification({ msg: t('error_failed_to_update_profile_list'), type: NotificationEnum.ERROR });
+        }
     };
 
     const exportProfileHandler = () => {
@@ -381,6 +383,8 @@ const Content: React.FC = () => {
         });
     };
 
+    console.log(`Content isLoading, ${isLoading}`);
+
     if (isLoading) {
         return <Loader size={rem * 3.2} />;
     }
@@ -426,12 +430,14 @@ const Content: React.FC = () => {
             <DraggableDistanceListModalMemo />
         </DefaultColumnContainer>
     );
-};
+});
 
 export const CurrProfile: React.FC = () => {
     const { rem } = useTheme();
 
     const { isLoading, errorMsg, retryHandler } = useA();
+
+    console.log(`CurrProfile isLoading, ${isLoading}, errorMsg ${errorMsg}`);
     const isTesting = useActiveProfileStore(state => state.isTesting);
 
     return (

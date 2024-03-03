@@ -162,10 +162,8 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
     const throttledPanLineHandler = useMemo(() => throttle(handlePanLine, ANIMATION_TIMEOUT_THROTTLE), [handlePanLine]);
 
     const pinchGestureEvent = Gesture.Pinch()
-        .onBegin(e => console.log('onBegin', e))
         .runOnJS(true)
-        .onStart(e => {
-            console.log('onStart', e);
+        .onStart(() => {
             core.gestureManager.pinchStart();
         })
         .onChange(event => {
@@ -198,7 +196,6 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
         .maxPointers(1)
         .runOnJS(true)
         .onStart(e => {
-            console.log('panOneG start');
             if (activeTool === TOOLS.RECTANGLE) {
                 core.gestureManager.startDrawRectangle(e);
                 return;

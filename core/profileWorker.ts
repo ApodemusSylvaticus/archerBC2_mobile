@@ -159,52 +159,39 @@ export class ProfileWorker {
     };
 
     getProfilesList = async (): Promise<IProfileListServerData> => {
-        console.log('getProfilesList');
-
         if (this.profileListPayload === undefined) {
             throw new Error('ProfileListPayload func isn`t load');
         }
 
+        console.log('1');
         const response = await axios.get(`${this.hrefBase}files?filename=profiletabl`, {
             responseType: 'arraybuffer',
         });
 
-        console.log('response', response);
-
-        const buffer = response;
-        console.log('buffer', buffer);
-
         const message = this.profileListPayload.decode(new Uint8Array(response.data));
-        console.log('message', message);
-        console.log('this.profileListPayload.toObject(message)', this.profileListPayload.toObject(message));
 
+        console.log(message);
         return this.profileListPayload.toObject(message) as IProfileListServerData;
     };
 
     async sendProfilesListData(data: IProfileListServerData) {
-        console.log(data);
-        console.log(this.profileListPayload);
         if (this.profileListPayload === undefined) {
             throw new Error('Payload function === undefined');
         }
 
         try {
             const message = this.profileListPayload.create(data);
-            console.log(1);
 
             const buffer = this.profileListPayload.encode(message).finish();
-            console.log(2);
-            console.log(`${this.hrefBase}files?filename=profiletabl`);
 
-            const response = await axios.put(`${this.hrefBase}files?filename=profiletabl`, { body: buffer });
-
-            console.log('response type', response);
+            const response = await axios.put(`${this.hrefBase}files?filename=profiletabl`, buffer);
 
             if (response.status !== 200) {
                 throw new Error('sendProfilesListData problem');
             }
         } catch (e) {
-            console.log(e);
+            console.log('sendProfilesListData', e);
+            throw new Error('sendProfilesListData problem');
         }
     }
 
@@ -356,6 +343,7 @@ export class ProfileWorker {
     }
 
     serveRefreshList() {
+        console.log('______________________________________');
         return fetch(`${this.hrefBase}filelist`, { method: 'POST' });
     }
 }

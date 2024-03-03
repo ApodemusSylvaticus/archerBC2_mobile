@@ -7,6 +7,7 @@ import {
     ActiveOnDeviceLabel,
     Button,
     Container,
+    Crunch,
     DisabledText,
 } from '@/components/modals/chooseActiveProfileModal/style';
 import { TextSemiBold18, TextSemiBold20 } from '@/components/text/styled';
@@ -113,6 +114,7 @@ export const ChooseActiveProfileModal: React.FC = () => {
 
     return (
         <DefaultModalWithBackBtn
+            scrollable={false}
             backButtonHandler={closeChooseActiveProfileModal}
             isVisible={isChooseActiveProfileOpen}>
             {localState !== null && (
@@ -132,6 +134,7 @@ export const ChooseActiveProfileModal: React.FC = () => {
                     />
                 </GestureHandlerRootView>
             )}
+            <Crunch />
         </DefaultModalWithBackBtn>
     );
 };

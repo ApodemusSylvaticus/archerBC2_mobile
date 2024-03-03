@@ -33,7 +33,7 @@ export const useUpdateActiveProfile = () => {
                 const val = await profileWorker.getProfile(activeProfile);
                 setProfile(activeProfile, val);
             }
-        }, 1000000);
+        }, 5000);
 
         return () => clearTimeout(intervalId);
     }, [activeProfile, profileWorker, setProfile, setProfileListServerData]);

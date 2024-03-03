@@ -8,79 +8,80 @@ import { ButtonText, Text20Uint, TextWithUintContainer } from '@/components/prof
 import { RiffleForm } from '@/components/forms/riffleForm';
 import { RiffleProfileProps } from '@/interface/form';
 
-export const Rifle: React.FC<RiffleProfileProps> = ({
-    scHeight,
-    rTwist,
-    twistDir,
-    caliber,
-    fileName,
-    handleChange,
-}) => {
-    const { t } = useTranslation();
-    const [isEditMode, setIsEditMode] = useState<boolean>(false);
-    const { colors } = useTheme();
+export const Rifle: React.FC<RiffleProfileProps> = React.memo(
+    ({ scHeight, rTwist, twistDir, caliber, fileName, handleChange }) => {
+        const { t } = useTranslation();
+        const [isEditMode, setIsEditMode] = useState<boolean>(false);
+        const { colors } = useTheme();
 
-    const list = ['LEFT', 'RIGHT'] as const;
-    const index = list.findIndex(el => el === twistDir);
-    const translatedList = [t('profile_twist_direction_left'), t('profile_twist_direction_right')];
+        const list = ['LEFT', 'RIGHT'] as const;
+        const index = list.findIndex(el => el === twistDir);
+        const translatedList = [t('profile_twist_direction_left'), t('profile_twist_direction_right')];
 
-    return (
-        <DefaultCard>
-            <SeparateRow>
-                <TextSemiBold24>{t('profile_riffle')}</TextSemiBold24>
-                <DefaultButton onPress={() => setIsEditMode(prev => !prev)}>
-                    <ButtonText>{isEditMode ? t('default_go_back') : t('default_edit')}</ButtonText>
-                </DefaultButton>
-            </SeparateRow>
+        return (
+            <DefaultCard>
+                <SeparateRow>
+                    <TextSemiBold24>{t('profile_riffle')}</TextSemiBold24>
+                    <DefaultButton onPress={() => setIsEditMode(prev => !prev)}>
+                        <ButtonText>{isEditMode ? t('default_go_back') : t('default_edit')}</ButtonText>
+                    </DefaultButton>
+                </SeparateRow>
 
-            {isEditMode ? (
-                <RiffleForm
-                    withList={false}
-                    riffle={{ caliber, scHeight: scHeight.toString(), twistDir, rTwist: rTwist.toString(), fileName }}
-                    labelBg={colors.cardBg}
-                    onSubmit={value => {
-                        handleChange({
+                {isEditMode ? (
+                    <RiffleForm
+                        withList={false}
+                        riffle={{
+                            caliber,
+                            scHeight: scHeight.toString(),
+                            twistDir,
+                            rTwist: rTwist.toString(),
                             fileName,
-                            rTwist: +value.rTwist,
-                            scHeight: +value.scHeight,
-                            twistDir: value.twistDir,
-                            caliber: value.caliber,
-                        });
-                        setIsEditMode(false);
-                    }}
-                    navigation={{ type: 'V2' }}
-                />
-            ) : (
-                <>
-                    <DefaultRow>
-                        <Text20>{t('profile_caliber')}</Text20>
-                        <Text20>{caliber}</Text20>
-                    </DefaultRow>
+                        }}
+                        labelBg={colors.cardBg}
+                        onSubmit={value => {
+                            handleChange({
+                                fileName,
+                                rTwist: +value.rTwist,
+                                scHeight: +value.scHeight,
+                                twistDir: value.twistDir,
+                                caliber: value.caliber,
+                            });
+                            setIsEditMode(false);
+                        }}
+                        navigation={{ type: 'V2' }}
+                    />
+                ) : (
+                    <>
+                        <DefaultRow>
+                            <Text20>{t('profile_caliber')}</Text20>
+                            <Text20>{caliber}</Text20>
+                        </DefaultRow>
 
-                    <DefaultRow>
-                        <Text20>{t('profile_twist_direction')}</Text20>
-                        <Text20>{translatedList[index]}</Text20>
-                    </DefaultRow>
+                        <DefaultRow>
+                            <Text20>{t('profile_twist_direction')}</Text20>
+                            <Text20>{translatedList[index]}</Text20>
+                        </DefaultRow>
 
-                    <DefaultRow>
-                        <Text20>{t('profile_twist_rate')}</Text20>
+                        <DefaultRow>
+                            <Text20>{t('profile_twist_rate')}</Text20>
 
-                        <TextWithUintContainer>
-                            <Text20>{rTwist}</Text20>
-                            <Text20Uint>{t('uint_inches_dash_turn')}</Text20Uint>
-                        </TextWithUintContainer>
-                    </DefaultRow>
+                            <TextWithUintContainer>
+                                <Text20>{rTwist}</Text20>
+                                <Text20Uint>{t('uint_inches_dash_turn')}</Text20Uint>
+                            </TextWithUintContainer>
+                        </DefaultRow>
 
-                    <DefaultRow>
-                        <Text20>{t('profile_scope_height')}</Text20>
+                        <DefaultRow>
+                            <Text20>{t('profile_scope_height')}</Text20>
 
-                        <TextWithUintContainer>
-                            <Text20>{scHeight}</Text20>
-                            <Text20Uint>{t('uint_mm')}</Text20Uint>
-                        </TextWithUintContainer>
-                    </DefaultRow>
-                </>
-            )}
-        </DefaultCard>
-    );
-};
+                            <TextWithUintContainer>
+                                <Text20>{scHeight}</Text20>
+                                <Text20Uint>{t('uint_mm')}</Text20Uint>
+                            </TextWithUintContainer>
+                        </DefaultRow>
+                    </>
+                )}
+            </DefaultCard>
+        );
+    },
+);
