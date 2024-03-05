@@ -37,7 +37,7 @@ export const Notification: React.FC<NotificationProps> = ({ msg, type }) => {
             setTimeout(() => {
                 removeNotification();
             }, 600);
-        }, 505050);
+        }, 5000);
     }, []);
 
     return (

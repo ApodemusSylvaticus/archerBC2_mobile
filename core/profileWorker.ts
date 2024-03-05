@@ -200,7 +200,6 @@ export class ProfileWorker {
 
     getFileList = async (): Promise<string[]> => {
         const response = await axios.get(`${this.hrefBase}filelist`);
-        console.log('getFileList', response);
         return response.data;
     };
 

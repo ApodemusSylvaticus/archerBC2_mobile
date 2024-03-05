@@ -128,7 +128,6 @@ const Content: React.FC = React.memo(() => {
             return;
         }
         setShouldRetry(false);
-        console.log('here2');
 
         setIsLoading(true);
         setErrorMsg('');
