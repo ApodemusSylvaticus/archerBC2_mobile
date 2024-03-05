@@ -6,7 +6,7 @@ import {
     COLOR_SCHEME,
     ICoreProtobuf,
     IProtobufMessageTypes,
-    ZOOM,
+    ZOOM_DEV_STATUS,
 } from '@/interface/core/coreProtobuf';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -31,7 +31,7 @@ export class CoreProtobuf implements ICoreProtobuf {
     private commandMappings:
         | {
               (): {
-                  setZoom: (data: { zoomLevel: ZOOM }) => { setZoom: protobuf.Message<any> };
+                  setZoom: (data: { zoomLevel: ZOOM_DEV_STATUS }) => { setZoom: protobuf.Message<any> };
                   setPallette: (data: { schema: COLOR_SCHEME }) => { setPallette: protobuf.Message<any> };
                   setAirTemp: (data: { temperature: number }) => { setAirTC: protobuf.Message<any> };
                   setDst: (data: { distance: number }) => { setDst: protobuf.Message<any> };
@@ -581,12 +581,11 @@ message ClientProfile {
             defaults: true,
         });
 
-        if (hostPayloadObject?.profile?.profileFileName) {
-            console.log(hostPayloadObject?.profile);
+        if (hostPayloadObject?.profile) {
             if (!this.setActiveProfile) {
                 throw new Error('Forgot to add method');
             }
-            this.setActiveProfile(hostPayloadObject.profile.profileFileName);
+            this.setActiveProfile(hostPayloadObject.profile);
         }
         if (hostPayloadObject.devStatus) {
             if (!this.setDevStatus) {
@@ -628,7 +627,7 @@ message ClientProfile {
         }
     };
 
-    zoomDataToServer(value: string) {
+    zoomDataToServer(value: ZOOM_DEV_STATUS) {
         const commandData = {
             commandType: 'setZoom',
             zoomLevel: value,

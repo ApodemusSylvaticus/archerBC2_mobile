@@ -43,8 +43,6 @@ export const FixProfileCollision: React.FC<PropsWithChildren> = ({ children }) =
             return;
         }
         const list = profileListServerData.profileDesc.map(el => el.filePath);
-        console.log('fileList', fileList);
-        console.log('list', list);
 
         if (!areStringArraysEqual(list, fileList)) {
             setHasCollision(true);

@@ -163,14 +163,11 @@ export class ProfileWorker {
             throw new Error('ProfileListPayload func isn`t load');
         }
 
-        console.log('1');
         const response = await axios.get(`${this.hrefBase}files?filename=profiletabl`, {
             responseType: 'arraybuffer',
         });
 
         const message = this.profileListPayload.decode(new Uint8Array(response.data));
-
-        console.log(message);
         return this.profileListPayload.toObject(message) as IProfileListServerData;
     };
 
@@ -184,7 +181,13 @@ export class ProfileWorker {
 
             const buffer = this.profileListPayload.encode(message).finish();
 
-            const response = await axios.put(`${this.hrefBase}files?filename=profiletabl`, buffer);
+            const response = await fetch(`${this.hrefBase}files?filename=profiletabl`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/x-protobuf',
+                },
+                body: buffer,
+            });
 
             if (response.status !== 200) {
                 throw new Error('sendProfilesListData problem');
@@ -197,7 +200,7 @@ export class ProfileWorker {
 
     getFileList = async (): Promise<string[]> => {
         const response = await axios.get(`${this.hrefBase}filelist`);
-
+        console.log('getFileList', response);
         return response.data;
     };
 
@@ -343,7 +346,6 @@ export class ProfileWorker {
     }
 
     serveRefreshList() {
-        console.log('______________________________________');
         return fetch(`${this.hrefBase}filelist`, { method: 'POST' });
     }
 }

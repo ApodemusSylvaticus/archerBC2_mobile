@@ -10,7 +10,7 @@ export const useUpdateEnvParam = () => {
             if (coreProtobuf.getActualServerApi !== '') {
                 coreProtobuf.getHostDevStatus();
             }
-        }, 5000);
+        }, 5055000);
 
         return () => clearTimeout(intervalId);
     }, []);
@@ -33,7 +33,7 @@ export const useUpdateActiveProfile = () => {
                 const val = await profileWorker.getProfile(activeProfile);
                 setProfile(activeProfile, val);
             }
-        }, 5000);
+        }, 505000);
 
         return () => clearTimeout(intervalId);
     }, [activeProfile, profileWorker, setProfile, setProfileListServerData]);

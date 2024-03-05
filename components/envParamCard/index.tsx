@@ -5,7 +5,7 @@ import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withTi
 import Svg, { Path } from 'react-native-svg';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Button, Container, Row, VelocityTextWrapper, WrapRow } from '@/components/envParamCard/style';
+import { Button, Container, Row, VelocityTextWrapper } from '@/components/envParamCard/style';
 import { TemperatureSVG } from '@/components/svg/temperature';
 import { NumericInput } from '@/components/Inputs/numericInput';
 import { HumiditySVG } from '@/components/svg/humidity';
@@ -192,7 +192,7 @@ export const EnvironmentParam: React.FC = React.memo(() => {
         throw new Error('Missing devStatus');
     }
 
-    const { velocityParam, isLoading, errorMsg } = useGetVelocityParam();
+    const { velocityParam, isLoading } = useGetVelocityParam();
     const { airPress, airHum, airTemp, powderTemp } = devStatus;
     const { colors, rem } = useTheme();
     const { t } = useTranslation();
@@ -361,13 +361,7 @@ export const EnvironmentParam: React.FC = React.memo(() => {
                     </Row>
 
                     {isLoading && <Loader size={rem * 2.4} />}
-                    {!!errorMsg && (
-                        <WrapRow>
-                            <Text20>{t('error_failed_calc_mv')}</Text20>
 
-                            <Text20>{errorMsg}</Text20>
-                        </WrapRow>
-                    )}
                     {!!velocityParam && (
                         <Row>
                             <BulletSpeedSVG width={rem * 3.5} height={rem * 3.5} fillColor={colors.primary} />

@@ -15,7 +15,7 @@ import { NotificationEnum, useNotificationStore } from '@/store/useNotificationS
 import { useProfileStore } from '@/store/useProfileStore';
 import { IDraggableListItem } from '@/store/useModalControllerStore';
 import { DraggableDistanceListModalMemo } from '@/components/modals/draggebleDistanceList';
-import { useA } from '@/hooks/useGetVelocityParam';
+import { useTableData } from '@/hooks/useGetVelocityParam';
 import { DeleteButtonWithConfirm } from '@/components/button/deleteButtonWithConfirm';
 import { RetryWithErrorMsg } from '@/components/retry';
 import { IProfileListServerData } from '@/interface/core/profileProtobuf';
@@ -109,7 +109,6 @@ const Content: React.FC = React.memo(() => {
             return;
         }
 
-        console.log('here1');
         setIsLoading(true);
         setErrorMsg('');
         profileWorker
@@ -383,8 +382,6 @@ const Content: React.FC = React.memo(() => {
         });
     };
 
-    console.log(`Content isLoading, ${isLoading}`);
-
     if (isLoading) {
         return <Loader size={rem * 3.2} />;
     }
@@ -435,9 +432,8 @@ const Content: React.FC = React.memo(() => {
 export const CurrProfile: React.FC = () => {
     const { rem } = useTheme();
 
-    const { isLoading, errorMsg, retryHandler } = useA();
+    const { isLoading, errorMsg, retryHandler } = useTableData();
 
-    console.log(`CurrProfile isLoading, ${isLoading}, errorMsg ${errorMsg}`);
     const isTesting = useActiveProfileStore(state => state.isTesting);
 
     return (

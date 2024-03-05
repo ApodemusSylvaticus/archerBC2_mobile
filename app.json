@@ -36,7 +36,11 @@
     },
     "plugins": [
       "expo-router",
-      "expo-build-properties",
+      ["expo-build-properties", {
+        "android": {
+          "usesCleartextTraffic": true
+        }
+      }],
       [
         "expo-image-picker",
         {
