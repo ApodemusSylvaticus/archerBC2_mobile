@@ -5,7 +5,7 @@ import { DefaultModalWithBackBtn, DefaultModalWithBackBtnProps } from '@/compone
 import { DefaultInput } from '@/components/Inputs/defaultInput';
 import { DefaultRow } from '@/components/container/defaultBox';
 import { AcceptButton, DefaultButton } from '@/components/button/style';
-import { Text20 } from '@/components/text/styled';
+import { TextSemiBold20 } from '@/components/text/styled';
 import { ReticleTab } from '../../reticles/reticleTab';
 import { FullSizeImgViewModal } from '../fullSizeImgViewModal';
 import { FILE_NAMES, IReticle } from '@/interface/reticles';
@@ -174,13 +174,13 @@ export const CreateNewReticleFolderModal: React.FC<DefaultModalWithBackBtnProps>
 
             {state.list.length < 5 && (
                 <DefaultButton onPress={openModalNewFile}>
-                    <Text20>{t('reticles_create_new_reticle')}</Text20>
+                    <TextSemiBold20>{t('reticles_add_reticle')}</TextSemiBold20>
                 </DefaultButton>
             )}
 
             {!isDisabled && (
                 <AcceptButton onPress={sendImageToServer}>
-                    <Text20>{t('default_save')}</Text20>
+                    <TextSemiBold20>{t('default_save')}</TextSemiBold20>
                 </AcceptButton>
             )}
 

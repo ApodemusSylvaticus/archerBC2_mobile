@@ -29,9 +29,8 @@ export const CenterImgContainer = styled.View<CenterImgContainerProps>`
 export const SetRadiusContainer = styled.View`
     display: flex;
     gap: ${props => rem(props, 1.6)};
-    width: 75%;
-    height: 35%;
-    padding: ${props => rem(props, 1.6)};
+    width: 85%;
+    padding: ${props => rem(props, 3.2)} ${props => rem(props, 1)};
     border-radius: 16px;
     justify-content: center;
     background-color: ${props => props.theme.colors.cardBg};

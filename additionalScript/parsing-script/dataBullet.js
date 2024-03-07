@@ -5,16 +5,17 @@ const xlsFilePath = 'dataBullet.xlsx';
 
 const workbook = new ExcelJS.Workbook();
 
-workbook.xlsx.readFile(xlsFilePath)
+workbook.xlsx
+    .readFile(xlsFilePath)
     .then(() => {
         const worksheet = workbook.getWorksheet(1); // 1 - это номер листа (нумерация с 1)
 
         const jsonData = [];
-        let headers = []
+        let headers = [];
 
         worksheet.eachRow((row, rowIndex) => {
             if (rowIndex === 1) {
-                 headers = row.values;
+                headers = row.values;
                 return;
             }
 

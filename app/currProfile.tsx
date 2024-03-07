@@ -5,7 +5,7 @@ import { AppContainer } from '@/components/container/appContainer';
 import { DefaultColumnContainer } from '@/components/container/defaultBox';
 import { useActiveProfileStore } from '@/store/useActiveProfileStore';
 import { ProfileWorker } from '@/core/profileWorker';
-import { Text20 } from '@/components/text/styled';
+import { TextSemiBold20 } from '@/components/text/styled';
 import { Profile } from '@/components/profile';
 import { WithFileName } from '@/interface/helper';
 import { IBullet, ICartridge, IDescription, IRiffle, IZeroing, ServerProfile } from '@/interface/profile';
@@ -408,12 +408,12 @@ const Content: React.FC = React.memo(() => {
             />
 
             <DefaultButton onPress={exportProfileHandler}>
-                <Text20>{t('profile_export_this_to_all')}</Text20>
+                <TextSemiBold20>{t('profile_export_this_to_all')}</TextSemiBold20>
             </DefaultButton>
 
             {profileListServerData!.profileDesc[profileListServerData!.activeprofile].filePath !== activeProfile && (
                 <DefaultButton onPress={chooseThisProfile}>
-                    <Text20>{t('profile_set_this_profile_as_active_on_device')}</Text20>
+                    <TextSemiBold20>{t('profile_set_this_profile_as_active_on_device')}</TextSemiBold20>
                 </DefaultButton>
             )}
 

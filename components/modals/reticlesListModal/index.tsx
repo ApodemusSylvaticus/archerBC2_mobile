@@ -9,7 +9,7 @@ import { FILE_NAMES, IReticle } from '@/interface/reticles';
 import { convertFromFileNameToString } from '@/helpers/reticles';
 import { NotificationEnum, useNotificationStore } from '@/store/useNotificationStore';
 import { DefaultButton, DeleteButton } from '@/components/button/style';
-import { Text20 } from '@/components/text/styled';
+import { TextSemiBold20 } from '@/components/text/styled';
 import { CreateNewReticleFileModal } from '@/components/modals/fullSizeImgViewModal/createNewReticleFile';
 import { AreYouSureModal } from '@/components/modals/specificModal/alertModal/areYouSure';
 import { ReticlesCore } from '@/core/reticlesCore';
@@ -172,12 +172,12 @@ export const ReticlesListModal: React.FC = () => {
 
             {reticles.folders[reticlesFolderName].length < 5 && (
                 <DefaultButton onPress={() => setIsCreateNewFileOpen(true)}>
-                    <Text20>{t('reticles_add_reticle')}</Text20>
+                    <TextSemiBold20>{t('reticles_add_reticle')}</TextSemiBold20>
                 </DefaultButton>
             )}
 
             <DeleteButton onPress={() => setAreUSureDeleteFolder(true)}>
-                <Text20>{t('reticles_delete_folder')}</Text20>
+                <TextSemiBold20>{t('reticles_delete_folder')}</TextSemiBold20>
             </DeleteButton>
 
             <AreYouSureModal

@@ -1,13 +1,13 @@
 import styled from 'styled-components/native';
-import { DefaultButton } from '@/components/button/style';
-import { ButtonTextBold18 } from '@/components/text/styled';
+import { AcceptButton, DefaultButton } from '@/components/button/style';
+import { TextSemiBold20 } from '@/components/text/styled';
 import { rem } from '@/helpers/rem';
 
 export const Container = styled.View`
-    padding: 10px;
+    padding: ${props => rem(props, 0.8)};
     border-radius: 16px;
     display: flex;
-    gap: 8px;
+    gap: ${props => rem(props, 0.8)};
 
     background: ${props => props.theme.colors.cardBg};
 `;
@@ -24,18 +24,18 @@ interface ExampleButtonProps {
 }
 export const ExampleButton = styled(DefaultButton)<ExampleButtonProps>`
     padding: ${props => props.rem * 0.8}px ${props => props.rem * 2.4}px;
-    margin: ${props => rem(props, 2)} auto 0;
+    margin: ${props => rem(props, 1.6)} auto 0;
 `;
 
-export const ExampleButtonText = styled(ButtonTextBold18)<ExampleButtonProps>`
-    font-size: ${props => props.rem * 1.8}px;
+export const ExampleButtonText = styled(TextSemiBold20)<ExampleButtonProps>`
+    font-size: ${props => props.rem * 2}px;
 `;
 
-export const ApplyButton = styled(DefaultButton)`
-    margin-top: ${props => rem(props, 2)};
+export const ApplyButton = styled(AcceptButton)`
+    margin-top: ${props => rem(props, 1.6)};
     margin-left: auto;
 `;
 
-export const ApplyButtonText = styled(ButtonTextBold18)`
+export const ApplyButtonText = styled(TextSemiBold20)`
     color: ${props => props.theme.colors.primary};
 `;

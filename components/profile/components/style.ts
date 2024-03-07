@@ -1,18 +1,18 @@
 import styled from 'styled-components/native';
-import { ButtonTextBold18, Text20 } from '@/components/text/styled';
-import { DefaultButton } from '@/components/button/style';
+import { TextSemiBold20, Text20 } from '@/components/text/styled';
+import { AcceptButton } from '@/components/button/style';
 import { SeparateRow } from '@/components/container/defaultBox';
 import { rem } from '@/helpers/rem';
 
-export const ButtonText = styled(ButtonTextBold18)`
+export const ButtonText = styled(TextSemiBold20)`
     color: ${props => props.theme.colors.primary};
 `;
 
-export const SubmitButton = styled(DefaultButton)`
+export const SubmitButton = styled(AcceptButton)`
     margin-left: auto;
 `;
 
-export const SubmitButtonText = styled(ButtonTextBold18)`
+export const SubmitButtonText = styled(TextSemiBold20)`
     color: ${props => props.theme.colors.primary};
 `;
 

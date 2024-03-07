@@ -5,7 +5,7 @@ import { AcceptButton, DefaultButton } from '@/components/button/style';
 import { Text20 } from '@/components/text/styled';
 
 export const Container = styled.Pressable`
-    width: clamp(200px, 85%, 600px);
+    width: 85%;
 `;
 
 export const CardContainer = styled(DefaultCard)`

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { FlatList, Modal } from 'react-native';
 import debounce from 'lodash.debounce';
 import { useTheme } from 'styled-components/native';
-import { Text20 } from '@/components/text/styled';
+import { TextSemiBold20, Text20 } from '@/components/text/styled';
 import { DefaultButton } from '@/components/button/style';
 import {
     BackButton,
@@ -30,7 +30,7 @@ const Item: React.FC<{ title: string; handler: () => void }> = ({ title, handler
         <ItemContainer>
             <RiffleName>{title}</RiffleName>
             <DefaultButton onPress={handler}>
-                <Text20>{t('default_select')}</Text20>
+                <TextSemiBold20>{t('default_select')}</TextSemiBold20>
             </DefaultButton>
         </ItemContainer>
     );

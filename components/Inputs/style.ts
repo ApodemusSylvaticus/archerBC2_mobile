@@ -1,6 +1,6 @@
 import styled from 'styled-components/native';
 import { rem } from '@/helpers/rem';
-import { TextBold16 } from '@/components/text/styled';
+import { TextBold16, TextSemiBold16 } from '@/components/text/styled';
 import { IsActive } from '@/interface/components/defaultStyleProps';
 
 export const Container = styled.View`
@@ -41,8 +41,8 @@ export const InputLabel = styled.Text<IInputLabelProps>`
         props.isDisabled
             ? props.theme.colors.l1ActiveEl
             : props.isActive
-            ? props.theme.colors.primary
-            : props.theme.colors.l1ActiveEl};
+              ? props.theme.colors.primary
+              : props.theme.colors.l1ActiveEl};
     background: ${props => (props.isActive ? props.background : 'transparent')};
     padding: 0 ${props => rem(props, 0.4)};
 `;
@@ -53,7 +53,7 @@ export const Input = styled.TextInput<IsDisabled>`
     color: ${props => (props.isDisabled ? props.theme.colors.l1ActiveEl : props.theme.colors.primary)};
     flex-grow: 1;
 `;
-export const InputError = styled.Text`
+export const InputError = styled(TextSemiBold16)`
     color: ${props => props.theme.colors.error};
 `;
 
