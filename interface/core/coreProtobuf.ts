@@ -1,13 +1,12 @@
 import protobuf from 'protobufjs';
 import { Nullable } from '@/interface/helper';
 
-export enum ZOOM {
-    X1 = 'X1',
-    X2 = 'X2',
-    X3 = 'X3',
-    X4 = 'X4',
-    X5 = 'X5',
-    X6 = 'X6',
+export enum ZOOM_DEV_STATUS {
+    X1 = 'ZOOM_X1',
+    X2 = 'ZOOM_X2',
+    X3 = 'ZOOM_X3',
+    X4 = 'ZOOM_X4',
+    X6 = 'ZOOM_X6',
 }
 
 export enum CMD_TRIGGER {
@@ -76,12 +75,12 @@ export type ICommandType =
     | 'setAirTemp';
 export interface ICommandData {
     commandType: ICommandType;
-    [key: string]: number | BUTTON_PRESS_STATE | ZOOM | CMD_TRIGGER | COLOR_SCHEME | string;
+    [key: string]: number | BUTTON_PRESS_STATE | ZOOM_DEV_STATUS | CMD_TRIGGER | COLOR_SCHEME | string;
 }
 
 export interface ICoreProtobuf {
     protobufMessageTypes: IProtobufMessageTypes;
-    zoomDataToServer: (value: ZOOM) => void;
+    zoomDataToServer: (value: ZOOM_DEV_STATUS) => void;
     cmdTriggerToServer: (value: CMD_TRIGGER) => void;
     sendZeroingToServer: (stateX: number, stateY: number) => void;
     sendWindToServer: (windDirection: number, windSpeed: number) => void;

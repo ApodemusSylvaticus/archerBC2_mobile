@@ -26,8 +26,6 @@ export const NotificationContainer = Animated.createAnimatedComponent(styled.Vie
                 return props.theme.colors.error;
             case NotificationEnum.SUCCESS:
                 return props.theme.colors.success;
-            case NotificationEnum.WARNING:
-                return props.theme.colors.warn;
             default:
                 return props.theme.colors.success;
         }

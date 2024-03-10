@@ -1,6 +1,6 @@
 import styled from 'styled-components/native';
 import { rem } from '@/helpers/rem';
-import { ButtonTextBold18 } from '@/components/text/styled';
+import { TextSemiBold20 } from '@/components/text/styled';
 import { DefaultButton } from '@/components/button/style';
 
 export const ButtonContainer = styled.View`
@@ -26,6 +26,6 @@ export const AddNewCoeffButton = styled(DefaultButton)`
     align-self: center;
     margin-top: ${props => rem(props, 0.8)};
 `;
-export const ErrorText = styled(ButtonTextBold18)`
+export const ErrorText = styled(TextSemiBold20)`
     color: ${props => props.theme.colors.error};
 `;

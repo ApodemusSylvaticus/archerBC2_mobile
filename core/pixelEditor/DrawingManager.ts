@@ -21,10 +21,6 @@ export class DrawingManager {
 
     private gridManager: GridManager;
 
-    private isTempRectShouldDraw: boolean = false;
-
-    private isTempLineShouldDraw: boolean = false;
-
     set setActiveTool(tool: TOOLS) {
         this.activeTool = tool;
     }
@@ -112,7 +108,7 @@ export class DrawingManager {
     }
 
     endDrawingRectangle(e: GestureStateChangeEvent<PanGestureHandlerEventPayload>): SkImage {
-        this.isTempRectShouldDraw = false;
+        this.gestureManager.finishDrawTempRect();
         const { x, y } = this.gestureManager.baseTapAction(e);
         const data: IPixel[] = [];
         const { realX, realY } = this.gestureManager.getStartPositionDrawingRect;
@@ -137,7 +133,7 @@ export class DrawingManager {
     }
 
     endDrawingLine(e: GestureStateChangeEvent<PanGestureHandlerEventPayload>): SkImage {
-        this.isTempLineShouldDraw = false;
+        this.gestureManager.finishDrawTempLine();
         const { x, y } = this.gestureManager.baseTapAction(e);
         const data: IPixel[] = [];
         const { realX, realY } = this.gestureManager.getStartPositionDrawingLine;
@@ -179,13 +175,5 @@ export class DrawingManager {
             default:
                 assertNever(this.activeTool);
         }
-    }
-
-    finishTempRectDraw() {
-        this.isTempRectShouldDraw = false;
-    }
-
-    finishTempLineDraw() {
-        this.isTempLineShouldDraw = false;
     }
 }

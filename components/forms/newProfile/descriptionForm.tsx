@@ -11,7 +11,7 @@ import { IForm } from '@/interface/form';
 import { useValidationSchema } from '@/hooks/useValidationSchema';
 import { DefaultRow } from '@/components/container/defaultBox';
 
-export const DescriptionForm: React.FC<IForm> = ({ goForward }) => {
+export const DescriptionForm: React.FC<IForm> = ({ goForward, goBack }) => {
     const { rem, colors } = useTheme();
     const { setDescription, description } = useNewProfileStore(state => ({
         description: state.description,
@@ -71,7 +71,7 @@ export const DescriptionForm: React.FC<IForm> = ({ goForward }) => {
                             width={rem * 5.5}
                             height={rem * 5.5}
                             fillColor={colors.primary}
-                            onPress={() => undefined}
+                            onPress={() => goBack()}
                         />
                         <ArrowSVG
                             orientation="right"

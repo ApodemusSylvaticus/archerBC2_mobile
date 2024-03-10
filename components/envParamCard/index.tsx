@@ -5,7 +5,7 @@ import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withTi
 import Svg, { Path } from 'react-native-svg';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Button, Container, Row, VelocityTextWrapper, WrapRow } from '@/components/envParamCard/style';
+import { Button, Container, Row, VelocityTextWrapper } from '@/components/envParamCard/style';
 import { TemperatureSVG } from '@/components/svg/temperature';
 import { NumericInput } from '@/components/Inputs/numericInput';
 import { HumiditySVG } from '@/components/svg/humidity';
@@ -36,7 +36,7 @@ export const WindParamColumn: React.FC = React.memo(() => {
     }
 
     const [initialValue, setInitialValue] = useState({
-        windSpeed: devStatus.pitch.toString(),
+        windSpeed: devStatus.windSpeed.toString(),
         windDir: devStatus.windDir.toString(),
     });
 
@@ -80,10 +80,10 @@ export const WindParamColumn: React.FC = React.memo(() => {
     useEffect(() => {
         if (
             devStatus.windDir.toString() !== initialValue.windDir ||
-            devStatus.pitch.toString() !== initialValue.windSpeed
+            devStatus.windSpeed.toString() !== initialValue.windSpeed
         ) {
             setInitialValue({
-                windSpeed: devStatus.pitch.toString(),
+                windSpeed: devStatus.windSpeed.toString(),
                 windDir: devStatus.windDir.toString(),
             });
         }
@@ -109,7 +109,7 @@ export const WindParamColumn: React.FC = React.memo(() => {
                 }
                 const windDir = degreesFromNumber(+value.windDir);
                 coreProtobuf.sendWindToServer(windDir, +value.windSpeed);
-                setWindParam({ windDir, pitch: +value.windSpeed });
+                setWindParam({ windDir, windSpeed: +value.windSpeed });
             }}>
             {({ isValid, handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                 <Container>
@@ -192,7 +192,7 @@ export const EnvironmentParam: React.FC = React.memo(() => {
         throw new Error('Missing devStatus');
     }
 
-    const { velocityParam, isLoading, errorMsg } = useGetVelocityParam();
+    const { velocityParam, isLoading } = useGetVelocityParam();
     const { airPress, airHum, airTemp, powderTemp } = devStatus;
     const { colors, rem } = useTheme();
     const { t } = useTranslation();
@@ -361,13 +361,7 @@ export const EnvironmentParam: React.FC = React.memo(() => {
                     </Row>
 
                     {isLoading && <Loader size={rem * 2.4} />}
-                    {!!errorMsg && (
-                        <WrapRow>
-                            <Text20>{t('error_failed_calc_mv')}</Text20>
 
-                            <Text20>{errorMsg}</Text20>
-                        </WrapRow>
-                    )}
                     {!!velocityParam && (
                         <Row>
                             <BulletSpeedSVG width={rem * 3.5} height={rem * 3.5} fillColor={colors.primary} />

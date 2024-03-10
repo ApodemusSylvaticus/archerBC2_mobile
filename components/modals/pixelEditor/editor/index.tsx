@@ -228,7 +228,6 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
         .onEnd(e => {
             if (activeTool === TOOLS.RECTANGLE) {
                 setTemporaryRectangle(null);
-                core.drawingManager.finishTempRectDraw();
 
                 if (e.numberOfPointers > 1) {
                     return;
@@ -240,7 +239,6 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
             }
             if (activeTool === TOOLS.LINE) {
                 setTemporaryLine(null);
-                core.drawingManager.finishTempLineDraw();
                 if (e.numberOfPointers > 1) {
                     return;
                 }
@@ -251,6 +249,7 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
         });
 
     const panG = Gesture.Pan()
+        .enabled(activeTool === TOOLS.LINE || activeTool === TOOLS.RECTANGLE)
         .minPointers(2)
         .averageTouches(true)
         .runOnJS(true)
@@ -260,6 +259,9 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
             }
         })
         .onChange(event => {
+            if (activeTool !== TOOLS.LINE && activeTool !== TOOLS.RECTANGLE) {
+                return;
+            }
             const value = core.gestureManager.panAction(event);
             if (value === null) {
                 return;
@@ -286,7 +288,7 @@ export const Editor: React.FC<EditorProps> = ({ img, setNewImg }) => {
         setNewImg(realImg.encodeToBase64(ImageFormat.PNG, 1));
     }, [realImg, setNewImg]);
 
-    const gesture = Gesture.Race(pinchGestureEvent, panOneG, panG, tap);
+    const gesture = Gesture.Race(Gesture.Simultaneous(pinchGestureEvent, panOneG), tap, panG);
 
     const transformParams = useDerivedValue(
         () => [{ translateX: translateX.value }, { translateY: translateY.value }, { scale: viewScale.value }],

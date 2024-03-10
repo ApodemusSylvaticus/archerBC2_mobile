@@ -43,6 +43,7 @@ export const useSendSelected = () => {
             const readyToSend = convertToServerProfile(filteredProfiles);
             const res = await profileWorker.sendNewProfiles(readyToSend);
 
+            console.log(res);
             const filter = res.filter(r => !r.ok).map(r => r.url.split('?filename=')[1]);
 
             if (filter.length) {
@@ -58,7 +59,6 @@ export const useSendSelected = () => {
 
             try {
                 await handleRefreshList();
-
                 const fileList = await profileWorker.getFileList();
                 const profileList = await profileWorker.getProfilesList();
 

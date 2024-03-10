@@ -7,7 +7,7 @@ import { ballisticFunctionList } from '@/constant/profile';
 import { NumericInput } from '@/components/Inputs/numericInput';
 import { SelectInput } from '@/components/Inputs/select/select';
 import { AddNewCoeffButton, ErrorText, MultiCoefficientWrapper } from '@/components/forms/style';
-import { ButtonTextBold18 } from '@/components/text/styled';
+import { TextSemiBold20 } from '@/components/text/styled';
 import { SubmitButton, SubmitButtonText } from '@/components/profile/components/style';
 import { useValidationSchema } from '@/hooks/useValidationSchema';
 import { DefaultRow } from '@/components/container/defaultBox';
@@ -207,7 +207,7 @@ export const BulletForm: React.FC<BulletProfileFormProps> = ({ bullet, onSubmit,
                     {handleError && <ErrorText>{handleError}</ErrorText>}
                     {coefficients.length < 5 && (
                         <AddNewCoeffButton onPress={addOneMoreCoeff}>
-                            <ButtonTextBold18>{t('profile_add_new_coefficient')}</ButtonTextBold18>
+                            <TextSemiBold20>{t('profile_add_new_coefficient')}</TextSemiBold20>
                         </AddNewCoeffButton>
                     )}
 

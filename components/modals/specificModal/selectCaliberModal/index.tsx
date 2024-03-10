@@ -10,7 +10,7 @@ import {
     RiffleName,
 } from '@/components/modals/specificModal/selectBulletModal/style';
 import { DefaultButton } from '@/components/button/style';
-import { Text20 } from '@/components/text/styled';
+import { TextSemiBold20 } from '@/components/text/styled';
 import { useNewProfileStore } from '@/store/useNewProfileStore';
 import { DefaultRow } from '@/components/container/defaultBox';
 import { DefaultInput } from '@/components/Inputs/defaultInput';
@@ -28,7 +28,7 @@ const Item: React.FC<{ title: string; handler: () => void }> = ({ title, handler
         <ItemContainer>
             <RiffleName>{title}</RiffleName>
             <DefaultButton onPress={handler}>
-                <Text20>{t('default_select')}</Text20>
+                <TextSemiBold20>{t('default_select')}</TextSemiBold20>
             </DefaultButton>
         </ItemContainer>
     );
@@ -70,7 +70,7 @@ export const SelectCaliberModal: React.FC<SelectCaliberModalProps> = ({ closeHan
         <Modal visible={isOpen} animationType="slide">
             <Container>
                 <BackButton onPress={closeHandler}>
-                    <Text20>{t('default_go_back')}</Text20>
+                    <TextSemiBold20>{t('default_go_back')}</TextSemiBold20>
                 </BackButton>
                 <DefaultRow>
                     <DefaultInput

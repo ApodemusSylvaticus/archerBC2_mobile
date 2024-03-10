@@ -6,7 +6,7 @@ import {
     COLOR_SCHEME,
     ICoreProtobuf,
     IProtobufMessageTypes,
-    ZOOM,
+    ZOOM_DEV_STATUS,
 } from '@/interface/core/coreProtobuf';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -31,7 +31,7 @@ export class CoreProtobuf implements ICoreProtobuf {
     private commandMappings:
         | {
               (): {
-                  setZoom: (data: { zoomLevel: ZOOM }) => { setZoom: protobuf.Message<any> };
+                  setZoom: (data: { zoomLevel: ZOOM_DEV_STATUS }) => { setZoom: protobuf.Message<any> };
                   setPallette: (data: { schema: COLOR_SCHEME }) => { setPallette: protobuf.Message<any> };
                   setAirTemp: (data: { temperature: number }) => { setAirTC: protobuf.Message<any> };
                   setDst: (data: { distance: number }) => { setDst: protobuf.Message<any> };
@@ -161,6 +161,7 @@ message HostPayload {
 }
 
 message ClientPayload {
+    ClientProfile profile = 1;
     ClientDevStatus devStatus = 2;
     Command command = 3;
     CommandResponse response = 4;
@@ -216,6 +217,7 @@ enum ErrorStatusCode {
     FAILURE = 1;
 \tINVALID_DATA = 2;
 }
+
 
 message SetZoomLevel {
     Zoom zoomLevel = 1;
@@ -280,6 +282,8 @@ message HostDevStatus {
 \tint32 cant = 10; //-90..90 °
 \tint32 distance = 11; //deciMeter
 \tint32 currentProfile = 12; //profile index
+\tColorScheme colorScheme = 13;
+\tAGCMode modAGC = 14;
 }
 
 message ClientDevStatus {
@@ -296,6 +300,7 @@ enum AGCMode {
 \tUNKNOWN_AGC_MODE = 0;
 \tAUTO_1 = 1;
 \tAUTO_2 = 2;
+\tAUTO_3 = 3;
 }
 
 enum Zoom {
@@ -326,11 +331,12 @@ enum CMDDirect {
 \tCALIBRATE_ACCEL_GYRO = 1;
 \tLRF_MEASUREMENT = 2;
 \tRESET_CM_CLICKS = 3;
+\tTRIGGER_FFC = 4;
 }
 
 message CoefRow {
-\tint32 bc_cd = 1;
-\tint32 mv = 2;
+\tint32 first = 1;
+\tint32 second = 2;
 }
 
 enum DType {
@@ -358,7 +364,66 @@ enum TwistDir {
 }
 
 message HostProfile {
-\tstring profile_file_name = 1;
+\tstring profile_name = 1;
+\tstring cartridge_name = 2;
+\tstring bullet_name = 3;
+\tstring short_name_top = 4;
+\tstring short_name_bot = 5;
+\tstring user_note = 6;
+\tint32 zero_x = 7;
+\tint32 zero_y = 8;
+\tint32 sc_height = 9;
+\tint32 r_twist = 10;
+\tint32 c_muzzle_velocity = 11;
+\tint32 c_zero_temperature = 12;
+\tint32 c_t_coeff = 13;
+\tint32 c_zero_distance_idx = 14;
+\tint32 c_zero_air_temperature = 15;
+\tint32 c_zero_air_pressure = 16;
+\tint32 c_zero_air_humidity = 17;
+\tint32 c_zero_w_pitch = 18;
+\tint32 c_zero_p_temperature = 19;
+\tint32 b_diameter = 20;
+\tint32 b_weight = 21;
+\tint32 b_length = 22;
+\tTwistDir twist_dir = 23;
+\tGType bc_type = 24;
+\trepeated SwPos switches = 25;
+\trepeated int32 distances = 26;
+\trepeated CoefRow coef_rows = 27;
+\tstring caliber = 28;
+\tstring device_uuid = 29;
+}
+
+message ClientProfile {
+\treserved 1, 2, 3;
+\treserved "profile_name", "cartridge_name", "bullet_name";
+\tstring short_name_top = 4;
+\tstring short_name_bot = 5;
+\tstring user_note = 6;
+\tint32 zero_x = 7;
+\tint32 zero_y = 8;
+\tint32 sc_height = 9;
+\tint32 r_twist = 10;
+\tint32 c_muzzle_velocity = 11;
+\tint32 c_zero_temperature = 12;
+\tint32 c_t_coeff = 13;
+\tint32 c_zero_distance_idx = 14;
+\tint32 c_zero_air_temperature = 15;
+\tint32 c_zero_air_pressure = 16;
+\tint32 c_zero_air_humidity = 17;
+\tint32 c_zero_w_pitch = 18;
+\tint32 c_zero_p_temperature = 19;
+\tint32 b_diameter = 20;
+\tint32 b_weight = 21;
+\tint32 b_length = 22;
+\tTwistDir twist_dir = 23;
+\tGType bc_type = 24;
+\trepeated SwPos switches = 25;
+\trepeated int32 distances = 26;
+\trepeated CoefRow coef_rows = 27;
+\tstring caliber = 28;
+\tstring device_uuid = 29;
 }`).root;
 
         // eslint-disable-next-line guard-for-in,no-restricted-syntax
@@ -516,11 +581,11 @@ message HostProfile {
             defaults: true,
         });
 
-        if (hostPayloadObject?.profile?.profileFileName) {
+        if (hostPayloadObject?.profile) {
             if (!this.setActiveProfile) {
                 throw new Error('Forgot to add method');
             }
-            this.setActiveProfile(hostPayloadObject.profile.profileFileName);
+            this.setActiveProfile(hostPayloadObject.profile);
         }
         if (hostPayloadObject.devStatus) {
             if (!this.setDevStatus) {
@@ -562,7 +627,7 @@ message HostProfile {
         }
     };
 
-    zoomDataToServer(value: ZOOM) {
+    zoomDataToServer(value: ZOOM_DEV_STATUS) {
         const commandData = {
             commandType: 'setZoom',
             zoomLevel: value,

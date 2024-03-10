@@ -5,7 +5,7 @@ import { AppContainer } from '@/components/container/appContainer';
 import { DefaultColumnContainer } from '@/components/container/defaultBox';
 import { useActiveProfileStore } from '@/store/useActiveProfileStore';
 import { ProfileWorker } from '@/core/profileWorker';
-import { Text20 } from '@/components/text/styled';
+import { TextSemiBold20 } from '@/components/text/styled';
 import { Profile } from '@/components/profile';
 import { WithFileName } from '@/interface/helper';
 import { IBullet, ICartridge, IDescription, IRiffle, IZeroing, ServerProfile } from '@/interface/profile';
@@ -15,7 +15,7 @@ import { NotificationEnum, useNotificationStore } from '@/store/useNotificationS
 import { useProfileStore } from '@/store/useProfileStore';
 import { IDraggableListItem } from '@/store/useModalControllerStore';
 import { DraggableDistanceListModalMemo } from '@/components/modals/draggebleDistanceList';
-import { useA } from '@/hooks/useGetVelocityParam';
+import { useTableData } from '@/hooks/useGetVelocityParam';
 import { DeleteButtonWithConfirm } from '@/components/button/deleteButtonWithConfirm';
 import { RetryWithErrorMsg } from '@/components/retry';
 import { IProfileListServerData } from '@/interface/core/profileProtobuf';
@@ -23,7 +23,7 @@ import { FixProfileCollision } from '@/components/fixProfileCollision';
 import { useCheckWiFiStatus } from '@/hooks/useCheckWiFiStatus';
 import { useUpdateActiveProfile } from '@/hooks/useUpdate';
 
-const Content: React.FC = () => {
+const Content: React.FC = React.memo(() => {
     useUpdateActiveProfile();
     const sendNotification = useNotificationStore(state => state.sendNotification);
     const importProfile = useProfileStore(state => state.importProfile);
@@ -47,6 +47,7 @@ const Content: React.FC = () => {
         updateProfile: state.updateProfile,
         chooseProfileListActiveProfile: state.chooseProfileListActiveProfile,
     }));
+
     const checkWifi = useCheckWiFiStatus();
 
     const { t } = useTranslation();
@@ -56,30 +57,6 @@ const Content: React.FC = () => {
     const { rem } = useTheme();
 
     const val = activeProfilesMap[activeProfile];
-
-    const chooseThisProfile = () => {
-        if (!checkWifi()) {
-            return;
-        }
-        profileWorker
-            .sendProfilesListData({
-                profileDesc: profileListServerData!.profileDesc,
-                activeprofile: profileListServerData!.profileDesc.findIndex(el => el.filePath === activeProfile),
-            })
-            .then(() => {
-                chooseProfileListActiveProfile(activeProfile);
-                sendNotification({
-                    msg: t('profile_device_active_profile_changed'),
-                    type: NotificationEnum.SUCCESS,
-                });
-            })
-            .catch(() =>
-                sendNotification({
-                    msg: t('error_failed_to_update_profile_list'),
-                    type: NotificationEnum.ERROR,
-                }),
-            );
-    };
 
     const retryHandler = () => {
         setShouldRetry(true);
@@ -96,6 +73,31 @@ const Content: React.FC = () => {
                 sendNotification({ msg: t('error_failed_ref_list'), type: NotificationEnum.ERROR });
             });
     }, [profileWorker, sendNotification, t]);
+
+    const chooseThisProfile = () => {
+        if (!checkWifi()) {
+            return;
+        }
+        profileWorker
+            .sendProfilesListData({
+                profileDesc: profileListServerData!.profileDesc,
+                activeprofile: profileListServerData!.profileDesc.findIndex(el => el.filePath === activeProfile),
+            })
+            .then(async () => {
+                chooseProfileListActiveProfile(activeProfile);
+                sendNotification({
+                    msg: t('profile_device_active_profile_changed'),
+                    type: NotificationEnum.SUCCESS,
+                });
+                await handleRefreshList();
+            })
+            .catch(() =>
+                sendNotification({
+                    msg: t('error_failed_to_update_profile_list'),
+                    type: NotificationEnum.ERROR,
+                }),
+            );
+    };
 
     useEffect(() => {
         if (activeProfile === '' || activeProfilesMap[activeProfile] !== null) {
@@ -127,6 +129,7 @@ const Content: React.FC = () => {
             return;
         }
         setShouldRetry(false);
+
         setIsLoading(true);
         setErrorMsg('');
         profileWorker
@@ -136,7 +139,7 @@ const Content: React.FC = () => {
             .finally(() => setIsLoading(false));
     }, [activeProfilesMap, activeProfile, profileWorker, setProfile, shouldRetry, t]);
 
-    const handleChange = (
+    const handleChange = async (
         data:
             | WithFileName<IZeroing>
             | WithFileName<IBullet>
@@ -215,7 +218,8 @@ const Content: React.FC = () => {
             coefRows: (data.bcType ?? bcType) === 'G1' ? data.coefG1 ?? coefG1 : data.coefG7 ?? coefG7,
         };
 
-        profileWorker.saveChanges(activeProfile, newProfile).then(res => {
+        try {
+            const res = await profileWorker.saveChanges(activeProfile, newProfile);
             if (res.ok) {
                 sendNotification({ type: NotificationEnum.SUCCESS, msg: t('default_profile_updated') });
                 updateProfile(activeProfile, newProfile);
@@ -226,33 +230,30 @@ const Content: React.FC = () => {
                     'shortNameBot' in data ||
                     'shortNameTop' in data
                 ) {
-                    profileWorker
-                        .sendProfilesListData({
-                            profileDesc: profileListServerData!.profileDesc.map(el =>
-                                el.filePath === data.fileName
-                                    ? {
-                                          profileName: newProfile.profileName,
-                                          filePath: newProfile.fileName,
-                                          shortNameTop: newProfile.shortNameTop,
-                                          cartridgeName: newProfile.cartridgeName,
-                                          shortNameBot: newProfile.shortNameBot,
-                                      }
-                                    : el,
-                            ),
-                            activeprofile: profileListServerData!.activeprofile,
-                        })
-                        .then(() => handleRefreshList())
-                        .catch(() =>
-                            sendNotification({
-                                msg: t('error_failed_to_update_profile_list'),
-                                type: NotificationEnum.ERROR,
-                            }),
-                        );
+                    const updatedProfileListData = profileListServerData!.profileDesc.map(el =>
+                        el.filePath === data.fileName
+                            ? {
+                                  profileName: newProfile.profileName,
+                                  filePath: newProfile.fileName,
+                                  shortNameTop: newProfile.shortNameTop,
+                                  cartridgeName: newProfile.cartridgeName,
+                                  shortNameBot: newProfile.shortNameBot,
+                              }
+                            : el,
+                    );
+                    await profileWorker.sendProfilesListData({
+                        profileDesc: updatedProfileListData,
+                        activeprofile: profileListServerData!.activeprofile,
+                    });
                 }
+
+                await handleRefreshList();
             } else {
                 sendNotification({ type: NotificationEnum.ERROR, msg: t('error_failed_to_update_profile_data') });
             }
-        });
+        } catch (error) {
+            sendNotification({ msg: t('error_failed_to_update_profile_list'), type: NotificationEnum.ERROR });
+        }
     };
 
     const exportProfileHandler = () => {
@@ -408,12 +409,12 @@ const Content: React.FC = () => {
             />
 
             <DefaultButton onPress={exportProfileHandler}>
-                <Text20>{t('profile_export_this_to_all')}</Text20>
+                <TextSemiBold20>{t('profile_export_this_to_all')}</TextSemiBold20>
             </DefaultButton>
 
             {profileListServerData!.profileDesc[profileListServerData!.activeprofile].filePath !== activeProfile && (
                 <DefaultButton onPress={chooseThisProfile}>
-                    <Text20>{t('profile_set_this_profile_as_active_on_device')}</Text20>
+                    <TextSemiBold20>{t('profile_set_this_profile_as_active_on_device')}</TextSemiBold20>
                 </DefaultButton>
             )}
 
@@ -426,12 +427,13 @@ const Content: React.FC = () => {
             <DraggableDistanceListModalMemo />
         </DefaultColumnContainer>
     );
-};
+});
 
 export const CurrProfile: React.FC = () => {
     const { rem } = useTheme();
 
-    const { isLoading, errorMsg, retryHandler } = useA();
+    const { isLoading, errorMsg, retryHandler } = useTableData();
+
     const isTesting = useActiveProfileStore(state => state.isTesting);
 
     return (

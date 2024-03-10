@@ -5,8 +5,9 @@ import { useActiveProfileStore } from '@/store/useActiveProfileStore';
 import { useSettingStore } from '@/store/useSettingStore';
 import { ProfileWorker } from '@/core/profileWorker';
 import { useCheckWiFiStatus } from '@/hooks/useCheckWiFiStatus';
+import { CoreProtobuf } from '@/core/coreProtobuf';
 
-export const useA = () => {
+export const useTableData = () => {
     const serverApi = useSettingStore(state => state.serverHost);
     const { setAllFileListData, hardResetAllFileList } = useActiveProfileStore(state => ({
         setAllFileListData: state.setAllFileListData,
@@ -32,6 +33,7 @@ export const useA = () => {
 
         try {
             const fileList = await profileWorker.getFileList();
+
             const profileList = await profileWorker.getProfilesList();
             if (hardReset) {
                 hardResetAllFileList(fileList, profileList);
@@ -61,47 +63,31 @@ export const useA = () => {
 };
 
 export const useGetVelocityParam = () => {
-    const { isLoading, errorMsg } = useA();
-    const profileWorker = useMemo(() => new ProfileWorker(), []);
+    const coreProtobuf = useMemo(() => new CoreProtobuf(), []);
     const [isProfileLoading, setIsProfileLoading] = useState(false);
-    const [profileErrorMsg, setProfileErrorMsg] = useState('');
-    const { t } = useTranslation();
-    const setProfile = useActiveProfileStore(state => state.setProfile);
 
     const activeProfile = useDevStatusStore(state => state.activeProfile);
 
-    const { fileList, activeProfilesMap } = useActiveProfileStore(state => ({
-        fileList: state.fileList,
-        activeProfilesMap: state.activeProfilesMap,
-    }));
-
     useEffect(() => {
         if (activeProfile === null) {
+            setIsProfileLoading(true);
+            coreProtobuf.getHostProfile();
             return;
         }
 
-        if (activeProfilesMap[activeProfile] !== null) {
-            return;
-        }
-        setIsProfileLoading(true);
+        setIsProfileLoading(false);
+    }, [activeProfile, coreProtobuf]);
 
-        profileWorker
-            .getProfile(activeProfile)
-            .then(value => setProfile(activeProfile, value))
-            .catch(() => setProfileErrorMsg(t('error_failed_to_get_profile_data')))
-            .finally(() => setIsProfileLoading(false));
-    }, [activeProfilesMap, activeProfile, profileWorker, fileList, setProfile]);
+    console.log(activeProfile);
 
-    const profile = activeProfile && activeProfilesMap[activeProfile] ? activeProfilesMap[activeProfile] : null;
     return {
-        velocityParam: profile
+        velocityParam: activeProfile
             ? {
-                  cTCoeff: profile.cTCoeff,
-                  cZeroTemperature: profile.cZeroPTemperature,
-                  cMuzzleVelocity: profile.cMuzzleVelocity,
+                  cTCoeff: activeProfile.cTCoeff,
+                  cZeroTemperature: activeProfile.cZeroPTemperature,
+                  cMuzzleVelocity: activeProfile.cMuzzleVelocity,
               }
             : null,
-        isLoading: isLoading || isProfileLoading,
-        errorMsg: errorMsg || profileErrorMsg,
+        isLoading: isProfileLoading,
     };
 };

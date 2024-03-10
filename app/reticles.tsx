@@ -8,7 +8,7 @@ import { useModalControllerStore } from '@/store/useModalControllerStore';
 import { useReticlesStore } from '@/store/useReticlesStore';
 import { CreateNewReticleFolderModal } from '@/components/modals/createNewReticleFolder';
 import { DefaultButton } from '@/components/button/style';
-import { Text20 } from '@/components/text/styled';
+import { TextSemiBold20 } from '@/components/text/styled';
 import { useSettingStore } from '@/store/useSettingStore';
 import { RetryWithErrorMsg } from '@/components/retry';
 import { Container } from '@/components/reticles/style';
@@ -109,7 +109,7 @@ export const Reticles: React.FC = () => {
 
                 {reticles.folderList.length < 5 && (
                     <DefaultButton onPress={() => setIsNewFolderOpen(true)}>
-                        <Text20>{t('reticles_create_new_folder')}</Text20>
+                        <TextSemiBold20>{t('reticles_create_new_folder')}</TextSemiBold20>
                     </DefaultButton>
                 )}
 

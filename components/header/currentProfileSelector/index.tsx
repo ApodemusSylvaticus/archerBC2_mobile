@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text20 } from '@/components/text/styled';
+import { TextSemiBold20 } from '@/components/text/styled';
 import { useModalControllerStore } from '@/store/useModalControllerStore';
 import { Button } from '@/components/header/currentProfileSelector/style';
 import { useActiveProfileStore } from '@/store/useActiveProfileStore';
@@ -20,7 +20,7 @@ export const CurrentProfileSelector: React.FC = () => {
 
     return (
         <Button onPress={openChooseActiveProfileModal}>
-            <Text20>{t('profile_choose_another_profile')}</Text20>
+            <TextSemiBold20>{t('profile_choose_another_profile')}</TextSemiBold20>
         </Button>
     );
 };

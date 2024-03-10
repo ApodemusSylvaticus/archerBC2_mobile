@@ -1,4 +1,5 @@
 import protobuf from 'protobufjs';
+import axios from 'axios';
 import { ServerProfile } from '@/interface/profile';
 import { Decimals } from '@/constant/decimals';
 import { IProfileListServerData } from '@/interface/core/profileProtobuf';
@@ -151,7 +152,7 @@ export class ProfileWorker {
                 '  string short_name_top = 3;\n' +
                 '  string short_name_bot = 4;\n' +
                 '  string file_path = 5;\n' +
-                '}',
+                '}\n',
         ).root;
 
         this.profileListPayload = profileListProtobufRoot.lookupType('proftabl.ProfileList');
@@ -161,11 +162,12 @@ export class ProfileWorker {
         if (this.profileListPayload === undefined) {
             throw new Error('ProfileListPayload func isn`t load');
         }
-        const response = await fetch(`${this.hrefBase}files?filename=profiletabl`);
-        const buffer = await response.arrayBuffer();
 
-        const message = this.profileListPayload.decode(new Uint8Array(buffer));
+        const response = await axios.get(`${this.hrefBase}files?filename=profiletabl`, {
+            responseType: 'arraybuffer',
+        });
 
+        const message = this.profileListPayload.decode(new Uint8Array(response.data));
         return this.profileListPayload.toObject(message) as IProfileListServerData;
     };
 
@@ -174,22 +176,31 @@ export class ProfileWorker {
             throw new Error('Payload function === undefined');
         }
 
-        const message = this.profileListPayload.create(data);
+        try {
+            const message = this.profileListPayload.create(data);
 
-        const buffer = this.profileListPayload.encode(message).finish();
-        const response = await fetch(`${this.hrefBase}files?filename=profiletabl`, {
-            method: 'PUT',
-            body: buffer,
-        });
+            const buffer = this.profileListPayload.encode(message).finish();
 
-        if (response.status !== 200) {
+            const response = await fetch(`${this.hrefBase}files?filename=profiletabl`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/x-protobuf',
+                },
+                body: buffer,
+            });
+
+            if (response.status !== 200) {
+                throw new Error('sendProfilesListData problem');
+            }
+        } catch (e) {
+            console.log('sendProfilesListData', e);
             throw new Error('sendProfilesListData problem');
         }
     }
 
     getFileList = async (): Promise<string[]> => {
-        const response = await fetch(`${this.hrefBase}filelist`);
-        return response.json();
+        const response = await axios.get(`${this.hrefBase}filelist`);
+        return response.data;
     };
 
     getProfile = async (fileName: string): Promise<ServerProfile> => {
@@ -310,10 +321,17 @@ export class ProfileWorker {
         if (this.payload === undefined) {
             throw new Error('Payload func === undefined');
         }
+        console.log(arr);
 
         const promises = arr.map(val => {
             const copy: Omit<ServerProfile, 'fileName'> & { fileName?: string } = { ...val };
             delete copy.fileName;
+
+            console.log('sended msg', {
+                profile: {
+                    ...copy,
+                },
+            });
             const message = this.payload!.create({
                 profile: {
                     ...copy,

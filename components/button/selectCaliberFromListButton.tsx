@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DefaultButton } from '@/components/button/style';
-import { Text20 } from '@/components/text/styled';
+import { TextSemiBold20 } from '@/components/text/styled';
 import { SelectCaliberModal } from '@/components/modals/specificModal/selectCaliberModal';
 
 export const SelectCaliberFromListButton: React.FC = () => {
@@ -13,7 +13,7 @@ export const SelectCaliberFromListButton: React.FC = () => {
     return (
         <>
             <DefaultButton onPress={openHandler}>
-                <Text20>{t('profile_riffle_list')}</Text20>
+                <TextSemiBold20>{t('profile_riffle_list')}</TextSemiBold20>
             </DefaultButton>
             <SelectCaliberModal isOpen={isOpen} closeHandler={closeHandler} />
         </>

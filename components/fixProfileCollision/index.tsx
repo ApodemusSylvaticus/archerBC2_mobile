@@ -76,7 +76,7 @@ export const FixProfileCollision: React.FC<PropsWithChildren> = ({ children }) =
         }
 
         handler();
-    }, [hasCollision, fileList, profileListServerData]);
+    }, [hasCollision, fileList, profileListServerData, handler]);
 
     return isLoading ? (
         <View>

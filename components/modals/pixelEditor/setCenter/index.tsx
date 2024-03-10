@@ -10,7 +10,7 @@ import { DefaultModal, DefaultModalWithBackBtnProps, ModalHeader } from '@/compo
 import { GoBackButton, GoBackButtonText } from '@/components/modals/style';
 import { PixelEditorCore } from '@/core/pixelEditor';
 import { TextSemiBold20, TextSemiBold24 } from '@/components/text/styled';
-import { DefaultButton } from '@/components/button/style';
+import { AcceptButton, DefaultButton } from '@/components/button/style';
 
 interface ISetCenterModal extends DefaultModalWithBackBtnProps {
     img: SkImage;
@@ -103,7 +103,7 @@ export const SetCenterModal: React.FC<ISetCenterModal> = React.memo(
                     viewScale.value = withTiming(1);
                 }
             });
-        const gesture = Gesture.Race(pinchGestureEvent, panOneG, tap);
+        const gesture = Gesture.Race(Gesture.Simultaneous(pinchGestureEvent, panOneG), tap);
 
         const transformParams = useDerivedValue(
             () => [{ translateX: translateX.value }, { translateY: translateY.value }, { scale: viewScale.value }],
@@ -179,13 +179,13 @@ export const SetCenterModal: React.FC<ISetCenterModal> = React.memo(
                                 }}>
                                 <TextSemiBold20>Undo</TextSemiBold20>
                             </DefaultButton>
-                            <DefaultButton
+                            <AcceptButton
                                 style={{ flex: 1 }}
                                 onPress={() => {
                                     acceptAction(tempImg);
                                 }}>
                                 <TextSemiBold20>Accept</TextSemiBold20>
-                            </DefaultButton>
+                            </AcceptButton>
                         </ButtonsContainer>
                     )}
                 </Container>

@@ -1,14 +1,13 @@
 const http = require('http');
 
-// URL вашей Google таблицы
-const spreadsheetUrl = 'http://spreadsheets.google.com/feeds/cells/1vM9-diOOU6Cclqn4lUMRLh-XAle5_vg0xh0Lhty9VnM/1/public/full?alt=json';
+const spreadsheetUrl =
+    'http://spreadsheets.google.com/feeds/cells/1vM9-diOOU6Cclqn4lUMRLh-XAle5_vg0xh0Lhty9VnM/1/public/full?alt=json';
 
-// Функция для получения данных и формирования объекта
 function fetchDataAndCreateObject() {
-    const req = http.get(spreadsheetUrl, (res) => {
+    const req = http.get(spreadsheetUrl, res => {
         let data = '';
 
-        res.on('data', (chunk) => {
+        res.on('data', chunk => {
             data += chunk;
         });
 
@@ -40,11 +39,10 @@ function fetchDataAndCreateObject() {
                 languageObj[languageKey] = value;
                 obj[language] = languageObj;
             }
-
         });
     });
 
-    req.on('error', (error) => {
+    req.on('error', error => {
         console.error('Error:', error);
     });
 

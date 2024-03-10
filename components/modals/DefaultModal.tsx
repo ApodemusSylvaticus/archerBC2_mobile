@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from 'react';
-import { Modal, ScrollView } from 'react-native';
+import { Modal, ScrollView, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
@@ -12,6 +12,8 @@ import {
 
 export interface DefaultModalProps {
     isVisible: boolean;
+    // eslint-disable-next-line react/no-unused-prop-types
+    scrollable?: boolean;
 }
 
 export const ModalHeader: React.FC<PropsWithChildren> = ({ children }) => {
@@ -35,6 +37,7 @@ export const DefaultModalWithBackBtn: React.FC<PropsWithChildren<DefaultModalWit
     isVisible,
     backButtonHandler,
     children,
+    scrollable = true,
 }) => {
     const { t } = useTranslation();
 
@@ -47,9 +50,15 @@ export const DefaultModalWithBackBtn: React.FC<PropsWithChildren<DefaultModalWit
                     </GoBackButton>
                 </ModalHeader>
 
-                <ScrollView>
-                    <ContentContainer>{children}</ContentContainer>
-                </ScrollView>
+                {scrollable ? (
+                    <ScrollView>
+                        <ContentContainer>{children}</ContentContainer>
+                    </ScrollView>
+                ) : (
+                    <View>
+                        <ContentContainer>{children}</ContentContainer>
+                    </View>
+                )}
             </Container>
         </Modal>
     );

@@ -2,7 +2,6 @@ import { create } from 'zustand';
 
 export enum NotificationEnum {
     ERROR,
-    WARNING,
     SUCCESS,
 }
 interface INotification {

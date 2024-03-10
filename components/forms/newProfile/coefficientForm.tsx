@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTheme } from 'styled-components/native';
 import { number } from 'yup';
 import { useTranslation } from 'react-i18next';
@@ -32,8 +32,15 @@ export const MultiCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) => 
     const { rem, colors } = useTheme();
 
     const [coefficients, setCoefficients] = useState(
-        BallisticFunctionType.G1 ? ballisticProfile.G1.multi : ballisticProfile.G7.multi,
+        ballisticFunction === BallisticFunctionType.G1 ? ballisticProfile.G1.multi : ballisticProfile.G7.multi,
     );
+
+    useEffect(() => {
+        setCoefficients(
+            ballisticFunction === BallisticFunctionType.G1 ? ballisticProfile.G1.multi : ballisticProfile.G7.multi,
+        );
+    }, [ballisticProfile.G1.multi, ballisticProfile.G7.multi, ballisticFunction]);
+
     const [handleError, setHandleError] = useState('');
 
     const addOneMoreCoeff = () => setCoefficients(prevState => [...prevState, { mv: '', bcCd: '' }]);
@@ -160,8 +167,14 @@ export const SingleCoefficientForm: React.FC<IForm> = ({ goBack, goForward }) =>
     const [handleError, setHandleError] = useState('');
     const { rem, colors } = useTheme();
     const [coefficient, setCoefficient] = useState(
-        BallisticFunctionType.G1 ? ballisticProfile.G1.single : ballisticProfile.G7.single,
+        ballisticFunction === BallisticFunctionType.G1 ? ballisticProfile.G1.single : ballisticProfile.G7.single,
     );
+
+    useEffect(() => {
+        setCoefficient(
+            ballisticFunction === BallisticFunctionType.G1 ? ballisticProfile.G1.single : ballisticProfile.G7.single,
+        );
+    }, [ballisticProfile.G1.single, ballisticProfile.G7.single, ballisticFunction]);
     const handleSubmit = async () => {
         try {
             await number().required().min(0).max(10).validate(coefficient);

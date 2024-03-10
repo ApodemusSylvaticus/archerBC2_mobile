@@ -4,7 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTheme } from 'styled-components/native';
 import { useTranslation } from 'react-i18next';
 import { Container, DistanceContainer } from '@/components/draggebleDistanceList/style';
-import { Text20 } from '@/components/text/styled';
+import { TextSemiBold20, Text20 } from '@/components/text/styled';
 import { IDraggableListItem, useModalControllerStore } from '@/store/useModalControllerStore';
 import { InputWrapper } from '@/components/modals/draggebleDistanceList/style';
 import { NumericInput } from '@/components/Inputs/numericInput';
@@ -98,7 +98,7 @@ export const DraggableDistanceList: React.FC = () => {
                 />
 
                 <DefaultButton onPress={addNewDistant}>
-                    <Text20>{t('default_add')}</Text20>
+                    <TextSemiBold20>{t('default_add')}</TextSemiBold20>
                 </DefaultButton>
             </InputWrapper>
 

@@ -1,8 +1,8 @@
 import { ActiveProfileMap } from '@/store/useActiveProfileStore';
 import { IProfileListServerData } from '@/interface/core/profileProtobuf';
-import { DevStatus } from '@/store/useDevStatusStore';
-import { ZOOM } from '@/interface/core/coreProtobuf';
+import { DevStatus, ProfileDevStatus } from '@/store/useDevStatusStore';
 import { ReticlesFolders } from '@/store/useReticlesStore';
+import { ZOOM_DEV_STATUS } from '@/interface/core/coreProtobuf';
 
 interface TestActiveProfile {
     activeProfilesMap: ActiveProfileMap;
@@ -196,7 +196,7 @@ export const testActiveProfile: TestActiveProfile = {
 interface TestShotConditional {
     isTesting: boolean;
     devStatus: DevStatus;
-    activeProfile: string;
+    activeProfile: ProfileDevStatus;
 }
 export const testShotConditional: TestShotConditional = {
     isTesting: true,
@@ -209,11 +209,56 @@ export const testShotConditional: TestShotConditional = {
         currProfile: 1,
         airTemp: 2,
         airHum: 3,
-        zoom: ZOOM.X1,
-        pitch: 0,
+        zoom: ZOOM_DEV_STATUS.X1,
+        windSpeed: 0,
         cant: 0,
     },
-    activeProfile: 'first.a7p',
+    activeProfile: {
+        deviceUuid: 'asdxzc',
+        switches: [
+            {
+                cIdx: 1,
+                distance: 50,
+                distanceFrom: 'muzzle',
+                reticleIdx: 2,
+                zoom: 3,
+            },
+            {
+                cIdx: 2,
+                distance: 100,
+                distanceFrom: 'muzzle',
+                reticleIdx: 4,
+                zoom: 5,
+            },
+        ],
+        caliber: '3082 Win',
+        scHeight: 2.8,
+        rTwist: 1.1,
+        twistDir: 'LEFT',
+        cMuzzleVelocity: 2800,
+        cZeroTemperature: 22,
+        cTCoeff: 0.18,
+        profileName: 'TestPr',
+        cartridgeName: 'Federal 308 Win',
+        bulletName: 'Nosler AccuBond',
+        shortNameTop: 'asdaszx',
+        shortNameBot: 'F3asd08',
+        userNote: 'Optimized for precise shots at moderate distances.',
+        bDiameter: 0.308,
+        bWeight: 165,
+        bLength: 1.4,
+        bcType: 2,
+        zeroX: 0,
+        zeroY: 0,
+        cZeroDistanceIdx: 2,
+        cZeroAirTemperature: 18,
+        cZeroAirPressure: 1015,
+        cZeroAirHumidity: 45,
+        cZeroWPitch: 0,
+        cZeroPTemperature: 22,
+        distances: [50, 100, 150, 200, 250],
+        coefRows: [{ bcCd: 0.4, mv: 3200 }],
+    },
 };
 
 interface TestReticles {

@@ -1,11 +1,6 @@
 export type GType = 'G1' | 'G7' | 'Custom';
 export type TwistDirection = 'RIGHT' | 'LEFT';
 
-export interface Reticle {
-    reticleIdx: number;
-    zoom: number;
-}
-
 export interface SwitchPosition {
     cIdx: number;
     distance: number;

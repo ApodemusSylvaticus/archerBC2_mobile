@@ -27,3 +27,7 @@ export const DisabledText = styled(TextSemiBold18)`
 export const Button = styled(DefaultButton)`
     margin-left: auto;
 `;
+
+export const Crunch = styled.View`
+    height: 50px;
+`;

@@ -7,6 +7,7 @@ import {
     ActiveOnDeviceLabel,
     Button,
     Container,
+    Crunch,
     DisabledText,
 } from '@/components/modals/chooseActiveProfileModal/style';
 import { TextSemiBold18, TextSemiBold20 } from '@/components/text/styled';
@@ -102,6 +103,15 @@ export const ChooseActiveProfileModal: React.FC = () => {
             try {
                 await profileWorker.sendProfilesListData({ profileDesc: data, activeprofile });
                 setProfileListServerData({ profileDesc: data, activeprofile });
+                await profileWorker
+                    .serveRefreshList()
+                    .then(() => {
+                        sendNotification({ msg: t('default_list_refreshed'), type: NotificationEnum.SUCCESS });
+                    })
+                    .catch(e => {
+                        console.log(e);
+                        sendNotification({ msg: t('error_failed_ref_list'), type: NotificationEnum.ERROR });
+                    });
             } catch (e) {
                 sendNotification({ msg: t('error_failed_to_update_profile_list'), type: NotificationEnum.ERROR });
 
@@ -113,6 +123,7 @@ export const ChooseActiveProfileModal: React.FC = () => {
 
     return (
         <DefaultModalWithBackBtn
+            scrollable={false}
             backButtonHandler={closeChooseActiveProfileModal}
             isVisible={isChooseActiveProfileOpen}>
             {localState !== null && (
@@ -132,6 +143,7 @@ export const ChooseActiveProfileModal: React.FC = () => {
                     />
                 </GestureHandlerRootView>
             )}
+            <Crunch />
         </DefaultModalWithBackBtn>
     );
 };
