@@ -321,10 +321,17 @@ export class ProfileWorker {
         if (this.payload === undefined) {
             throw new Error('Payload func === undefined');
         }
+        console.log(arr);
 
         const promises = arr.map(val => {
             const copy: Omit<ServerProfile, 'fileName'> & { fileName?: string } = { ...val };
             delete copy.fileName;
+
+            console.log('sended msg', {
+                profile: {
+                    ...copy,
+                },
+            });
             const message = this.payload!.create({
                 profile: {
                     ...copy,

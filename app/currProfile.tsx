@@ -58,30 +58,6 @@ const Content: React.FC = React.memo(() => {
 
     const val = activeProfilesMap[activeProfile];
 
-    const chooseThisProfile = () => {
-        if (!checkWifi()) {
-            return;
-        }
-        profileWorker
-            .sendProfilesListData({
-                profileDesc: profileListServerData!.profileDesc,
-                activeprofile: profileListServerData!.profileDesc.findIndex(el => el.filePath === activeProfile),
-            })
-            .then(() => {
-                chooseProfileListActiveProfile(activeProfile);
-                sendNotification({
-                    msg: t('profile_device_active_profile_changed'),
-                    type: NotificationEnum.SUCCESS,
-                });
-            })
-            .catch(() =>
-                sendNotification({
-                    msg: t('error_failed_to_update_profile_list'),
-                    type: NotificationEnum.ERROR,
-                }),
-            );
-    };
-
     const retryHandler = () => {
         setShouldRetry(true);
     };
@@ -97,6 +73,31 @@ const Content: React.FC = React.memo(() => {
                 sendNotification({ msg: t('error_failed_ref_list'), type: NotificationEnum.ERROR });
             });
     }, [profileWorker, sendNotification, t]);
+
+    const chooseThisProfile = () => {
+        if (!checkWifi()) {
+            return;
+        }
+        profileWorker
+            .sendProfilesListData({
+                profileDesc: profileListServerData!.profileDesc,
+                activeprofile: profileListServerData!.profileDesc.findIndex(el => el.filePath === activeProfile),
+            })
+            .then(async () => {
+                chooseProfileListActiveProfile(activeProfile);
+                sendNotification({
+                    msg: t('profile_device_active_profile_changed'),
+                    type: NotificationEnum.SUCCESS,
+                });
+                await handleRefreshList();
+            })
+            .catch(() =>
+                sendNotification({
+                    msg: t('error_failed_to_update_profile_list'),
+                    type: NotificationEnum.ERROR,
+                }),
+            );
+    };
 
     useEffect(() => {
         if (activeProfile === '' || activeProfilesMap[activeProfile] !== null) {
